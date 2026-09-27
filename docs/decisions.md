@@ -70,9 +70,9 @@ Stare: DESCHIS. Termen: valorile care influențează setup-ul înainte de 02; re
 
 De stabilit: volume zilnice și vârfuri, număr stores/tenant, țări, RON-only versus multimonedă, produse fracționare, SLO-uri, backup/restore, retenție pentru date/payload/audit și limite fișiere. Propuneri: RON pentru operațiunile V1, cantități întregi și păstrarea monedei originale la import, fără conversie implicită. Billing abonament SaaS este separat de facturarea comenzilor.
 
-## D08 — Conturi, furnizori și distribuție
-
 Notă D07 pentru modulul 02: mediul este local, pe loopback, fără dimensionare de producție sau promisiuni de performanță. Porturi implicite 8080/33060. Reproductibilitatea se verifică într-un checkout CI independent; accesul la al doilea PC personal nu este presupus.
+
+## D08 — Conturi, furnizori și distribuție
 
 Stare: DESCHIS. Termen: înainte de integrarea fiecărui provider și înainte de lansare.
 

@@ -84,7 +84,7 @@ Testele de integrare verifică sufixul DB_TEST_NAME și folosesc un tabel tempor
 
 Prefix local: `php var/tools/composer.phar`; dacă există în PATH, `composer`. `php bin/http-smoke.php` cere serverul deja pornit și acceptă URL alternativ ca prim argument.
 
-CI verifică PHP pe Windows și construiește/rulează Compose cu MySQL/HTTP pe Linux, în checkout-uri independente. Rezultate: [raportul 02](testing/02-foundation.md). PC-ul personal secundar al utilizatorului nu a fost accesat.
+CI verifică PHP și helper-ul MySQL nativ (inclusiv restart) pe Windows și construiește/rulează Compose cu MySQL/HTTP pe Linux, în checkout-uri independente. Rezultate: [raportul 02](testing/02-foundation.md). PC-ul personal secundar al utilizatorului nu a fost accesat.
 
 ## Surse
 

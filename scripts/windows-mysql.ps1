@@ -56,7 +56,7 @@ foreach ($taskSecretName in @('DB_PASSWORD', 'MYSQL_ROOT_PASSWORD')) {
 }
 
 if (Test-Path -LiteralPath $taskClientConfig) {
-    & $taskAdmin "--defaults-extra-file=$taskClientConfig" ping 2>$null | Out-Null
+    & $taskAdmin "--defaults-extra-file=$taskClientConfig" status 2>$null | Out-Null
     if ($LASTEXITCODE -eq 0) { Write-Output 'Project MySQL is already running on 127.0.0.1:33060.'; exit 0 }
 }
 $taskPortProbe = [Net.Sockets.TcpClient]::new()
@@ -79,6 +79,9 @@ $taskRootPassword = $taskEnv['MYSQL_ROOT_PASSWORD']
 $taskAppPassword = $taskEnv['DB_PASSWORD']
 $taskSql = @"
 ALTER USER 'root'@'localhost' IDENTIFIED BY '$taskRootPassword';
+CREATE USER IF NOT EXISTS 'root'@'127.0.0.1' IDENTIFIED BY '$taskRootPassword';
+ALTER USER 'root'@'127.0.0.1' IDENTIFIED BY '$taskRootPassword';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'127.0.0.1' WITH GRANT OPTION;
 CREATE DATABASE IF NOT EXISTS ordely CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 CREATE DATABASE IF NOT EXISTS ordely_test CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 CREATE USER IF NOT EXISTS 'ordely'@'127.0.0.1' IDENTIFIED BY '$taskAppPassword';
@@ -115,7 +118,7 @@ password=$taskRootPassword
 Start-Process -FilePath $taskServer -ArgumentList "--defaults-file=`"$taskServerConfig`"" -WindowStyle Hidden | Out-Null
 for ($taskAttempt = 0; $taskAttempt -lt 30; $taskAttempt++) {
     Start-Sleep -Seconds 1
-    & $taskAdmin "--defaults-extra-file=$taskClientConfig" ping 2>$null | Out-Null
+    & $taskAdmin "--defaults-extra-file=$taskClientConfig" status 2>$null | Out-Null
     if ($LASTEXITCODE -eq 0) {
         Write-Output "MySQL $taskVersion ready on 127.0.0.1:33060. Local credentials remain in ignored files."
         exit 0

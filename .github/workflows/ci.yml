@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   windows:
-    name: Windows PHP checks
+    name: Windows PHP + native MySQL
     runs-on: windows-2025
     timeout-minutes: 15
     steps:
@@ -26,11 +26,21 @@ jobs:
           tools: composer:2.10.3
           coverage: none
       - run: composer install --no-interaction --prefer-dist
-      - run: composer validate --strict
+      - name: Start the documented native MySQL helper
+        run: ./scripts/windows-mysql.ps1 -Action Start
       - run: composer check-platform-reqs
-      - run: composer lint
-      - run: composer analyse
-      - run: composer test
+      - run: composer check
+      - name: Verify graceful restart
+        run: |
+          ./scripts/windows-mysql.ps1 -Action Stop
+          ./scripts/windows-mysql.ps1 -Action Start
+          composer db:check
+      - name: Stop the native MySQL instance
+        if: always()
+        run: |
+          if (Test-Path var/mysql/client.ini) {
+            ./scripts/windows-mysql.ps1 -Action Stop
+          }
 
   compose:
     name: Linux PHP + MySQL + HTTP
