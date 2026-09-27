@@ -82,6 +82,10 @@ Sunt necesare contul developer/dev store Shopify, scopes/PCD, credențiale de te
 
 Ales 2026-09-27: token aleator de 256 biți, hash SHA-256 în DB, TTL 8 ore, membership verificat la fiecare cerere, cookie HttpOnly/SameSite=Lax/Secure pe HTTPS și CSRF pentru scrieri. Parole bcrypt prin PASSWORD_DEFAULT pe PHP fixat, cu limită explicită 12–72 bytes. Rate limit atomic 20/cont și 100/IP în 15 minute. Provisionare CLI de încredere; onboarding/resetare prin email în 20. Migrații SQL simple cu checksum și marker `applying`, fiindcă DDL MySQL nu se poate proteja prin rollback tranzacțional obișnuit. Surse: [PHP password_hash](https://www.php.net/manual/en/function.password-hash.php), [MySQL implicit commits](https://dev.mysql.com/doc/refman/8.4/en/implicit-commit.html), [Symfony HttpFoundation](https://symfony.com/doc/7.4/components/http_foundation.html).
 
+## D10 — Money și contracte (04)
+
+Ales 2026-09-27: integer 64-bit cu limită ±9e15 unități minore, exponent monedă explicit, reprezentare JSON string, rotunjire half-away-from-zero și alocare prin resturi maxime cu ordine stabilă. Porturi mici compuse de CommerceConnector, plus CarrierProvider/InvoiceProvider; DTO-uri imutabile fără SDK. ProviderFailure separă Transient (efect cert neprodus) de Unknown (reconciliere). Fakes sunt exclusiv simulatoare în memorie; nu validează API-uri reale sau politici fiscale. D01–D05 rămân deschise.
+
 ## O01 — Continuitate Git
 
 Stare: CONFIGURAT ȘI PUBLICAT.

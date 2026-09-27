@@ -5,7 +5,7 @@ Actualizat: 2026-09-27. Registrul stărilor: plan.md.
 - **Ultimul modul închis:** [03 — Identity & Tenancy](docs/modules/03-identity-tenancy.md), DONE.
 - Cod: `13dd77c`; [CI Windows și Linux/MySQL/HTTP PASS](https://github.com/razvanstav/ordely/actions/runs/36346745864).
 - Disponibil: runtime reproductibil, migrații, merchants/users/memberships, roluri și granturi, sesiuni revocabile, CSRF/rate limit, API și UI magazine, provisionare CLI.
-- **Următorul:** 04 — Value objects, contracte și fake adapters. Definește fișa înainte de cod. Utilizatorul a autorizat 04, apoi 05 și 06, secvențial, cu teste/documente/push între ele. Oprește înainte de 07.
+- **Activ:** [04 — Value objects, contracte și fake adapters](docs/modules/04-core-contracts.md), REVIEW. Implementat/testat local: 108 lint, PHPStan level 8, 65 unit/505 assertions, 17 integration/90 assertions. Urmează push și CI, apoi 05 și 06 secvențial. Oprește înainte de 07.
 
 ## Reluare pe alt PC
 
