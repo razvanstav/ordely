@@ -53,7 +53,7 @@ Nu sincroniza `.git`, `vendor`, fișiere `.env` sau baze de date prin foldere cl
 
 ## Conversații separate
 
-Titlu sugerat: `Ordely — Modul 08 — Import comenzi`, eventual cu numărul pasului. Se creează o conversație nouă când începe alt modul ori când sesiunea curentă devine prea lungă. Starea nu depinde de păstrarea conversației precedente.
+Titlu sugerat: `Ordely — Modul 08 — Import comenzi`, eventual cu numărul pasului. Utilizatorul poate deschide o conversație nouă la schimbarea modulului; agentul nu creează automat conversații. Dacă utilizatorul autorizează un lot secvențial, fiecare modul se testează, documentează și publică înaintea următorului. Starea nu depinde de păstrarea conversației precedente.
 
 Prompt reutilizabil:
 
@@ -61,4 +61,4 @@ Prompt reutilizabil:
 
 ## Ce înseamnă DONE
 
-Criteriile și testele obligatorii sunt îndeplinite, documentele reflectă rezultatul și nu există blocaje nerezolvate. Pentru modulul 01 este necesară aprobarea arhitecturii, cerută explicit de brief. Modulul următor se abordează în conversația dedicată, în ordinea planului și în limita lucrului autorizat.
+Criteriile și testele obligatorii sunt îndeplinite, documentele reflectă rezultatul și nu există blocaje nerezolvate. Pentru modulul 01 este necesară aprobarea arhitecturii, cerută explicit de brief. Modulul următor se abordează în ordinea planului și în limita lucrului autorizat, cu fișă și predare proprii.

@@ -1,18 +1,18 @@
 # Modul 03 — Identity & Tenancy
 
-Actualizat: 2026-09-27. Stare: **REVIEW**. Dependență: 02 DONE.
+Actualizat: 2026-09-27. Stare: **DONE**. Dependență: 02 DONE.
 
 Utilizatorul a autorizat implementarea secvențială până la 06 inclusiv. Fiecare modul se testează, documentează și publică înaintea următorului.
 
 ## Criterii stabilite înainte de cod
 
-- [ ] Migrații versionate MySQL, verificarea checksum și detectarea unei migrări incomplete.
-- [ ] Merchants, users, memberships, roluri owner/admin/operator/finance/viewer și granturi pe stores; FK compuse resping relații între tenants.
-- [ ] Login cu parolă hash, sesiuni server-side revocabile, cookie HttpOnly/SameSite și Secure pe HTTPS; rate limit și CSRF la scrieri.
-- [ ] Contextul tenant provine din sesiune; API și repository resping accesul străin, inclusiv ID valid al altui tenant. Membership/merchant/user dezactivat invalidează accesul.
-- [ ] Listare/creare/editare stores și schimbare merchant autorizată; interfață HTML/JS minimală pentru verificarea fluxului.
-- [ ] Provisionare locală prin CLI, fără parolă în argumente sau loguri. Onboarding public și resetarea prin email rămân în 20.
-- [ ] Teste reale MySQL, teste HTTP și analiza statică; documente și push verificate.
+- [x] Migrații versionate MySQL, verificarea checksum și detectarea unei migrări incomplete.
+- [x] Merchants, users, memberships, roluri owner/admin/operator/finance/viewer și granturi pe stores; FK compuse resping relații între tenants.
+- [x] Login cu parolă hash, sesiuni server-side revocabile, cookie HttpOnly/SameSite și Secure pe HTTPS; rate limit și CSRF la scrieri.
+- [x] Contextul tenant provine din sesiune; API și repository resping accesul străin, inclusiv ID valid al altui tenant. Membership/merchant/user dezactivat invalidează accesul.
+- [x] Listare/creare/editare stores și schimbare merchant autorizată; interfață HTML/JS minimală pentru verificarea fluxului.
+- [x] Provisionare locală prin CLI, fără parolă în argumente sau loguri. Onboarding public și resetarea prin email rămân în 20.
+- [x] Teste reale MySQL, teste HTTP și analiza statică; documente și push verificate.
 
 ## Pași
 
@@ -22,8 +22,8 @@ Utilizatorul a autorizat implementarea secvențială până la 06 inclusiv. Fiec
 
 ## Rezultate
 
-Implementarea și testele locale sunt complete; [raport](../testing/03-identity.md), [operare/API](../identity.md). CI/push rămân înainte de închidere. Helper-ul de ID și tranzacții este o dependență necesară identității. Corecția bootstrap-ului pentru prioritatea environment-ului a fost necesară fluxului HTTP real.
+Implementarea și testele locale sunt complete; [raport](../testing/03-identity.md), [operare/API](../identity.md). Cod publicat în `13dd77c`; CI Windows/Linux PASS: https://github.com/razvanstav/ordely/actions/runs/36346745864. Helper-ul de ID și tranzacții este o dependență necesară identității. Corecția bootstrap-ului pentru prioritatea environment-ului a fost necesară fluxului HTTP real.
 
 ## Predare
 
-Continuă doar modulul 03; după închidere începe 04 conform autorizării utilizatorului. Branch: `codex/modul-01-arhitectura`.
+Modulul 03 este închis. Urmează 04 conform autorizării utilizatorului; criteriile se definesc înainte de cod. Branch: `codex/modul-01-arhitectura`.
