@@ -2,10 +2,10 @@
 
 Actualizat: 2026-09-27. Registrul stărilor: plan.md.
 
-- **Ultimul modul închis:** [03 — Identity & Tenancy](docs/modules/03-identity-tenancy.md), DONE.
-- Cod: `13dd77c`; [CI Windows și Linux/MySQL/HTTP PASS](https://github.com/razvanstav/ordely/actions/runs/36346745864).
+- **Ultimul modul închis:** [04 — Core și contracte](docs/modules/04-core-contracts.md), DONE.
+- Cod: `5e0b747`; [CI Windows și Linux/MySQL/HTTP PASS](https://github.com/razvanstav/ordely/actions/runs/36348452800).
 - Disponibil: runtime reproductibil, migrații, merchants/users/memberships, roluri și granturi, sesiuni revocabile, CSRF/rate limit, API și UI magazine, provisionare CLI.
-- **Activ:** [04 — Value objects, contracte și fake adapters](docs/modules/04-core-contracts.md), REVIEW. Implementat/testat local: 108 lint, PHPStan level 8, 65 unit/505 assertions, 17 integration/90 assertions. Urmează push și CI, apoi 05 și 06 secvențial. Oprește înainte de 07.
+- **Următorul:** 05 — operațiuni durabile, outbox/inbox/jobs/idempotency/audit, apoi 06 — conexiuni și chei. Fiecare cu teste/documente/push înaintea următorului; oprește înainte de 07.
 
 ## Reluare pe alt PC
 
@@ -13,7 +13,7 @@ Remote: https://github.com/razvanstav/ordely.git. Branch: `codex/modul-01-arhite
 
 ## Verificări și mediu
 
-[Raport 03](docs/testing/03-identity.md): 32 lint, PHPStan level 8, 18 unit/30 assertions, 17 integration/90 assertions, JS syntax și 6 HTTP smoke PASS. Două checkout-uri CI independente au trecut. Migrarea 001 este aplicată local în `ordely` și `ordely_test`.
+[Raport 04](docs/testing/04-core-contracts.md): 108 lint, PHPStan level 8, 65 unit/505 assertions, 17 integration/90 assertions PASS. Două checkout-uri CI independente au trecut. Migrarea 001 este aplicată local în `ordely` și `ordely_test`.
 
 PHP 8.4.24, Composer în `var/tools/composer.phar`, MySQL 8.4.11 în var pe loopback33060. MySQL și preview PHP8080 sunt pornite pentru lotul 03–06. Datele și `.env` sunt ignorate; XAMPP nu este atins. Serverele temporare ale testelor se opresc automat.
 
@@ -21,4 +21,6 @@ Interacțiunea manuală în browser și PC-ul personal secundar nu sunt verifica
 
 ## Prompt de reluare
 
-> Citește AGENTS.md, STATUS.md, plan.md, fișa modulului și deciziile. Modulul 03 este DONE. Implementează 04, testează/documentează/push, apoi repetă pentru 05 și 06, unul câte unul. Oprește înainte de 07.
+> Citește AGENTS.md, STATUS.md, plan.md, fișa modulului și deciziile. Modulul 04 este DONE. Implementează 05, testează/documentează/push, apoi repetă pentru 06. Oprește înainte de 07.
+
+Core-ul și cele trei contracte/fakes sunt documentate în [core-contracts](docs/core-contracts.md). Fake-urile sunt exclusiv în memorie și nu demonstrează integrarea reală.
