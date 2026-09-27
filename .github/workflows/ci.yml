@@ -1,0 +1,64 @@
+name: Foundation CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: foundation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    name: Windows PHP checks
+    runs-on: windows-2025
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45 # v2
+        with:
+          php-version: '8.4.24'
+          extensions: pdo_mysql, mbstring, dom, xml, xmlwriter
+          tools: composer:2.10.3
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist
+      - run: composer validate --strict
+      - run: composer check-platform-reqs
+      - run: composer lint
+      - run: composer analyse
+      - run: composer test
+
+  compose:
+    name: Linux PHP + MySQL + HTTP
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Configure isolated local environment
+        run: cp .env.example .env
+      - name: Build the documented runtime
+        run: docker compose build --pull
+      - name: Start MySQL
+        run: docker compose up -d --wait db
+      - name: Install locked dependencies
+        run: docker compose run --rm app composer install --no-interaction --prefer-dist
+      - name: Verify platform and dependencies
+        run: |
+          docker compose run --rm app composer check-platform-reqs
+          docker compose run --rm app composer audit
+      - name: Run the full check suite
+        run: docker compose run --rm app composer check
+      - name: Run real HTTP checks
+        run: |
+          docker compose up -d --wait app
+          docker compose exec -T app php bin/http-smoke.php
+      - name: Runtime logs on failure
+        if: failure()
+        run: docker compose logs --tail=80
+      - name: Stop disposable CI containers
+        if: always()
+        run: docker compose down

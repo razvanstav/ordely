@@ -1,0 +1,42 @@
+{
+    "name": "ordely/ordely",
+    "description": "Ordely modular commerce operations platform",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": "~8.4.0",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "symfony/dotenv": "7.4.*",
+        "symfony/http-foundation": "7.4.*",
+        "symfony/routing": "7.4.*"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^12.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ordely\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Ordely\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "platform": { "php": "8.4.24" },
+        "allow-plugins": {}
+    },
+    "scripts": {
+        "lint": "@php bin/lint.php",
+        "analyse": "phpstan analyse --no-progress --memory-limit=512M",
+        "test": "phpunit --testsuite Unit",
+        "test:integration": "phpunit --testsuite Integration",
+        "check": ["@composer validate --strict", "@lint", "@analyse", "@test", "@test:integration"],
+        "db:check": "@php bin/check-db.php",
+        "serve": "@php -S 127.0.0.1:8080 -t public public/index.php"
+    }
+}

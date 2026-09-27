@@ -1,6 +1,6 @@
 # Ordely — Plan de arhitectură
 
-Versiune propusă 0.1 · 2026-09-27 · Modul 01 · **În revizuire, fără implementare autorizată încă**.
+Versiune 0.1 · 2026-09-27 · Modul 01 · **Direcție acceptată pentru continuare; detaliile deschise rămân în registrul de decizii**.
 
 Documentul urmează, în ordine, cele 30 de livrabile din [brief](brief-original.md). Regulile explicite din brief sunt cerințe; alegerile de implementare de mai jos sunt propuneri. Deciziile încă deschise au ID în [registru](decisions.md). Scopul este un monolit modular PHP, cu MySQL, UI HTML/CSS/JavaScript nativ și adaptoare în afara Core-ului.
 
@@ -670,7 +670,7 @@ Registrul cu detalii este [decisions.md](decisions.md). Aprobarea arhitecturii s
 | D07 | Volum estimat, monede/țări V1, retenție și obiective operaționale | Înainte de 02; detaliile înainte de pilot |
 | D08 | Conturi/API reale, scopes, contracte curieri, profil facturare și distribuție/billing SaaS | Înainte de modulele 07–11; distribuția înainte de 21 |
 
-Nu este necesar să rezolvăm acum fiecare detaliu de provider, dar nu marcăm o funcție ca suportată fără probe. Modulul 01 rămâne REVIEW până la aprobarea direcției și a deciziilor necesare pornirii.
+Nu este necesar să rezolvăm acum fiecare detaliu de provider, dar nu marcăm o funcție ca suportată fără probe. Modulul 01 este închis după cererea de continuare; fiecare decizie rămasă se închide înainte de modulul dependent.
 
 ## 30. Diagramă finală end-to-end
 

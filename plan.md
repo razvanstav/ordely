@@ -2,11 +2,11 @@
 
 Actualizat: 2026-09-27. Registrul oficial al stărilor modulelor.
 
-**Modul curent: 01 — Arhitectură. Stare: REVIEW.**
+**Modul curent: 02 — Fundație tehnică. Stare: IN_PROGRESS.**
 
-Documentația este publicată pe `origin/codex/modul-01-arhitectura`; primul commit/push a fost verificat. Aprobarea arhitecturii rămâne restantă.
+Arhitectura a fost acceptată pentru continuare prin mesajul utilizatorului „CONTINUA”. Continuăm același branch de lucru `codex/modul-01-arhitectura`, fără fragmentarea istoricului între PC-uri.
 
-Arhitectura trebuie aprobată înainte de codul aplicației. Modulele următoare sunt ordonate, nu începute. Granularitatea lor poate fi ajustată la deschiderea fișei, păstrând un singur modul activ.
+Direcția arhitecturală este aprobată; deciziile de business D01–D05 și de integrare se închid înainte de modulele care le folosesc. Modulele 03–21 nu sunt începute.
 
 ## Stări
 
@@ -20,8 +20,8 @@ Fiecare modul pornește după închiderea celui precedent. Testele de acceptare 
 
 | Modul | Livrabil și limită | Dovada necesară la închidere | Stare |
 | --- | --- | --- | --- |
-| 01 | Arhitectură, decizii, workflow și predare | Cele 30 de secțiuni, verificare documentară, arhitectură aprobată | REVIEW |
-| 02 | Mediu reproductibil PHP/MySQL, Composer, runner teste, CI și Git remote | Instalare din clonă curată și pe al doilea PC; smoke test + pipeline verde | PLANNED |
+| 01 | Arhitectură, decizii, workflow și predare | Cele 30 de secțiuni, verificare documentară, arhitectură aprobată | DONE |
+| 02 | Mediu reproductibil PHP/MySQL, Composer, runner teste, CI și Git remote | Instalare din clonă curată și pe mașină CI independentă; smoke test + pipeline verde | IN_PROGRESS |
 | 03 | Identitate, merchants, stores, roluri și tenant isolation | Acces între doi tenants respins la HTTP, repository și DB | PLANNED |
 | 04 | Value objects, contracte și fake adapters | Core fără imports de furnizori; contract tests și bani exacți | PLANNED |
 | 05 | Outbox, inbox, jobs, idempotency și audit | Concurență, restart worker, timeout ambiguu și retry fără dubluri | PLANNED |

@@ -1,10 +1,10 @@
 # Modul 01 — Arhitectură și continuitate
 
-Actualizat: 2026-09-27. Stare în [plan](../../plan.md): **REVIEW**.
+Actualizat: 2026-09-27. Stare în [plan](../../plan.md): **DONE**.
 
 ## Obiectiv
 
-Transformarea brief-ului într-un plan implementabil și într-un workflow care poate fi reluat în conversații separate, de pe mai multe PC-uri. Acesta este singurul modul activ.
+Transformarea brief-ului într-un plan implementabil și într-un workflow care poate fi reluat în conversații separate, de pe mai multe PC-uri. Modulul este închis; modulul curent se găsește în plan.
 
 ## Inclus și exclus
 
@@ -23,7 +23,7 @@ Exclus: codul aplicației, migrări executabile, conturi Shopify/curieri/factura
 - [x] Remote-ul furnizat de utilizator configurat și branch-ul modulului pregătit.
 - [x] Identitate verificată prin contul GitHub autentificat; commit/push reușite și hash remote verificat.
 - [x] Verificare finală a consistenței documentelor — PASS în raport; 30 secțiuni, linkuri valide, un modul activ, brief identic.
-- [ ] Aprobarea arhitecturii conform brief-ului §51.
+- [x] Aprobarea direcției arhitecturii: mesajul utilizatorului „CONTINUA”, interpretat ca acord pentru următorul modul; interpretarea a fost comunicată înainte de implementare.
 
 Documentele sunt publicate pe GitHub. Commit/push au fost verificate; clonarea și reluarea efectivă pe al doilea PC rămân neexecutate și nu sunt prezentate ca teste trecute.
 
@@ -39,10 +39,10 @@ Raport: [01-architecture-review.md](../testing/01-architecture-review.md). Nu ex
 ## Predare
 
 - Ultimul pas: redactarea și verificarea planului și a documentelor de predare.
-- Următorul pas: revizuirea arhitecturii cu utilizatorul, mai întâi direcția și D06/D07 pentru modulul 02.
+- Următorul pas: [modulul 02 — fundație tehnică](02-fundatie.md), cu deciziile tehnice D06 consemnate.
 - Branch: `codex/modul-01-arhitectura`. Remote: `origin`, cu upstream configurat. Primul commit publicat: `3a08834`; sincronizare verificată.
-- Modulul 02 nu este început. Nu se începe aplicația până la aprobarea arhitecturii.
+- Codul începe numai cu infrastructura modulului 02; regulile comerciale rămân pentru modulele ulterioare.
 
 Prompt de reluare:
 
-> Continuă numai modulul 01 Ordely. Citește AGENTS.md, STATUS.md, plan.md, această fișă și docs/decisions.md. Verifică branch-ul și sincronizarea cu origin înainte de schimbări. Revizuim arhitectura înainte de implementare; actualizează documentele după orice decizie nouă.
+> Modulul 01 este închis. Citește AGENTS.md, STATUS.md și plan.md pentru modulul curent. Nu relua o fișă istorică în detrimentul planului actualizat.

@@ -17,6 +17,8 @@ Actualizat: 2026-09-27. `CERINȚĂ` provine din brief/utilizator; `PROPUS` nu î
 
 ## Propuneri structurale ale planului
 
+Direcția A01–A06 a fost acceptată pentru continuare prin mesajul „CONTINUA”; alegerea detaliilor de implementare se consemnează separat. Tabelul păstrează propunerile de arhitectură ca referință, iar D01–D08 au stările de mai jos.
+
 | ID | Stare | Alegere și consecință |
 | --- | --- | --- |
 | A01 | PROPUS | Monolit modular, module cu Domain/Application/Infrastructure/Presentation; deployment comun inițial |
@@ -58,9 +60,9 @@ Brief-ul cere ID comandă + email/telefon și suport OTP configurabil. Alegem de
 
 ## D06 — Runtime și infrastructură
 
-Stare: DESCHIS. Termen: înainte de 02.
+Stare: ALES PENTRU FUNDAȚIA DE DEZVOLTARE, 2026-09-27. Hosting-ul producției și worker supervisor se decid înainte de pilot.
 
-Propunere: PHP 8.4 cu patch suportat, MySQL 8.4, Composer/PSR-4, componente HTTP/security mature, frontend nativ. Alegem framework-ul backend, test runner/static analysis, hosting, worker supervisor și modul de reproducere pe Windows/al doilea PC. Versiunile se fixează în lockfiles și documentul de setup al modulului 02. Nu instalăm un stack complet în modulul 01.
+Alegere tehnică în continuarea autorizată: PHP 8.4.24, MySQL 8.4.11, Composer 2.10.3, PSR-4, Symfony 7.4 HttpFoundation/Routing/Dotenv, PHPUnit 12.5, PHPStan 2 level 8. Fără framework frontend sau dependențe Symfony în Domain. Patch-urile sunt fixate în composer.lock/runtime images. Docker Compose este mediul comun; helper-ul Windows pornește MySQL separat de XAMPP. CI verifică Linux cu MySQL/HTTP și PHP pe Windows. Comenzi și surse în [setup](setup.md).
 
 ## D07 — Limite V1 și operare
 
@@ -69,6 +71,8 @@ Stare: DESCHIS. Termen: valorile care influențează setup-ul înainte de 02; re
 De stabilit: volume zilnice și vârfuri, număr stores/tenant, țări, RON-only versus multimonedă, produse fracționare, SLO-uri, backup/restore, retenție pentru date/payload/audit și limite fișiere. Propuneri: RON pentru operațiunile V1, cantități întregi și păstrarea monedei originale la import, fără conversie implicită. Billing abonament SaaS este separat de facturarea comenzilor.
 
 ## D08 — Conturi, furnizori și distribuție
+
+Notă D07 pentru modulul 02: mediul este local, pe loopback, fără dimensionare de producție sau promisiuni de performanță. Porturi implicite 8080/33060. Reproductibilitatea se verifică într-un checkout CI independent; accesul la al doilea PC personal nu este presupus.
 
 Stare: DESCHIS. Termen: înainte de integrarea fiecărui provider și înainte de lansare.
 

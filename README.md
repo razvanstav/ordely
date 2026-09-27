@@ -2,14 +2,15 @@
 
 Platformă SaaS pentru operațiunile magazinelor online: un Core independent de CMS, conectat la platforme de comerț, curieri și servicii de facturare.
 
-**Stadiu: planificare. Arhitectura este propusă, nu aprobată. Aplicația nu este implementată.**
+**Stadiu: modulul 02 — fundația tehnică.** Arhitectura este acceptată pentru continuare. Runtime-ul PHP/MySQL și verificările sunt implementate; modulele comerciale nu sunt începute.
 
 ## De unde reluăm
 
 1. Citește [regulile proiectului](AGENTS.md).
 2. Citește [starea curentă](STATUS.md) și [planul modulelor](plan.md).
-3. Deschide fișa singurului modul activ: [01 — Arhitectură](docs/modules/01-arhitectura.md).
-4. Consultă [arhitectura propusă](docs/architecture.md) și [deciziile deschise](docs/decisions.md).
+3. Deschide fișa modulului curent: [02 — Fundație tehnică](docs/modules/02-fundatie.md).
+4. Urmează [instrucțiunile de instalare și testare](docs/setup.md).
+5. Consultă [arhitectura](docs/architecture.md) și [deciziile deschise](docs/decisions.md).
 
 ## Documentele proiectului
 
@@ -23,6 +24,8 @@ Platformă SaaS pentru operațiunile magazinelor online: un Core independent de 
 | [Decizii](docs/decisions.md) | Ce este stabilit, ce este propus și ce mai trebuie decis |
 | [Module](docs/modules/template.md) | Modelul fișei unui modul |
 | [Verificare modul 01](docs/testing/01-architecture-review.md) | Verificările efectuate și testele încă inexistente |
+| [Setup](docs/setup.md) | Pornire Docker sau Windows nativ, versiuni și comenzi |
+| [Verificare modul 02](docs/testing/02-foundation.md) | PHP/MySQL/HTTP și CI |
 | [Jurnal inițial](docs/journal/2026-09-27.md) | Schimbările și rezultatele acestei sesiuni |
 
 ## Regula de lucru
