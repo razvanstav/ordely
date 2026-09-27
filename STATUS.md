@@ -2,25 +2,20 @@
 
 Actualizat: 2026-09-28. Registrul stărilor: plan.md.
 
-- **Ultimul modul închis:** [04 — Core și contracte](docs/modules/04-core-contracts.md), DONE.
-- Cod: `5e0b747`; [CI Windows și Linux/MySQL/HTTP PASS](https://github.com/razvanstav/ordely/actions/runs/36348452800).
-- Disponibil: runtime reproductibil, migrații, merchants/users/memberships, roluri și granturi, sesiuni revocabile, CSRF/rate limit, API și UI magazine, provisionare CLI.
-- **Activ:** [05 — operațiuni durabile](docs/modules/05-durable-operations.md), REVIEW. Local PASS: 147 lint, 65 unit/505 assertions, 41 integration/213 assertions, PHPStan, JS, worker CLI și cinci retestări concurente. Urmează push/CI, apoi 06. Oprește înainte de 07.
+Ultimul modul închis: **05 — Operațiuni durabile, DONE**. Cod `f04e71e`, [CI Windows/Linux PASS](https://github.com/razvanstav/ordely/actions/runs/36350786805). Urmează 06, ultimul din lotul autorizat; oprire înainte de 07.
+
+Disponibil: runtime PHP/MySQL, identitate/tenancy, contracte și fakes, coadă durabilă, inbox/outbox/audit, idempotency și reconciliere UNKNOWN. Vezi [raport 05](docs/testing/05-durable-operations.md) și [operare](docs/operations.md).
 
 ## Reluare pe alt PC
 
-Remote: https://github.com/razvanstav/ordely.git. Branch: `codex/modul-01-arhitectura`, upstream cu același nume. Identitatea Git locală este configurată din contul GitHub autentificat; se configurează separat pe fiecare PC. Urmează [workflow](docs/workflow.md), [setup](docs/setup.md), [identitate](docs/identity.md). Citește documentele după fetch/pull; nu sincroniza `.env` sau DB prin Git.
+Remote: https://github.com/razvanstav/ordely.git. Branch: `codex/modul-01-arhitectura`. Urmează [workflow](docs/workflow.md), [setup](docs/setup.md), [identitate](docs/identity.md). Fetch/pull înainte de lucru; `.env`, datele și cheile nu se sincronizează prin Git.
 
-## Verificări și mediu
+## Mediu și verificări
 
-[Raport 04](docs/testing/04-core-contracts.md): 108 lint, PHPStan level 8, 65 unit/505 assertions, 17 integration/90 assertions PASS. Două checkout-uri CI independente au trecut. Migrațiile 001–003 sunt aplicate local în `ordely` și `ordely_test`.
+PHP 8.4.24, MySQL 8.4.11, Composer în `var/tools/composer.phar`. Migrațiile 001–003 aplicate în `ordely` și `ordely_test`. Local PASS: 147 lint, PHPStan 8, 65 unit/505 assertions, 41 integration/213 assertions, cinci retestări concurente, JS și worker CLI. MySQL pe loopback33060 și preview PHP8080 sunt pornite pentru lot; XAMPP neatins.
 
-PHP 8.4.24, Composer în `var/tools/composer.phar`, MySQL 8.4.11 în var pe loopback33060. MySQL și preview PHP8080 sunt pornite pentru lotul 03–06. Datele și `.env` sunt ignorate; XAMPP nu este atins. Serverele temporare ale testelor se opresc automat.
+Browser manual și al doilea PC personal: NOT_RUN. Driverul UI nu pornește din cauza ACL-urilor sandbox; API-ul este testat prin HTTP real. Fakes și simulatorul de efecte externe nu demonstrează integrări reale.
 
-Interacțiunea manuală în browser și PC-ul personal secundar nu sunt verificate; driverul UI a eșuat la pornire din cauza ACL-urilor sandbox. Shell-ul funcționează prin execuția aprobată în afara sandbox-ului. Nu sunt defecte runtime restante; providerii reali și deciziile de business din modulele ulterioare rămân în afara scopului curent.
+## Reluare
 
-## Prompt de reluare
-
-> Citește AGENTS.md, STATUS.md, plan.md, fișa modulului și deciziile. Modulul 04 este DONE. Implementează 05, testează/documentează/push, apoi repetă pentru 06. Oprește înainte de 07.
-
-Core-ul și cele trei contracte/fakes sunt documentate în [core-contracts](docs/core-contracts.md). Fake-urile sunt exclusiv în memorie și nu demonstrează integrarea reală.
+Citește AGENTS.md, plan.md, fișa 05 și deciziile. Definește criteriile 06, implementează, testează, documentează și publică; oprește înainte de 07.

@@ -9,7 +9,7 @@
 | `php bin/migrate.php --test`, `php bin/migrate.php` | PASS: 002 și 003, fără rescrierea migrațiilor aplicate |
 | `php bin/worker.php 10` | PASS: pornire/oprire normală fără jobs eligibile |
 | `node --check resources/app.js`, `git diff --check` | PASS |
-| CI Windows/Linux | Urmează după push, încă nu este PASS |
+| CI Windows/Linux | PASS: [run 36350786805](https://github.com/razvanstav/ordely/actions/runs/36350786805), cod f04e71e |
 
 Acoperire: atomicitate store/audit/outbox și rollback, inbox duplicate/mismatch, outbox replay, consumer commit înainte de ACK, doi workers, doi submitteri cu aceeași cheie HTTP și aceeași intenție externă, lease/heartbeat/fencing, scope inactiv/falsificat, retry-after/budget/dead/requeue, rol/grant revocate, payload allowlist și API fără lease tokens.
 
