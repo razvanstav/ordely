@@ -21,10 +21,11 @@ Exclus: codul aplicației, migrări executabile, conturi Shopify/curieri/factura
 - [x] Un singur modul activ; 20 module de implementare rămân PLANNED.
 - [x] AGENTS, plan, stare, template și workflow pentru conversații separate.
 - [x] Remote-ul furnizat de utilizator configurat și branch-ul modulului pregătit.
+- [x] Identitate verificată prin contul GitHub autentificat; commit/push reușite și hash remote verificat.
 - [x] Verificare finală a consistenței documentelor — PASS în raport; 30 secțiuni, linkuri valide, un modul activ, brief identic.
 - [ ] Aprobarea arhitecturii conform brief-ului §51.
 
-Sincronizarea efectivă este restantă și amânată de utilizator: fără identitate Git nu există commit/push. Această limitare este vizibilă în STATUS și nu se prezintă ca test trecut de lucru pe al doilea PC.
+Documentele sunt publicate pe GitHub. Commit/push au fost verificate; clonarea și reluarea efectivă pe al doilea PC rămân neexecutate și nu sunt prezentate ca teste trecute.
 
 ## Verificări
 
@@ -39,9 +40,9 @@ Raport: [01-architecture-review.md](../testing/01-architecture-review.md). Nu ex
 
 - Ultimul pas: redactarea și verificarea planului și a documentelor de predare.
 - Următorul pas: revizuirea arhitecturii cu utilizatorul, mai întâi direcția și D06/D07 pentru modulul 02.
-- Branch: `codex/modul-01-arhitectura`. Remote: `origin`. Fără commit/push; identitatea a fost lăsată neconfigurată la cererea utilizatorului.
+- Branch: `codex/modul-01-arhitectura`. Remote: `origin`, cu upstream configurat. Primul commit publicat: `3a08834`; sincronizare verificată.
 - Modulul 02 nu este început. Nu se începe aplicația până la aprobarea arhitecturii.
 
 Prompt de reluare:
 
-> Continuă numai modulul 01 Ordely. Citește AGENTS.md, STATUS.md, plan.md, această fișă și docs/decisions.md. Revizuim arhitectura înainte de implementare. Păstrează vizibilă starea locală nesincronizată a Git și actualizează documentele după orice decizie nouă.
+> Continuă numai modulul 01 Ordely. Citește AGENTS.md, STATUS.md, plan.md, această fișă și docs/decisions.md. Verifică branch-ul și sincronizarea cu origin înainte de schimbări. Revizuim arhitectura înainte de implementare; actualizează documentele după orice decizie nouă.

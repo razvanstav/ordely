@@ -76,8 +76,8 @@ Sunt necesare contul developer/dev store Shopify, scopes/PCD, credențiale de te
 
 ## O01 — Continuitate Git
 
-Stare: CONFIGURAT PARȚIAL, AMÂNAT DE UTILIZATOR.
+Stare: CONFIGURAT ȘI PUBLICAT.
 
 Remote furnizat: `https://github.com/razvanstav/ordely.git`, configurat ca `origin`. Verificarea remote-ului nu a returnat branch-uri. Branch local: `codex/modul-01-arhitectura`.
 
-Identitatea Git nu era configurată. După solicitarea numelui/emailului, utilizatorul a răspuns „nu mai conteaza. las-o asa”. Lăsăm identitatea nemodificată și nu facem commit/push. Documentele sunt locale; nu afirmăm sincronizare între PC-uri. Nu mai cerem aceste date în sesiunea curentă.
+Inițial identitatea Git nu era configurată, iar utilizatorul a amânat configurarea. Ulterior a cerut explicit push. Contul GitHub autentificat a fost verificat; identitatea `razvanstav` și adresa noreply bazată pe ID-ul contului au fost configurate numai pentru acest repository. Primul commit `3a08834` a fost publicat, iar hash-ul remote a fost verificat identic cu HEAD local. Reluarea pe alt PC folosește același branch și documentele din Git; proba efectivă pe al doilea PC rămâne de făcut.

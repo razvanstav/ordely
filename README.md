@@ -31,4 +31,4 @@ Platformă SaaS pentru operațiunile magazinelor online: un Core independent de 
 
 O conversație are un singur modul ca obiectiv. Poate acoperi doar un pas din acel modul. Progresul se păstrează în fișiere versionate, astfel încât următoarea conversație să nu depindă de istoricul chatului.
 
-Sincronizarea între PC-uri necesită commit și push/pull reușite. Remote-ul [GitHub Ordely](https://github.com/razvanstav/ordely) este configurat. Identitatea Git a fost lăsată neconfigurată la cererea utilizatorului, deci nu există încă commit/push; fișierele există numai local.
+Documentația a fost publicată pe [branch-ul modulului 01](https://github.com/razvanstav/ordely/tree/codex/modul-01-arhitectura), cu commit/push verificate. Pe alt PC clonează repository-ul și continuă branch-ul `codex/modul-01-arhitectura`, urmând [workflow-ul](docs/workflow.md). Modificările viitoare devin disponibile acolo după fiecare push reușit.

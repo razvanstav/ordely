@@ -11,12 +11,13 @@ Actualizat: 2026-09-27.
 
 ## Sincronizare între PC-uri
 
-- Repository Git local, branch `codex/modul-01-arhitectura`, fără commit-uri.
-- Remote `origin`: `https://github.com/razvanstav/ordely.git`. Verificarea read a reușit și nu a returnat branch-uri.
-- `user.name` și `user.email` Git nu au valori efective. Utilizatorul a cerut să lăsăm configurarea așa; nu mai solicităm aceste date în această sesiune.
-- Fișierele sunt locale, fără commit/push. Nu sunt încă disponibile automat pe alt PC.
-- Pentru sincronizare mai lipsește identitatea Git aleasă de utilizator; configurarea a fost amânată. Nu este necesară trimiterea unui token/parole în chat.
-- Când utilizatorul reia configurarea, se poate face commit, push verificat, apoi clonare pe al doilea PC, conform [workflow-ului](docs/workflow.md).
+- Repository publicat pe branch-ul `codex/modul-01-arhitectura`, cu upstream `origin/codex/modul-01-arhitectura`.
+- Remote `origin`: `https://github.com/razvanstav/ordely.git`.
+- Primul commit al arhitecturii: `3a08834`. Push reușit; hash-ul local și cel returnat de remote au fost identice.
+- Identitate locală configurată din contul GitHub autentificat: `razvanstav`, cu adresa GitHub noreply. Nu a fost modificată configurația globală Git.
+- Utilizatorul a cerut explicit push după amânarea inițială; blocajul anterior este rezolvat.
+- Pe alt PC: clonează repository-ul, deschide branch-ul de mai sus și citește acest fișier. Vezi [workflow-ul](docs/workflow.md).
+- Clonarea și pornirea pe al doilea PC nu au fost încă testate. Aplicația nu este implementată.
 
 ## Verificări și mediu
 

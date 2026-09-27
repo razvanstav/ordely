@@ -37,9 +37,17 @@ Dacă push-ul eșuează, spune „salvat local, nesincronizat” și păstrează
 
 ## Prima configurare Git
 
-În prezent repository-ul este local, fără istoric sau identitate Git efectivă. Utilizatorul a furnizat URL-ul `https://github.com/razvanstav/ordely.git`, configurat ca `origin`, și a amânat configurarea identității. Branch-ul `codex/modul-01-arhitectura` este pregătit. Nu mai cerem identitatea în această sesiune. Autentificarea se face local prin mecanismul Git al PC-ului; nu cerem parole sau token-uri în documente/chat.
+Configurarea inițială este finalizată: `origin` indică `https://github.com/razvanstav/ordely.git`, iar branch-ul `codex/modul-01-arhitectura` are commit-uri și upstream. Identitatea locală a fost stabilită din contul GitHub autentificat, folosind adresa noreply. Autentificarea se face local prin mecanismul Git al PC-ului; nu cerem parole sau token-uri în documente/chat.
 
-Când utilizatorul reia configurarea: configurează identitatea locală repository-ului, continuă branch-ul pregătit și creează primul commit. Înainte de push verifică din nou istoricul remote-ului; nu îl suprascrie dacă între timp a apărut. Pe PC-ul nou clonează repository-ul și deschide același branch.
+Pe un PC nou, rulează într-un folder părinte potrivit:
+
+```powershell
+git clone --branch codex/modul-01-arhitectura https://github.com/razvanstav/ordely.git
+cd ordely
+git status --short --branch
+```
+
+Deschide folderul clonat și citește `AGENTS.md`, `STATUS.md` și `plan.md`. Configurează autentificarea și identitatea Git a acelui PC pentru commit-uri viitoare; configurația locală Git nu se transferă prin clone. Dacă există deja o clonă, folosește procedura fetch/pull de la începutul documentului, fără să suprascrii modificări locale.
 
 Nu sincroniza `.git`, `vendor`, fișiere `.env` sau baze de date prin foldere cloud partajate. Folosește câte o clonă Git per PC. Secretele se configurează separat; versiunile și exemplele fără secrete sunt versionate.
 

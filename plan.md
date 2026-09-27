@@ -4,6 +4,8 @@ Actualizat: 2026-09-27. Registrul oficial al stărilor modulelor.
 
 **Modul curent: 01 — Arhitectură. Stare: REVIEW.**
 
+Documentația este publicată pe `origin/codex/modul-01-arhitectura`; primul commit/push a fost verificat. Aprobarea arhitecturii rămâne restantă.
+
 Arhitectura trebuie aprobată înainte de codul aplicației. Modulele următoare sunt ordonate, nu începute. Granularitatea lor poate fi ajustată la deschiderea fișei, păstrând un singur modul activ.
 
 ## Stări

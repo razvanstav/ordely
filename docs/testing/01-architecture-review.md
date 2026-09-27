@@ -43,6 +43,17 @@ La reverificare, un wrapper a interpretat prea strict exit code 1 de la `git dif
 - `NOT_RUN`: unit/integration/E2E, PHP lint, migrații, teste concurență și securitate. Nu există cod de aplicație.
 - `NOT_RUN`: apeluri de business la Shopify, Sameday, FAN sau Oblio. Contractele sunt propuse.
 - `NOT_RUN`: validare fiscală, teste în conturi reale, randarea diagramelor Mermaid.
-- `NOT_RUN`: commit/push și clonare/test pe al doilea PC. Identitatea Git a fost amânată de utilizator.
+- `NOT_RUN`: clonare/test pe al doilea PC. Commit/push au fost realizate ulterior, conform verificării de mai jos.
 
 Modulul nu este DONE: aprobarea arhitecturii este încă restantă.
+
+## Publicarea cerută ulterior de utilizator
+
+- PASS: contul GitHub autentificat a fost identificat fără afișarea credentialelor; s-a configurat identitatea locală cu adresa noreply.
+- PASS: `git diff --cached --check -- . ':(exclude)docs/brief-original.md'` fără erori.
+- PASS: `git commit -m 'docs(module-01): define Ordely architecture and modular workflow'` — commit `3a08834`, 14 fișiere.
+- PASS: `git push -u origin codex/modul-01-arhitectura` — branch creat și upstream configurat.
+- PASS: `git rev-parse HEAD` și `git ls-remote --heads origin refs/heads/codex/modul-01-arhitectura` au returnat același hash: `3a0883482cea5ea4ff4ac109f5a4c26b3b7befab`.
+- Brief-ul original este marcat `-text` în `.gitattributes`, pentru păstrarea exactă a bytes inclusiv după clonare. Celelalte documente Markdown folosesc LF.
+
+Rezultatele inițiale de mai sus descriu starea înainte de publicare; identitatea și lipsa push-ului nu mai sunt blocaje.
