@@ -30,6 +30,7 @@ jobs:
         run: ./scripts/windows-mysql.ps1 -Action Start
       - run: composer check-platform-reqs
       - run: composer check
+      - run: composer db:migrate
       - name: Verify graceful restart
         run: |
           ./scripts/windows-mysql.ps1 -Action Stop
@@ -64,6 +65,7 @@ jobs:
         run: docker compose run --rm app composer check
       - name: Run real HTTP checks
         run: |
+          docker compose run --rm app composer db:migrate
           docker compose up -d --wait app
           docker compose exec -T app php bin/http-smoke.php
       - name: Runtime logs on failure

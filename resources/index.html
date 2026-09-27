@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="ro"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ordely · Magazine</title><link rel="stylesheet" href="/app.css"><script src="/app.js" defer></script></head>
+<body><main><header><a href="/" class="brand">ordely<span> / spațiul comerciantului</span></a><span class="badge">DEZVOLTARE</span></header>
+<p id="message" role="status" aria-live="polite"></p>
+<section id="login"><p class="eyebrow">BUN VENIT</p><h1>Totul începe cu<br>magazinul tău.</h1><p>Conectează-te pentru a gestiona magazinele la care ai acces.</p>
+<form id="login-form"><label>Email<input name="email" type="email" autocomplete="username" required maxlength="254"></label><label>Parolă<input name="password" type="password" autocomplete="current-password" required></label><button>Conectează-te →</button></form><p class="hint">Conturile se creează prin comanda de provisionare din ghidul de instalare.</p></section>
+<section id="workspace" hidden><div class="toolbar"><label>Comerciant<select id="merchants" aria-label="Comerciant activ"></select></label><button id="logout" class="secondary">Ieși din cont</button></div><p class="eyebrow" id="role"></p><h1>Magazinele tale</h1><p>Accesul este stabilit pentru fiecare comerciant și magazin.</p><div id="stores" class="cards"></div>
+<form id="store-form" hidden><h2>Adaugă un magazin</h2><label>Nume<input name="name" required maxlength="160"></label><label>Platformă<select name="platform"><option value="shopify">Shopify</option><option value="manual">Manual / test</option></select></label><button>Adaugă magazin</button><p class="hint">Crearea magazinului nu conectează încă un cont extern.</p></form></section>
+<footer>Ordely · operațiuni comerciale, pas cu pas.</footer></main></body></html>

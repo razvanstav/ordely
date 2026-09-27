@@ -78,6 +78,10 @@ Stare: DESCHIS. Termen: înainte de integrarea fiecărui provider și înainte d
 
 Sunt necesare contul developer/dev store Shopify, scopes/PCD, credențiale de test, documentația și serviciile contractate Sameday/FAN, profilul/seriile Oblio, operațiile suportate pentru storno și lookup. Strategia de distribuție/pilot și monetizare poate cere un modul de SaaS billing; nu confundăm InvoiceProvider pentru comercianți cu taxarea abonamentului Ordely. Disponibilitatea sandbox-urilor și a funcțiilor nu a fost verificată în conturi reale.
 
+## D09 — Identitate și sesiuni (03)
+
+Ales 2026-09-27: token aleator de 256 biți, hash SHA-256 în DB, TTL 8 ore, membership verificat la fiecare cerere, cookie HttpOnly/SameSite=Lax/Secure pe HTTPS și CSRF pentru scrieri. Parole bcrypt prin PASSWORD_DEFAULT pe PHP fixat, cu limită explicită 12–72 bytes. Rate limit atomic 20/cont și 100/IP în 15 minute. Provisionare CLI de încredere; onboarding/resetare prin email în 20. Migrații SQL simple cu checksum și marker `applying`, fiindcă DDL MySQL nu se poate proteja prin rollback tranzacțional obișnuit. Surse: [PHP password_hash](https://www.php.net/manual/en/function.password-hash.php), [MySQL implicit commits](https://dev.mysql.com/doc/refman/8.4/en/implicit-commit.html), [Symfony HttpFoundation](https://symfony.com/doc/7.4/components/http_foundation.html).
+
 ## O01 — Continuitate Git
 
 Stare: CONFIGURAT ȘI PUBLICAT.

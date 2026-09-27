@@ -1,6 +1,6 @@
-# Pornirea Ordely — modulul 02
+# Pornirea Ordely
 
-Acesta este un mediu de dezvoltare. Există infrastructura PHP/MySQL și endpoint-uri de sănătate; modulele comerciale nu sunt implementate.
+Acesta este un mediu de dezvoltare. Starea modulelor este în [plan](../plan.md). Identitatea, sesiunile și magazinele au ghid separat în [identity](identity.md).
 
 ## Versiuni fixate
 
@@ -28,6 +28,7 @@ docker compose build
 docker compose up -d --wait db
 docker compose run --rm app composer install --no-interaction --prefer-dist
 docker compose run --rm app composer check
+docker compose run --rm app composer db:migrate
 docker compose up -d --wait app
 docker compose exec -T app php bin/http-smoke.php
 ```
@@ -47,6 +48,7 @@ Necesită PHP 8.4 în PATH, cu PDO MySQL, DOM, XML/XMLWriter, tokenizer, mbstrin
 ./scripts/windows-mysql.ps1 -Action Start
 php var/tools/composer.phar install --no-interaction --prefer-dist
 php var/tools/composer.phar check
+php bin/migrate.php
 php var/tools/composer.phar serve
 ```
 
@@ -67,7 +69,7 @@ Oprește MySQL cu `./scripts/windows-mysql.ps1 -Action Stop`; datele rămân. Se
 
 Folosește MySQL 8.4, o bază de dezvoltare și una separată cu sufix `_test`. Creează un user cu drepturi numai pe aceste baze și configurează DB_HOST, DB_PORT, DB_NAME, DB_TEST_NAME, DB_USER, DB_PASSWORD în `.env` sau environment. Helper-ul Windows este opțional.
 
-Testele de integrare verifică sufixul DB_TEST_NAME și folosesc un tabel temporar InnoDB. Lipsa conexiunii este eșec, nu skip sau înlocuire cu SQLite. Nu există încă tabele comerciale.
+Testele de integrare verifică sufixul DB_TEST_NAME și aplică schema reală în baza de test. Fixture-urile se șterg prin rollback sau cleanup al ID-urilor proprii; testul HTTP pornește separat PHP și elimină numai contul său sintetic. Nu folosi o bază cu date reale ca DB_TEST_NAME. Lipsa conexiunii este eșec, fără skip sau SQLite.
 
 ## Verificări
 
@@ -77,7 +79,8 @@ Testele de integrare verifică sufixul DB_TEST_NAME și folosesc un tabel tempor
 | `lint` | Sintaxă PHP în bin/config/public/src/tests |
 | `analyse` | PHPStan level 8 |
 | `test` | Teste unitare, fără DB obligatorie |
-| `test:integration` | MySQL real, UTC, utf8mb4, prepared statements, rollback |
+| `test:integration` | MySQL real, migrații, izolare, sesiuni și flux HTTP prin server temporar |
+| `db:migrate` | Aplică migrațiile bazei aplicației; testele migrează separat baza `_test` |
 | `check` | Validate + lint + analyse + unit + integration |
 | `check-platform-reqs` | PHP și extensiile instalate efectiv |
 | `audit` | Advisories la momentul rulării |

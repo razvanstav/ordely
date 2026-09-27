@@ -5,6 +5,7 @@
     "license": "proprietary",
     "require": {
         "php": "~8.4.0",
+        "ext-mbstring": "*",
         "ext-pdo": "*",
         "ext-pdo_mysql": "*",
         "symfony/dotenv": "7.4.*",
@@ -37,6 +38,7 @@
         "test:integration": "phpunit --testsuite Integration",
         "check": ["@composer validate --strict", "@lint", "@analyse", "@test", "@test:integration"],
         "db:check": "@php bin/check-db.php",
+        "db:migrate": "@php bin/migrate.php",
         "serve": "@php -S 127.0.0.1:8080 -t public public/index.php"
     }
 }
