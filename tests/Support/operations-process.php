@@ -26,6 +26,11 @@ try{
         });
         echo json_encode(['id'=>$result->id('store_id')],JSON_THROW_ON_ERROR);exit(0);
     }
+    if($mode==='rotate'){
+        $actor=new TenantContext($merchant,$argv[3]??'',$argv[4]??'',Role::Owner,true);
+        $service=new \Ordely\Integrations\Infrastructure\Connections($db,\Ordely\Tests\Support\IntegrationFixtures::registry(),\Ordely\Tests\Support\IntegrationFixtures::cipher());
+        try{$service->rotate($actor,$argv[5]??'',2);echo 'rotated';}catch(\Ordely\Operations\Domain\Conflict){echo 'conflict';}exit(0);
+    }
     $store=$argv[3] ?? '';$connection=$argv[4] ?? '';
     $context=new ConnectionContext(new MerchantId($merchant),new StoreId($store),new ConnectionId($connection),CorrelationId::new());
     $result=(new ExternalOperations($db))->execute($context,'test.emit',new OperationKey('same-business-intent'),new SafePayload(['store_id'=>$store]),function(OperationKey $providerKey)use($db,$merchant,$mode):ExternalId{

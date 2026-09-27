@@ -89,6 +89,10 @@ Prefix local: `php var/tools/composer.phar`; dacă există în PATH, `composer`.
 
 CI verifică PHP și helper-ul MySQL nativ (inclusiv restart) pe Windows și construiește/rulează Compose cu MySQL/HTTP pe Linux, în checkout-uri independente. Rezultate: [raportul 02](testing/02-foundation.md). PC-ul personal secundar al utilizatorului nu a fost accesat.
 
+## Conexiuni și chei
+
+Conexiunile modulului 06 cer `php bin/keyring.php` după migrații. Cheile rămân locale, ignorate de Git; vezi [conexiuni, rotație și reluare pe alt PC](integrations.md). Testele folosesc exclusiv chei și conturi sintetice și nu au nevoie de keyring-ul aplicației.
+
 ## Surse
 
 Alegerea ramurii LTS: [Symfony 7.4](https://symfony.com/releases/7.4). Compatibilitate teste: [PHPUnit supported versions](https://phpunit.de/supported-versions.html). Installerul este verificat conform [Composer](https://getcomposer.org/doc/faqs/how-to-install-composer-programmatically.md). Runtime DB: [MySQL 8.4](https://dev.mysql.com/downloads/mysql/8.4.html) și [imaginea oficială Docker](https://hub.docker.com/_/mysql).

@@ -1,6 +1,6 @@
 # Registru de decizii
 
-Actualizat: 2026-09-27. `CERINȚĂ` provine din brief/utilizator; `PROPUS` nu înseamnă aprobat. Pentru acceptare se notează data și decizia utilizatorului, fără a presupune aprobarea din lipsa unui răspuns.
+Actualizat: 2026-09-28. `CERINȚĂ` provine din brief/utilizator; `PROPUS` nu înseamnă aprobat. Pentru acceptare se notează data și decizia utilizatorului, fără a presupune aprobarea din lipsa unui răspuns.
 
 ## Stabilite prin cerințe
 
@@ -97,3 +97,6 @@ Inițial identitatea Git nu era configurată, iar utilizatorul a amânat configu
 ## D11 — Operațiuni durabile (05)
 
 Ales 2026-09-28: MySQL queue cu index ordonat, SKIP LOCKED, token/fencing și lease 60 secunde; retry cu jitter și Retry-After, implicit 5 încercări, plafon 25 pentru jobs. Coordonator extern cu intenție stabilă, cheie provider stabilă, maximum 5 apeluri certe temporare; UNKNOWN nu se repetă automat. Confirmare după reconciliere cu versiune și digest dovadă, auditată. Payload allowlist numai referințe/counters/digest, fără date personale. Migrarea 003 remediază problema de locking demonstrată cu două procese. Detalii în [operations](operations.md).
+## D12 — Conexiuni și criptare (06)
+
+Ales 2026-09-28: AES-256-GCM din OpenSSL deja disponibil, cheie aleatoare 32 bytes/nonce 12/tag 16; keyring separat de DB/Git, AAD cu merchant/conexiune/provider/key ID și versiunea formatului. Rotație prin fișier nou care păstrează cheile vechi, apoi recriptare versionată inclusiv pentru arhive revocate; inventar înainte de retragerea cheilor. Owner/admin cu all_stores gestionează secretele comune merchant-ului. Registry/fabrici în composition root, capabilities din adaptor, simulatoare numai dev/test. Providerii reali, setările specifice și autorizarea lor rămân în modulele respective. Surse și operare: [integrations](integrations.md).

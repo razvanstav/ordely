@@ -11,6 +11,7 @@ use Ordely\Infrastructure\Configuration\Environment;
 use Ordely\Infrastructure\Database\Sql;
 use Ordely\Operations\Domain\Conflict;
 use Ordely\Operations\Presentation\OperationsApi;
+use Ordely\Integrations\Presentation\IntegrationsApi;
 use PDO;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,6 +50,9 @@ final readonly class Application
         $routes->add('ops_list',new Route('/api/operations',methods:['GET']));
         $routes->add('ops_retry',new Route('/api/jobs/{id}/retry',requirements:['id'=>'[a-f0-9]{32}'],methods:['POST']));
         $routes->add('ops_confirm',new Route('/api/operations/{id}/confirm',requirements:['id'=>'[a-f0-9]{32}'],methods:['POST']));
+        $routes->add('integrations_list',new Route('/api/integrations',methods:['GET']));
+        $routes->add('integrations_create',new Route('/api/integrations',methods:['POST']));
+        foreach(['rotate','credentials','revoke','bind','unbind','capabilities'] as $action){$routes->add('integrations_'.$action,new Route('/api/integrations/{id}/'.$action,requirements:['id'=>'[a-f0-9]{32}'],methods:['POST']));}
         $context = (new RequestContext())->fromRequest($request);
 
         try {
@@ -62,6 +66,7 @@ final readonly class Application
                 'script' => $this->asset('app.js', 'text/javascript'),
                 'style' => $this->asset('app.css', 'text/css'),
                 'ops_list','ops_retry','ops_confirm'=>(new OperationsApi(new Sql(($this->connect)())))->handle($name,$request,isset($route['id'])?(string)$route['id']:null),
+                'integrations_list','integrations_create','integrations_rotate','integrations_credentials','integrations_revoke','integrations_bind','integrations_unbind','integrations_capabilities'=>(new IntegrationsApi(new Sql(($this->connect)())))->handle($name,$request,isset($route['id'])?(string)$route['id']:null),
                 default => (new IdentityApi(new Sql(($this->connect)())))->handle($name, $request, isset($route['id']) ? (string) $route['id'] : null),
             };
         } catch (ResourceNotFoundException) {

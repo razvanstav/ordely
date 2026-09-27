@@ -27,6 +27,9 @@ Runtime PHP/MySQL, instalare reproductibilă, CI Windows/Linux și identitate mu
 | [Setup](docs/setup.md) | Pornire Docker sau Windows nativ, versiuni și comenzi |
 | [Verificare modul 02](docs/testing/02-foundation.md) | PHP/MySQL/HTTP și CI |
 | [Identitate și magazine](docs/identity.md) | Provisionare, roluri, sesiuni și API |
+| [Core și contracte](docs/core-contracts.md) | Value objects și simulatoare pentru furnizori |
+| [Operațiuni durabile](docs/operations.md) | Cozi, idempotency, audit și reconciliere |
+| [Conexiuni și chei](docs/integrations.md) | Registru, criptare, asocieri, revocare și rotație |
 | [Jurnal inițial](docs/journal/2026-09-27.md) | Schimbările și rezultatele acestei sesiuni |
 
 ## Regula de lucru

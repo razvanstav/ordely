@@ -25,7 +25,8 @@ final class ExternalOperationsTest extends CommittedDatabaseTestCase
     private function context(TenantContext $tenant): ConnectionContext
     {
         $this->simulatedTenants[]=$tenant->merchantId;
-        return new ConnectionContext(new MerchantId($tenant->merchantId),new StoreId($this->store($tenant)),ConnectionId::new(),CorrelationId::new());
+        $store=$this->store($tenant);$connection=\Ordely\Tests\Support\IntegrationFixtures::connection($this->db,$tenant,$store);
+        return new ConnectionContext(new MerchantId($tenant->merchantId),new StoreId($store),new ConnectionId($connection),CorrelationId::new());
     }
     public function testConfirmedIntentSurvivesNewCoordinatorAndDifferentHttpCorrelation(): void
     {

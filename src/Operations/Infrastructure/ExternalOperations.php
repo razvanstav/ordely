@@ -20,13 +20,14 @@ final readonly class ExternalOperations
         if($this->db->pdo->inTransaction()){throw new \LogicException('External calls cannot run inside a database transaction.');}
         if(!preg_match('/^[a-z][a-z0-9_.]{0,63}$/D',$type)||$leaseSeconds<1||$leaseSeconds>3600){throw new \InvalidArgumentException('Invalid external operation.');}
         $scope=Scope::connection($context);(new ScopeGuard($this->db))->active($scope);
+        (new \Ordely\Integrations\Infrastructure\ConnectionGuard($this->db))->active($context);
         if($this->connectionCheck!==null){($this->connectionCheck)($context);}
         $hash=hash('sha256',CanonicalJson::encode([$context->connection,$type,$request]),true);
         $reservation=$this->reserve($context,$type,$businessKey,$hash,$leaseSeconds);
         if($reservation instanceof OperationResult){return $reservation;}
         $sent=false;$reference=null;$failure=null;$retryAfter=null;
         try{
-            (new ScopeGuard($this->db))->active($scope);if($this->connectionCheck!==null){($this->connectionCheck)($context);}
+            (new ScopeGuard($this->db))->active($scope);if($this->connectionCheck!==null){($this->connectionCheck)($context);}(new \Ordely\Integrations\Infrastructure\ConnectionGuard($this->db))->active($context);
             $sent=true;$reference=$call($reservation->providerKey);
         }catch(\Throwable $error){
             $failure=match(true){$error instanceof ProviderFailure=>$error->category,$error instanceof AccessDenied&&!$sent=>ErrorCategory::Authentication,!$sent=>ErrorCategory::Transient,default=>ErrorCategory::Unknown};

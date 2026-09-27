@@ -6,6 +6,7 @@
     "require": {
         "php": "~8.4.0",
         "ext-mbstring": "*",
+        "ext-openssl": "*",
         "ext-pdo": "*",
         "ext-pdo_mysql": "*",
         "symfony/dotenv": "7.4.*",

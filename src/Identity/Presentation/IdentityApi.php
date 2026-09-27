@@ -30,7 +30,7 @@ final readonly class IdentityApi
 
         $stores = new StoreRepository($this->db);
         switch ($route) {
-            case 'me': return new JsonResponse(['merchantId' => $context->merchantId, 'role' => $context->role->value, 'csrf' => Sessions::csrf($token), 'merchants' => $sessions->merchants($context->userId)]);
+            case 'me': return new JsonResponse(['merchantId' => $context->merchantId, 'role' => $context->role->value, 'allStores'=>$context->allStores, 'csrf' => Sessions::csrf($token), 'merchants' => $sessions->merchants($context->userId)]);
             case 'logout':
                 $sessions->revoke($token);
                 $response = new JsonResponse(['status' => 'logged_out']);

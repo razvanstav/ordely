@@ -37,6 +37,8 @@ final class IdentityHttpTest extends TestCase
         $environment = array_merge(getenv(), ['APP_ENV' => 'test', 'DB_NAME' => DatabaseConfig::fromEnvironment(true)->database]);
         unset($environment['SYMFONY_DOTENV_VARS'], $environment['SYMFONY_DOTENV_PATH']);
         $root = dirname(__DIR__, 2); $log = $root . '/var/http-test-' . Id::new() . '.log';
+        $keyFile=$root.'/var/http-key-'.Id::new().'.json';$testKey=base64_encode(random_bytes(32));
+        file_put_contents($keyFile,json_encode(['active'=>'http-test','keys'=>['http-test'=>$testKey]],JSON_THROW_ON_ERROR));$environment['ORDELY_KEYRING_FILE']=$keyFile;
         $process = proc_open([PHP_BINARY, '-S', $address, '-t', $root . '/public', $root . '/public/index.php'], [0 => ['pipe', 'r'], 1 => ['file', $log, 'a'], 2 => ['file', $log, 'a']], $pipes, $root, $environment, ['bypass_shell' => true]);
         try {
             self::assertIsResource($process); fclose($pipes[0]);
@@ -61,16 +63,30 @@ final class IdentityHttpTest extends TestCase
             $stores = $this->request($base . '/api/stores', cookie: $cookie);
             self::assertSame(200, $stores['status']);
             self::assertStringContainsString('Magazin', $stores['body']);
+            $storeId=json_decode($created['body'],true,flags:JSON_THROW_ON_ERROR)['id'];$connectionId=Id::new();$credential='SYNTHETIC-REAL-HTTP-TOKEN';
+            $connection=$this->request($base.'/api/integrations','POST',['id'=>$connectionId,'provider'=>'fake-carrier','label'=>'HTTP carrier','credentials'=>['apiToken'=>$credential]],$cookie,$csrf);
+            self::assertSame(201,$connection['status']);
+            self::assertSame(200,$this->request($base.'/api/integrations/'.$connectionId.'/bind','POST',['storeId'=>$storeId,'version'=>1,'isDefault'=>true],$cookie,$csrf)['status']);
+            self::assertSame(200,$this->request($base.'/api/integrations/'.$connectionId.'/capabilities','POST',['storeId'=>$storeId,'kind'=>'carrier'],$cookie,$csrf)['status']);
+            $connections=$this->request($base.'/api/integrations',cookie:$cookie);self::assertSame(200,$connections['status']);self::assertStringNotContainsString($credential,$connections['body']);self::assertStringNotContainsString($testKey,$connections['body']);
+            // Force an authenticated-decryption failure and verify the public error and log stay redacted.
+            $db->run("UPDATE provider_connections SET credentials_envelope=JSON_SET(credentials_envelope,'$.tag',?) WHERE id=?",[base64_encode(str_repeat('x',16)),Id::bytes($connectionId)]);
+            $failure=$this->request($base.'/api/integrations/'.$connectionId.'/capabilities','POST',['storeId'=>$storeId,'kind'=>'carrier'],$cookie,$csrf);
+            self::assertSame(500,$failure['status']);self::assertStringNotContainsString($credential,$failure['body']);
+            self::assertSame(200,$this->request($base.'/api/integrations/'.$connectionId.'/revoke','POST',['version'=>2],$cookie,$csrf)['status']);
+            self::assertSame(403,$this->request($base.'/api/integrations/'.$connectionId.'/capabilities','POST',['storeId'=>$storeId,'kind'=>'carrier'],$cookie,$csrf)['status']);
             self::assertSame(200, $this->request($base . '/api/auth/logout', 'POST', [], $cookie, $csrf)['status']);
             self::assertSame(401, $this->request($base . '/api/stores', cookie: $cookie)['status']);
             self::assertSame(404, $this->request($base . '/.env')['status']);
             $logged = file_get_contents($log); self::assertIsString($logged);
             self::assertStringNotContainsString($password, $logged); self::assertStringNotContainsString($cookie, $logged);
+            self::assertStringNotContainsString($credential,$logged);self::assertStringNotContainsString($testKey,$logged);
         } finally {
             if (is_resource($process)) { proc_terminate($process); proc_close($process); }
             FixtureCleanup::merchant($db,$identity['merchantId'],$identity['userId']);
             $db->run('DELETE FROM auth_rate_limits WHERE bucket IN (?,?)', [hash('sha256', 'account:' . $email, true), hash('sha256', 'ip:127.0.0.1', true)]);
             if (is_file($log)) { unlink($log); }
+            if(is_file($keyFile)){unlink($keyFile);}
         }
     }
 }
