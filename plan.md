@@ -2,11 +2,11 @@
 
 Actualizat: 2026-09-28. Registrul oficial al stărilor modulelor.
 
-**Ultimul modul finalizat: 05 — Operațiuni durabile, DONE. Modul activ: 06 — REVIEW.**
+**Modulele 01–06 sunt DONE. Niciun modul activ. Următorul: 07 — PLANNED, neînceput.**
 
 Arhitectura a fost acceptată pentru continuare prin mesajul utilizatorului „CONTINUA”. Continuăm același branch de lucru `codex/modul-01-arhitectura`, fără fragmentarea istoricului între PC-uri.
 
-Utilizatorul a autorizat modulele 03–06, executate strict în ordine: implementare, teste, documentare, commit/push, apoi următorul. Deciziile D01–D05 se închid înainte de modulele care le folosesc. Modulele 07–21 nu sunt începute.
+Utilizatorul a autorizat modulele 03–06, executate strict în ordine: implementare, teste, documentare, commit/push, apoi următorul. Deciziile D01–D05 se închid înainte de modulele care le folosesc. Lotul 03–06 este închis, fiecare modul fiind publicat și verificat în CI înainte de următorul. Modulele 07–21 nu sunt începute.
 
 ## Stări
 
@@ -25,7 +25,7 @@ Fiecare modul pornește după închiderea celui precedent. Testele de acceptare 
 | 03 | Identitate, merchants, stores, roluri și tenant isolation | Acces între doi tenants respins la HTTP, repository și DB | DONE |
 | 04 | Value objects, contracte și fake adapters | Core fără imports de furnizori; contract tests și bani exacți | DONE |
 | 05 | Outbox, inbox, jobs, idempotency și audit | Concurență, restart worker, timeout ambiguu și retry fără dubluri | DONE |
-| 06 | ProviderConnection, chei și registru integrări | Criptare/rotație testate; secrete absente din loguri și UI | REVIEW |
+| 06 | ProviderConnection, chei și registru integrări | Criptare/rotație testate; secrete absente din loguri și UI | DONE |
 | 07 | Shopify: instalare, auth, webhook inbox și dezinstalare | Dev store conectat; semnături și revocare testate | PLANNED |
 | 08 | Comenzi și catalog Shopify normalizate | Import repetat fără dubluri, reconciliere, paginare, variante/stoc | PLANNED |
 | 09 | Facturare și Oblio, inclusiv storno de bază | Contract + integrare controlată; retry fără document duplicat | PLANNED |

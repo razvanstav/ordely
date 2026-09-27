@@ -10,7 +10,7 @@
 | `php bin/keyring.php` | PASS: fișier local ignorat generat, fără afișarea cheii |
 | `php bin/key-status.php` | PASS: aplicația nu are încă provider connections |
 | Generare/rotație CLI în suita unit | PASS: păstrează cheia veche, schimbă cheia activă, refuză suprascrierea și path traversal; permisiuni Unix verificate numai pe Linux CI |
-| CI Windows/Linux | PENDING după push; nu este încă PASS |
+| CI Windows/Linux | PASS: [run 36352683313](https://github.com/razvanstav/ordely/actions/runs/36352683313), cod 2358a26 |
 
 Probe: nonce diferit la criptări identice; round trip; modificare ciphertext/nonce/tag, tag trunchiat, schimbare tenant/conexiune/provider/format/key ID, cheie lipsă/greșită/lungime invalidă, migrare la o cheie nouă și retragerea celei vechi din ring-ul de test. Serializarea/debug nu returnează secretele.
 
@@ -21,3 +21,5 @@ Workerul refuză o conexiune revocată, închide jobul cu `scope_inactive` și n
 HTTP: creare/replay, asociere, capabilities, rotație/înlocuire, revocare, CSRF, roluri/all_stores, tenant străin și conflict de versiune. Server PHP separat cu keyring temporar aleator: flux real HTTP/MySQL, decriptare falsificată → 500 generic; tokenul și cheia lipsesc din răspunsuri și logul serverului. Fișierele și fixture-urile temporare sunt curățate.
 
 NOT_RUN: interacțiune manuală vizuală în browser (driver indisponibil din cauza ACL-urilor sandbox) și PC-ul personal secundar. Testarea automată HTTP și sintaxa JS sunt PASS. Fără conturi/furnizori reali, fără audit criptografic extern ori certificare de producție; acestea nu sunt prezentate ca validate prin simulatoare.
+
+Predare: verificarea linkurilor Markdown locale PASS; push confirmat prin compararea HEAD cu remote. Preview PHP8080 și MySQL33060 oprite după verificări; datele și cheia locală păstrate.
