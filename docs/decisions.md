@@ -1,0 +1,83 @@
+# Registru de decizii
+
+Actualizat: 2026-09-27. `CERINȚĂ` provine din brief/utilizator; `PROPUS` nu înseamnă aprobat. Pentru acceptare se notează data și decizia utilizatorului, fără a presupune aprobarea din lipsa unui răspuns.
+
+## Stabilite prin cerințe
+
+| ID | Decizie | Motiv și consecință |
+| --- | --- | --- |
+| R01 | CERINȚĂ — PHP + MySQL; HTML/CSS/JS nativ | Nu adoptăm React/Vue/Angular |
+| R02 | CERINȚĂ — ONE CORE + multiple connectors/providers | Tipurile furnizorilor rămân în adaptoare |
+| R03 | CERINȚĂ — V1 Shopify, Sameday, FAN, Oblio | Celelalte integrări sunt backlog |
+| R04 | CERINȚĂ — Un singur portal și launcher | CMS-urile nu duplică UI-ul de retur |
+| R05 | CERINȚĂ — Un modul activ, teste și documentare | Nicio dezvoltare paralelă a trei module; progres în Git |
+| R06 | CERINȚĂ — Arhitectura înainte de aplicație | Brief §51 cere oprire după plan până la aprobare |
+| R07 | CERINȚĂ — Credentials/IBAN criptate, tenant isolation și audit | Intră de la fundație, nu ca remediere la final |
+| R08 | CERINȚĂ — Outbound: selecție business și COD automat | Nimic = fără factură/COD 0; produse/transport se calculează |
+
+## Propuneri structurale ale planului
+
+| ID | Stare | Alegere și consecință |
+| --- | --- | --- |
+| A01 | PROPUS | Monolit modular, module cu Domain/Application/Infrastructure/Presentation; deployment comun inițial |
+| A02 | PROPUS | MySQL comun cu merchant/store context și FK-uri compuse; nu DB separată per merchant în V1 |
+| A03 | PROPUS | Outbox + inbox + jobs MySQL, Operation pentru pași externi; fără event sourcing |
+| A04 | PROPUS | ReturnCase gestionează inbound; ExchangeCase îl referă; OutboundPlan pregătește Shipment fără duplicarea AWB-ului |
+| A05 | PROPUS | Bani în unități minore, snapshots imutabile după emitere și quotes versionate |
+| A06 | PROPUS | Provider timeout ambiguu cere reconciliere; nu promitem exactly-once la un API care nu o permite |
+
+## D01 — Politică de facturare/storno pentru outbound
+
+Stare: DESCHIS. Termen: înainte de 09/19. Responsabil: proprietarul produsului, cu validarea responsabilului fiscal.
+
+Păstrăm regula de produs din brief: Nimic → fără factură nouă/COD 0; produse și/sau transport → factură și COD calculat. Trebuie stabilit tratamentul liniilor alese cu total zero, al diferenței de preț dintre produsul returnat și înlocuitor, al documentului original emis în afara Ordely și momentul storno. Propunere: BillingPolicy/FiscalPolicy separată, fără compensare automată în V1 până la definirea ei. Acestea sunt reguli de produs propuse, nu concluzii de conformitate fiscală.
+
+## D02 — Executarea rambursării
+
+Stare: DESCHIS. Termen: înainte de 17.
+
+Propunere V1: Ordely pregătește coada și datele; comerciantul plătește extern; finance confirmă suma, referința și data. Nu există integrare bancară cerută explicit în brief. Dacă se dorește plata automată, se adaugă Payment/RefundProvider și un modul dedicat. Nu folosim „REFUNDED” doar fiindcă operatorul a deschis ecranul sau s-a emis storno.
+
+## D03 — Momentul outbound și colet la schimb
+
+Stare: DESCHIS. Termen: înainte de 13/18/19.
+
+Brief-ul cere READY_FOR_OUTBOUND la recepție. Confirmăm dacă inspecția este obligatorie înainte de expediere. „Colet la schimb” poate colecta inbound odată cu livrarea outbound; este o rută alternativă care trebuie definită cu providerul. Nu colectăm din nou un produs deja recepționat. Capabilitățile reale FAN/Sameday se confirmă pe cont/serviciu.
+
+## D04 — Stoc și rezervări
+
+Stare: DESCHIS. Termen: înainte de 08/18.
+
+Propunere: citire per locație, variante fără stoc dezactivate, revalidare la confirmare. Stabilim dacă rezervăm în CMS, când scădem/repunem stocul și ce face operatorul dacă între timp stocul dispare. Snapshot-ul de stoc nu este rezervare. Stocul returnat nu se repune automat fără verdict/policy.
+
+## D05 — Identificare client și OTP
+
+Stare: DESCHIS. Termen: înainte de 14.
+
+Brief-ul cere ID comandă + email/telefon și suport OTP configurabil. Alegem default-ul, TTL-ul și acțiunile care cer verificare mai puternică. Recomandare: OTP înainte de expunerea datelor sensibile; gateway-ul și costul se aleg la implementarea portalului. Public store token nu este secret și nu autorizează comenzi.
+
+## D06 — Runtime și infrastructură
+
+Stare: DESCHIS. Termen: înainte de 02.
+
+Propunere: PHP 8.4 cu patch suportat, MySQL 8.4, Composer/PSR-4, componente HTTP/security mature, frontend nativ. Alegem framework-ul backend, test runner/static analysis, hosting, worker supervisor și modul de reproducere pe Windows/al doilea PC. Versiunile se fixează în lockfiles și documentul de setup al modulului 02. Nu instalăm un stack complet în modulul 01.
+
+## D07 — Limite V1 și operare
+
+Stare: DESCHIS. Termen: valorile care influențează setup-ul înainte de 02; restul înainte de pilot.
+
+De stabilit: volume zilnice și vârfuri, număr stores/tenant, țări, RON-only versus multimonedă, produse fracționare, SLO-uri, backup/restore, retenție pentru date/payload/audit și limite fișiere. Propuneri: RON pentru operațiunile V1, cantități întregi și păstrarea monedei originale la import, fără conversie implicită. Billing abonament SaaS este separat de facturarea comenzilor.
+
+## D08 — Conturi, furnizori și distribuție
+
+Stare: DESCHIS. Termen: înainte de integrarea fiecărui provider și înainte de lansare.
+
+Sunt necesare contul developer/dev store Shopify, scopes/PCD, credențiale de test, documentația și serviciile contractate Sameday/FAN, profilul/seriile Oblio, operațiile suportate pentru storno și lookup. Strategia de distribuție/pilot și monetizare poate cere un modul de SaaS billing; nu confundăm InvoiceProvider pentru comercianți cu taxarea abonamentului Ordely. Disponibilitatea sandbox-urilor și a funcțiilor nu a fost verificată în conturi reale.
+
+## O01 — Continuitate Git
+
+Stare: CONFIGURAT PARȚIAL, AMÂNAT DE UTILIZATOR.
+
+Remote furnizat: `https://github.com/razvanstav/ordely.git`, configurat ca `origin`. Verificarea remote-ului nu a returnat branch-uri. Branch local: `codex/modul-01-arhitectura`.
+
+Identitatea Git nu era configurată. După solicitarea numelui/emailului, utilizatorul a răspuns „nu mai conteaza. las-o asa”. Lăsăm identitatea nemodificată și nu facem commit/push. Documentele sunt locale; nu afirmăm sincronizare între PC-uri. Nu mai cerem aceste date în sesiunea curentă.

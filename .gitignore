@@ -1,0 +1,20 @@
+# Configurare locală și secrete
+.env
+.env.*
+!.env.example
+auth.json
+*.pem
+*.key
+
+# Dependențe și artefacte generate
+/vendor/
+/node_modules/
+/var/
+/coverage/
+/.phpunit.cache/
+/.idea/
+/.vscode/
+
+# Fișiere locale Windows/macOS
+Thumbs.db
+.DS_Store
