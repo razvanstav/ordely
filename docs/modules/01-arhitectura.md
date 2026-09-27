@@ -29,7 +29,7 @@ Documentele sunt publicate pe GitHub. Commit/push au fost verificate; clonarea �
 
 ## Verificări
 
-Raport: [01-architecture-review.md](../testing/01-architecture-review.md). Nu există aplicație asupra căreia să ruleze teste runtime. Verificarea planului nu este validare a API-urilor furnizorilor.
+Raport istoric: [01-architecture-review.md](../testing/01-architecture-review.md). În etapa 01 nu exista aplicație pentru teste runtime. Testele fundației sunt consemnate în modulul 02; verificarea planului nu validează API-urile furnizorilor.
 
 ## Decizii și fișiere
 

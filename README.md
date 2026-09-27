@@ -2,13 +2,13 @@
 
 Platformă SaaS pentru operațiunile magazinelor online: un Core independent de CMS, conectat la platforme de comerț, curieri și servicii de facturare.
 
-**Stadiu: modulul 02 — fundația tehnică.** Arhitectura este acceptată pentru continuare. Runtime-ul PHP/MySQL și verificările sunt implementate; modulele comerciale nu sunt începute.
+**Modulul 02 este finalizat.** Runtime PHP/MySQL, instalare reproductibilă și CI Windows/Linux verificate. Urmează modulul 03 — Identity & Tenancy; modulele comerciale nu sunt începute.
 
 ## De unde reluăm
 
 1. Citește [regulile proiectului](AGENTS.md).
 2. Citește [starea curentă](STATUS.md) și [planul modulelor](plan.md).
-3. Deschide fișa modulului curent: [02 — Fundație tehnică](docs/modules/02-fundatie.md).
+3. Citește predarea ultimului modul: [02 — Fundație tehnică](docs/modules/02-fundatie.md).
 4. Urmează [instrucțiunile de instalare și testare](docs/setup.md).
 5. Consultă [arhitectura](docs/architecture.md) și [deciziile deschise](docs/decisions.md).
 
@@ -23,7 +23,7 @@ Platformă SaaS pentru operațiunile magazinelor online: un Core independent de 
 | [Arhitectură](docs/architecture.md) | Cele 30 de livrabile cerute în brief |
 | [Decizii](docs/decisions.md) | Ce este stabilit, ce este propus și ce mai trebuie decis |
 | [Module](docs/modules/template.md) | Modelul fișei unui modul |
-| [Verificare modul 01](docs/testing/01-architecture-review.md) | Verificările efectuate și testele încă inexistente |
+| [Verificare modul 01](docs/testing/01-architecture-review.md) | Raportul istoric al arhitecturii |
 | [Setup](docs/setup.md) | Pornire Docker sau Windows nativ, versiuni și comenzi |
 | [Verificare modul 02](docs/testing/02-foundation.md) | PHP/MySQL/HTTP și CI |
 | [Jurnal inițial](docs/journal/2026-09-27.md) | Schimbările și rezultatele acestei sesiuni |
@@ -34,4 +34,4 @@ Platformă SaaS pentru operațiunile magazinelor online: un Core independent de 
 
 O conversație are un singur modul ca obiectiv. Poate acoperi doar un pas din acel modul. Progresul se păstrează în fișiere versionate, astfel încât următoarea conversație să nu depindă de istoricul chatului.
 
-Documentația a fost publicată pe [branch-ul modulului 01](https://github.com/razvanstav/ordely/tree/codex/modul-01-arhitectura), cu commit/push verificate. Pe alt PC clonează repository-ul și continuă branch-ul `codex/modul-01-arhitectura`, urmând [workflow-ul](docs/workflow.md). Modificările viitoare devin disponibile acolo după fiecare push reușit.
+Codul și documentația sunt pe [branch-ul proiectului](https://github.com/razvanstav/ordely/tree/codex/modul-01-arhitectura). Numele branch-ului a fost păstrat; modulul curent se stabilește din plan. Pe alt PC clonează acest branch și urmează setup-ul și [workflow-ul](docs/workflow.md). Modificările viitoare devin disponibile acolo după fiecare push reușit.

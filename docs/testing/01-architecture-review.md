@@ -45,7 +45,7 @@ La reverificare, un wrapper a interpretat prea strict exit code 1 de la `git dif
 - `NOT_RUN`: validare fiscală, teste în conturi reale, randarea diagramelor Mermaid.
 - `NOT_RUN`: clonare/test pe al doilea PC. Commit/push au fost realizate ulterior, conform verificării de mai jos.
 
-Modulul nu este DONE: aprobarea arhitecturii este încă restantă.
+La data redactării raportului, aprobarea era restantă. Ulterior, cererea „CONTINUA” a închis modulul 01 și a autorizat fundația modulului 02; starea curentă se citește în plan.
 
 ## Publicarea cerută ulterior de utilizator
 

@@ -13,7 +13,7 @@ Un singur modul este activ. În interiorul lui lucrăm la un singur pas verifica
 3. Dacă există `origin`, rulează `git fetch origin`. Verifică în STATUS/istoric branch-ul de predare și continuă-l; nu presupune că se lucrează mereu pe branch-ul principal.
 4. Pe branch-ul corect, cu working tree curat și upstream configurat, rulează `git pull --ff-only`. Dacă există divergențe, analizează istoricul și rezolvă fără force push.
 5. Citește AGENTS → STATUS → plan → fișa modulului → deciziile relevante.
-6. Confirmă local versiunile și instrucțiunile de pornire. După modulul 02 vor exista comenzi reproductibile documentate; în prezent nu există.
+6. Confirmă local versiunile și urmează [setup-ul](setup.md), cu comenzile reproductibile livrate în modulul 02.
 7. Definește pasul de lucru și verificarea lui în fișa modulului.
 
 ## În timpul lucrului

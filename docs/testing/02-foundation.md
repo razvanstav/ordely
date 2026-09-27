@@ -31,8 +31,14 @@ XAMPP/MariaDB 10.4.32 nu a fost substituit pentru MySQL și a rămas nemodificat
 
 Proba de shutdown a identificat lipsa contului root pentru TCP loopback cu skip-name-resolve. `mysqladmin ping` putea raporta procesul viu chiar fără autentificare. Helper-ul folosește acum `status` autenticat și configurează contul numai pentru 127.0.0.1. Recuperarea inițială a repornit strict perechea monitor/server din var/tools, identificată prin cale și config; XAMPP nu a fost oprit. După corecție, Stop/Start normal și păstrarea UUID-ului au trecut. CI Windows acoperă acum și acest helper.
 
-## Verificări în curs
+## CI și reproductibilitate
 
 - PASS la commit `96b33f6`: checkout curat local, CI Windows PHP și CI Linux Compose/MySQL/HTTP. [Rulare inițială](https://github.com/razvanstav/ordely/actions/runs/36343582815).
-- ÎN CURS: rerulare CI cu testarea helper-ului MySQL nativ Windows și remedierea shutdown-ului.
-- NOT_RUN: al doilea PC personal; CI independent va valida reproducibilitatea fără a pretinde acces la acel PC.
+- PASS la commit `fb25227431053b1081e7ef60a3427c3225f8716c`: [CI final](https://github.com/razvanstav/ordely/actions/runs/36343965209), status completed, conclusion success.
+- Windows PHP + native MySQL: instalare din checkout curat, toate cele 17 teste, platform requirements, oprire/repornire și shutdown final PASS.
+- Linux PHP + MySQL + HTTP: build Compose, instalare lockfile, platform/audit, toate testele, HTTP și cleanup PASS.
+- NOT_RUN: al doilea PC personal; CI independent a validat reproducibilitatea fără a pretinde acces la acel PC.
+
+Verificarea de predare a validat 40 de linkuri locale și blocurile Markdown înainte de închiderea documentară; `.env`, var și vendor nu sunt tracked. Procesele locale create pentru teste au fost oprite normal, cu datele păstrate.
+
+Modulul 02 este DONE. Limita rămasă este accesul la PC-ul personal secundar, nu un test eșuat: reproductibilitatea a fost demonstrată în clona locală curată și în două sisteme CI independente.

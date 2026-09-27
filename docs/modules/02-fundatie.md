@@ -1,6 +1,6 @@
 # Modul 02 — Fundație tehnică
 
-Actualizat: 2026-09-27. Stare: **IN_PROGRESS**. Dependență: modulul 01 DONE.
+Actualizat: 2026-09-27. Stare: **DONE**. Dependență: modulul 01 DONE.
 
 ## Obiectiv și limite
 
@@ -10,18 +10,22 @@ Direcție tehnică: PHP 8.4, MySQL 8.4, Composer cu lockfile, Symfony 7.4 HttpFo
 
 ## Pași și criterii de acceptare
 
-- [ ] Composer manifest, lockfile și autoload PSR-4 reproducibile.
-- [ ] Configurare exclusiv prin environment/fișier local ignorat, cu validare și fără secrete publicate.
-- [ ] HTTP `/health` pentru proces și `/ready` pentru DB; indisponibilitatea DB produce 503 fără detalii sensibile.
-- [ ] MySQL 8.4 verificat real: charset, UTC, prepared statements și rollback InnoDB.
-- [ ] Lint, analiză statică, unit și integration tests trecute.
-- [ ] Docker Compose și imagine PHP construite și verificate într-un mediu cu Docker.
-- [ ] Clonă curată instalată din lockfile, fără fișiere locale ascunse necesare.
-- [ ] GitHub Actions verde pe Linux cu MySQL și verificări de portabilitate pe Windows.
-- [ ] Setup documentat, plan/status/jurnal actualizate și push verificat.
+- [x] Composer manifest, lockfile și autoload PSR-4 reproducibile.
+- [x] Configurare exclusiv prin environment/fișier local ignorat, cu validare și fără secrete publicate.
+- [x] HTTP `/health` pentru proces și `/ready` pentru DB; indisponibilitatea DB produce 503 fără detalii sensibile.
+- [x] MySQL 8.4 verificat real: charset, UTC, prepared statements și rollback InnoDB.
+- [x] Lint, analiză statică, unit și integration tests trecute.
+- [x] Docker Compose și imagine PHP construite și verificate în CI Linux.
+- [x] Clonă curată instalată din lockfile, fără fișiere locale ascunse necesare.
+- [x] GitHub Actions verde pe Linux/Compose și Windows/MySQL nativ, inclusiv restart.
+- [x] Setup documentat, plan/status/jurnal actualizate; cod publicat și verificat pe GitHub.
 
 Mașina CI independentă validează reproducibilitatea pe un al doilea sistem. Nu pretindem acces sau test efectuat pe celălalt PC personal al utilizatorului; acesta va folosi aceleași instrucțiuni de clonare/setup.
 
 ## Verificări și predare
 
-Rezultatele se înregistrează în `docs/testing/02-foundation.md`. Următorul modul, Identity & Tenancy, nu se începe în această sesiune.
+Rezultate în [raport](../testing/02-foundation.md). Codul final al modulului este în commit `fb25227`; [CI complet verde](https://github.com/razvanstav/ordely/actions/runs/36343965209), ambele joburi finalizate cu succes. Închiderea documentară urmează în commit separat, fără schimbări de runtime.
+
+Procesele locale pornite pentru teste au fost oprite normal; configurația și datele rămân în var/. Pornire conform [setup](../setup.md).
+
+Următorul pas într-o conversație separată: modulul 03 — Identity & Tenancy. Se creează fișa modulului și criteriile pentru merchants, stores, memberships/roluri și izolarea tenant înainte de implementare. Modulul 03 nu a fost început.

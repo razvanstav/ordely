@@ -2,7 +2,7 @@
 
 Actualizat: 2026-09-27. Registrul oficial al stărilor modulelor.
 
-**Modul curent: 02 — Fundație tehnică. Stare: IN_PROGRESS.**
+**Ultimul modul finalizat: 02 — Fundație tehnică. Stare: DONE. Următorul: 03 — PLANNED.**
 
 Arhitectura a fost acceptată pentru continuare prin mesajul utilizatorului „CONTINUA”. Continuăm același branch de lucru `codex/modul-01-arhitectura`, fără fragmentarea istoricului între PC-uri.
 
@@ -21,7 +21,7 @@ Fiecare modul pornește după închiderea celui precedent. Testele de acceptare 
 | Modul | Livrabil și limită | Dovada necesară la închidere | Stare |
 | --- | --- | --- | --- |
 | 01 | Arhitectură, decizii, workflow și predare | Cele 30 de secțiuni, verificare documentară, arhitectură aprobată | DONE |
-| 02 | Mediu reproductibil PHP/MySQL, Composer, runner teste, CI și Git remote | Instalare din clonă curată și pe mașină CI independentă; smoke test + pipeline verde | IN_PROGRESS |
+| 02 | Mediu reproductibil PHP/MySQL, Composer, runner teste, CI și Git remote | Clonă curată + CI Windows/MySQL nativ și Linux/Compose/HTTP verzi | DONE |
 | 03 | Identitate, merchants, stores, roluri și tenant isolation | Acces între doi tenants respins la HTTP, repository și DB | PLANNED |
 | 04 | Value objects, contracte și fake adapters | Core fără imports de furnizori; contract tests și bani exacți | PLANNED |
 | 05 | Outbox, inbox, jobs, idempotency și audit | Concurență, restart worker, timeout ambiguu și retry fără dubluri | PLANNED |
