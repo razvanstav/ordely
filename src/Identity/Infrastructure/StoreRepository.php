@@ -5,6 +5,7 @@ namespace Ordely\Identity\Infrastructure;
 use Ordely\Identity\Domain\{AccessDenied, TenantContext};
 use Ordely\Infrastructure\Database\Sql;
 use Ordely\Shared\Id;
+use Ordely\Operations\Infrastructure\RecordStoreChange;
 
 final readonly class StoreRepository
 {
@@ -45,6 +46,7 @@ final readonly class StoreRepository
             $id = Id::new();
             $this->db->run('INSERT INTO stores (id,merchant_id,name,platform_key) VALUES (?,?,?,?)', [Id::bytes($id), Id::bytes($context->merchantId), $name, $platform]);
             if (!$context->allStores) { (new Provisioner($this->db))->grantStore($context->merchantId, $context->membershipId, $id); }
+            (new RecordStoreChange($this->db))->record($context,$id,1,true);
             return $id;
         });
     }
@@ -55,7 +57,9 @@ final readonly class StoreRepository
         return $this->db->transaction(function () use ($context, $id, $name): bool {
             $this->assertManager($context);
             if ($this->get($context, $id) === null) { return false; }
-            $this->db->run('UPDATE stores SET name=? WHERE merchant_id=? AND id=?', [$name, Id::bytes($context->merchantId), Id::bytes($id)]);
+            $this->db->run('UPDATE stores SET name=?,version=version+1 WHERE merchant_id=? AND id=?', [$name, Id::bytes($context->merchantId), Id::bytes($id)]);
+            $version=(int)$this->db->run('SELECT version FROM stores WHERE merchant_id=? AND id=?',[Id::bytes($context->merchantId),Id::bytes($id)])->fetchColumn();
+            (new RecordStoreChange($this->db))->record($context,$id,$version,false);
             return true;
         });
     }

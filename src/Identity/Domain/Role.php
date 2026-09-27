@@ -14,7 +14,7 @@ enum Role: string
     {
         return match ($permission) {
             'stores.read' => true,
-            'stores.manage', 'connections.manage', 'members.manage' => $this === self::Owner || $this === self::Admin,
+            'stores.manage', 'connections.manage', 'members.manage', 'operations.manage' => $this === self::Owner || $this === self::Admin,
             default => false,
         };
     }

@@ -20,7 +20,7 @@ final class IdentityTest extends DatabaseTestCase
      * @param array<string,string> $headers */
     private function request(string $path, string $method = 'GET', string $token = '', array $data = [], bool $csrf = true, array $headers = []): Response
     {
-        $server = ['CONTENT_TYPE' => 'application/json', 'REMOTE_ADDR' => '127.0.0.1'];
+        $server = ['CONTENT_TYPE' => 'application/json', 'REMOTE_ADDR' => '127.0.0.1','HTTP_IDEMPOTENCY_KEY'=>Id::new()];
         if ($csrf) { $server['HTTP_X_CSRF_TOKEN'] = Sessions::csrf($token); }
         $request = Request::create('https://localhost' . $path, $method, [], ['ordely_session' => $token], [], array_merge($server, $headers), json_encode((object) $data, JSON_THROW_ON_ERROR));
         return (new Application(fn (): \PDO => $this->db->pdo))->handle($request);

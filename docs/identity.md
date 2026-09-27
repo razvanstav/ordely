@@ -39,3 +39,5 @@ DB păstrează numai hash SHA-256 al tokenului de sesiune aleator de 256 biți. 
 Login are limită de 20 încercări/cont și 100/IP în 15 minute, cu contoare atomice DB și răspuns generic. Limitele sunt valori inițiale de dezvoltare, de evaluat la pilot. Nu există recuperare parolă prin email, MFA, SSO sau self-signup în acest modul. Retenția pentru sesiuni expirate și bucket-uri vechi se va lega de worker-ul de mentenanță; SQL administrativ poate elimina numai rânduri expirate.
 
 Testele folosesc doar conturi sintetice `example.test`, MySQL real și server PHP separat. `composer check` pornește/oprește singur serverul HTTP temporar. Nu rulează teste contra unui provider extern.
+
+Din modulul 05, POST /api/stores cere și Idempotency-Key. Replay returnează același ID, iar payload schimbat produce 409. [Operațiuni și worker](operations.md).

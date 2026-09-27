@@ -1,12 +1,12 @@
 # Plan Ordely
 
-Actualizat: 2026-09-27. Registrul oficial al stărilor modulelor.
+Actualizat: 2026-09-28. Registrul oficial al stărilor modulelor.
 
-**Ultimul modul finalizat: 04 — Core și contracte, DONE. Următorul: 05 — PLANNED.**
+**Ultimul modul finalizat: 04 — Core și contracte, DONE. Modul activ: 05 — REVIEW.**
 
 Arhitectura a fost acceptată pentru continuare prin mesajul utilizatorului „CONTINUA”. Continuăm același branch de lucru `codex/modul-01-arhitectura`, fără fragmentarea istoricului între PC-uri.
 
-Utilizatorul a autorizat modulele 03–06, executate strict în ordine: implementare, teste, documentare, commit/push, apoi următorul. Deciziile D01–D05 se închid înainte de modulele care le folosesc. Modulele 05–21 nu sunt începute.
+Utilizatorul a autorizat modulele 03–06, executate strict în ordine: implementare, teste, documentare, commit/push, apoi următorul. Deciziile D01–D05 se închid înainte de modulele care le folosesc. Modulele 06–21 nu sunt începute.
 
 ## Stări
 
@@ -24,7 +24,7 @@ Fiecare modul pornește după închiderea celui precedent. Testele de acceptare 
 | 02 | Mediu reproductibil PHP/MySQL, Composer, runner teste, CI și Git remote | Clonă curată + CI Windows/MySQL nativ și Linux/Compose/HTTP verzi | DONE |
 | 03 | Identitate, merchants, stores, roluri și tenant isolation | Acces între doi tenants respins la HTTP, repository și DB | DONE |
 | 04 | Value objects, contracte și fake adapters | Core fără imports de furnizori; contract tests și bani exacți | DONE |
-| 05 | Outbox, inbox, jobs, idempotency și audit | Concurență, restart worker, timeout ambiguu și retry fără dubluri | PLANNED |
+| 05 | Outbox, inbox, jobs, idempotency și audit | Concurență, restart worker, timeout ambiguu și retry fără dubluri | REVIEW |
 | 06 | ProviderConnection, chei și registru integrări | Criptare/rotație testate; secrete absente din loguri și UI | PLANNED |
 | 07 | Shopify: instalare, auth, webhook inbox și dezinstalare | Dev store conectat; semnături și revocare testate | PLANNED |
 | 08 | Comenzi și catalog Shopify normalizate | Import repetat fără dubluri, reconciliere, paginare, variante/stoc | PLANNED |

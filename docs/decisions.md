@@ -93,3 +93,7 @@ Stare: CONFIGURAT ȘI PUBLICAT.
 Remote furnizat: `https://github.com/razvanstav/ordely.git`, configurat ca `origin`. Verificarea remote-ului nu a returnat branch-uri. Branch local: `codex/modul-01-arhitectura`.
 
 Inițial identitatea Git nu era configurată, iar utilizatorul a amânat configurarea. Ulterior a cerut explicit push. Contul GitHub autentificat a fost verificat; identitatea `razvanstav` și adresa noreply bazată pe ID-ul contului au fost configurate numai pentru acest repository. Primul commit `3a08834` a fost publicat, iar hash-ul remote a fost verificat identic cu HEAD local. Reluarea pe alt PC folosește același branch și documentele din Git; proba efectivă pe al doilea PC rămâne de făcut.
+
+## D11 — Operațiuni durabile (05)
+
+Ales 2026-09-28: MySQL queue cu index ordonat, SKIP LOCKED, token/fencing și lease 60 secunde; retry cu jitter și Retry-After, implicit 5 încercări, plafon 25 pentru jobs. Coordonator extern cu intenție stabilă, cheie provider stabilă, maximum 5 apeluri certe temporare; UNKNOWN nu se repetă automat. Confirmare după reconciliere cu versiune și digest dovadă, auditată. Payload allowlist numai referințe/counters/digest, fără date personale. Migrarea 003 remediază problema de locking demonstrată cu două procese. Detalii în [operations](operations.md).

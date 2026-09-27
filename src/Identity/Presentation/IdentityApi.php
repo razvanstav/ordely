@@ -5,6 +5,9 @@ namespace Ordely\Identity\Presentation;
 use Ordely\Identity\Infrastructure\{Sessions, StoreRepository};
 use Ordely\Infrastructure\Database\Sql;
 use Ordely\Infrastructure\Http\Problem;
+use Ordely\Core\Value\OperationKey;
+use Ordely\Operations\Domain\SafePayload;
+use Ordely\Operations\Infrastructure\IdempotencyGate;
 use Symfony\Component\HttpFoundation\{Cookie, JsonResponse, Request, Response};
 
 final readonly class IdentityApi
@@ -15,20 +18,15 @@ final readonly class IdentityApi
     public function handle(string $route, Request $request, ?string $id = null): Response
     {
         $sessions = new Sessions($this->db);
-        if ($request->getMethod() !== 'GET' && $request->getMethod() !== 'HEAD') {
-            $origin = $request->headers->get('Origin');
-            if ($origin !== null && $origin !== $request->getSchemeAndHttpHost()) { throw new Problem(403, 'invalid_origin'); }
-            if (trim(explode(';', strtolower($request->headers->get('Content-Type') ?? ''))[0]) !== 'application/json') { throw new Problem(415, 'json_required'); }
-        }
+        $guard=new SessionGuard($this->db);
         if ($route === 'login') {
+            $guard->validateWrite($request);
             $data = self::body($request);
             $token = $sessions->login(self::field($data, 'email', 254), self::field($data, 'password', 72), $request->getClientIp() ?? 'unknown');
             return $this->withCookie(new JsonResponse(['csrf' => Sessions::csrf($token)]), $token, $request);
         }
         $token = $request->cookies->get(self::COOKIE, '');
-        $context = $sessions->resolve($token);
-        if (!in_array($request->getMethod(), ['GET', 'HEAD'], true)
-            && !hash_equals(Sessions::csrf($token), $request->headers->get('X-CSRF-Token') ?? '')) { throw new Problem(403, 'invalid_csrf'); }
+        $context = $guard->context($request);
 
         $stores = new StoreRepository($this->db);
         switch ($route) {
@@ -44,8 +42,12 @@ final readonly class IdentityApi
             case 'stores': return new JsonResponse(['stores' => $stores->list($context)]);
             case 'create_store':
                 $data = self::body($request);
-                $newId = $stores->create($context, self::field($data, 'name', 160), self::field($data, 'platform', 40));
-                return new JsonResponse(['id' => $newId], 201);
+                $name=self::field($data,'name',160);$platform=self::field($data,'platform',40);
+                $header=$request->headers->get('Idempotency-Key');
+                if($header===null){throw new Problem(400,'idempotency_key_required');}
+                $result=(new IdempotencyGate($this->db))->run($context,null,'stores.create','stores.manage',new OperationKey($header),['name'=>$name,'platform'=>$platform],
+                    fn():SafePayload=>new SafePayload(['store_id'=>$stores->create($context,$name,$platform)]));
+                return new JsonResponse(['id' => $result->id('store_id')], 201);
             case 'get_store':
                 $store = $stores->get($context, $id ?? '');
                 if ($store === null) { throw new Problem(404, 'not_found'); }

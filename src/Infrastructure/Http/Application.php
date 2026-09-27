@@ -9,6 +9,8 @@ use Ordely\Identity\Domain\AccessDenied;
 use Ordely\Identity\Presentation\IdentityApi;
 use Ordely\Infrastructure\Configuration\Environment;
 use Ordely\Infrastructure\Database\Sql;
+use Ordely\Operations\Domain\Conflict;
+use Ordely\Operations\Presentation\OperationsApi;
 use PDO;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,6 +46,9 @@ final readonly class Application
         $routes->add('create_store', new Route('/api/stores', methods: ['POST']));
         $routes->add('get_store', new Route('/api/stores/{id}', requirements: ['id' => '[a-f0-9]{32}'], methods: ['GET']));
         $routes->add('rename_store', new Route('/api/stores/{id}', requirements: ['id' => '[a-f0-9]{32}'], methods: ['PATCH']));
+        $routes->add('ops_list',new Route('/api/operations',methods:['GET']));
+        $routes->add('ops_retry',new Route('/api/jobs/{id}/retry',requirements:['id'=>'[a-f0-9]{32}'],methods:['POST']));
+        $routes->add('ops_confirm',new Route('/api/operations/{id}/confirm',requirements:['id'=>'[a-f0-9]{32}'],methods:['POST']));
         $context = (new RequestContext())->fromRequest($request);
 
         try {
@@ -56,6 +61,7 @@ final readonly class Application
                 'home' => $this->asset('index.html', 'text/html'),
                 'script' => $this->asset('app.js', 'text/javascript'),
                 'style' => $this->asset('app.css', 'text/css'),
+                'ops_list','ops_retry','ops_confirm'=>(new OperationsApi(new Sql(($this->connect)())))->handle($name,$request,isset($route['id'])?(string)$route['id']:null),
                 default => (new IdentityApi(new Sql(($this->connect)())))->handle($name, $request, isset($route['id']) ? (string) $route['id'] : null),
             };
         } catch (ResourceNotFoundException) {
@@ -68,6 +74,8 @@ final readonly class Application
             $response = new JsonResponse(['error' => $problem->getMessage()], $problem->status);
         } catch (AccessDenied) {
             $response = new JsonResponse(['error' => 'forbidden'], 403);
+        } catch (Conflict) {
+            $response = new JsonResponse(['error' => 'conflict'], 409);
         } catch (\InvalidArgumentException) {
             $response = new JsonResponse(['error' => 'invalid_input'], 400);
         } catch (Throwable $error) {

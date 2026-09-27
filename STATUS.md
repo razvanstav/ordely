@@ -1,11 +1,11 @@
 # Starea curentă — Ordely
 
-Actualizat: 2026-09-27. Registrul stărilor: plan.md.
+Actualizat: 2026-09-28. Registrul stărilor: plan.md.
 
 - **Ultimul modul închis:** [04 — Core și contracte](docs/modules/04-core-contracts.md), DONE.
 - Cod: `5e0b747`; [CI Windows și Linux/MySQL/HTTP PASS](https://github.com/razvanstav/ordely/actions/runs/36348452800).
 - Disponibil: runtime reproductibil, migrații, merchants/users/memberships, roluri și granturi, sesiuni revocabile, CSRF/rate limit, API și UI magazine, provisionare CLI.
-- **Următorul:** 05 — operațiuni durabile, outbox/inbox/jobs/idempotency/audit, apoi 06 — conexiuni și chei. Fiecare cu teste/documente/push înaintea următorului; oprește înainte de 07.
+- **Activ:** [05 — operațiuni durabile](docs/modules/05-durable-operations.md), REVIEW. Local PASS: 147 lint, 65 unit/505 assertions, 41 integration/213 assertions, PHPStan, JS, worker CLI și cinci retestări concurente. Urmează push/CI, apoi 06. Oprește înainte de 07.
 
 ## Reluare pe alt PC
 
@@ -13,7 +13,7 @@ Remote: https://github.com/razvanstav/ordely.git. Branch: `codex/modul-01-arhite
 
 ## Verificări și mediu
 
-[Raport 04](docs/testing/04-core-contracts.md): 108 lint, PHPStan level 8, 65 unit/505 assertions, 17 integration/90 assertions PASS. Două checkout-uri CI independente au trecut. Migrarea 001 este aplicată local în `ordely` și `ordely_test`.
+[Raport 04](docs/testing/04-core-contracts.md): 108 lint, PHPStan level 8, 65 unit/505 assertions, 17 integration/90 assertions PASS. Două checkout-uri CI independente au trecut. Migrațiile 001–003 sunt aplicate local în `ordely` și `ordely_test`.
 
 PHP 8.4.24, Composer în `var/tools/composer.phar`, MySQL 8.4.11 în var pe loopback33060. MySQL și preview PHP8080 sunt pornite pentru lotul 03–06. Datele și `.env` sunt ignorate; XAMPP nu este atins. Serverele temporare ale testelor se opresc automat.
 

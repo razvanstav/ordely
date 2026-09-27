@@ -5,6 +5,7 @@ namespace Ordely\Tests\Integration;
 use Ordely\Identity\Infrastructure\Provisioner;
 use Ordely\Infrastructure\Database\{ConnectionFactory, DatabaseConfig, Migrator, Sql};
 use Ordely\Shared\Id;
+use Ordely\Tests\Support\FixtureCleanup;
 use PHPUnit\Framework\TestCase;
 
 final class IdentityHttpTest extends TestCase
@@ -14,7 +15,7 @@ final class IdentityHttpTest extends TestCase
     private function request(string $url, string $method = 'GET', ?array $data = null, string $cookie = '', string $csrf = ''): array
     {
         $context = stream_context_create(['http' => ['method' => $method, 'ignore_errors' => true, 'timeout' => 5,
-            'header' => ['Content-Type: application/json', 'Cookie: ' . $cookie, 'X-CSRF-Token: ' . $csrf],
+            'header' => ['Content-Type: application/json', 'Cookie: ' . $cookie, 'X-CSRF-Token: ' . $csrf,'Idempotency-Key: '.Id::new()],
             'content' => $data === null ? '' : json_encode((object) $data, JSON_THROW_ON_ERROR)]]);
         $body = file_get_contents($url, false, $context);
         self::assertIsString($body);
@@ -67,9 +68,7 @@ final class IdentityHttpTest extends TestCase
             self::assertStringNotContainsString($password, $logged); self::assertStringNotContainsString($cookie, $logged);
         } finally {
             if (is_resource($process)) { proc_terminate($process); proc_close($process); }
-            foreach (['auth_sessions', 'membership_store_grants', 'stores', 'memberships'] as $table) { $db->run('DELETE FROM ' . $table . ' WHERE merchant_id=?', [Id::bytes($identity['merchantId'])]); }
-            $db->run('DELETE FROM users WHERE id=?', [Id::bytes($identity['userId'])]);
-            $db->run('DELETE FROM merchants WHERE id=?', [Id::bytes($identity['merchantId'])]);
+            FixtureCleanup::merchant($db,$identity['merchantId'],$identity['userId']);
             $db->run('DELETE FROM auth_rate_limits WHERE bucket IN (?,?)', [hash('sha256', 'account:' . $email, true), hash('sha256', 'ip:127.0.0.1', true)]);
             if (is_file($log)) { unlink($log); }
         }
