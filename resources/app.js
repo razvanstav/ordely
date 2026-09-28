@@ -11,7 +11,7 @@ async function api(path, method = 'GET', data, idempotencyKey) {
   const result = await response.json();
   if (!response.ok) {
     if (response.status === 401) { $('#login').hidden = false; $('#workspace').hidden = true; csrf = ''; clearSecretInputs(); }
-    const messages = {invalid_credentials: 'Email sau parolă incorectă.', unauthenticated: 'Conectează-te pentru a continua.', forbidden: 'Nu ai permisiune pentru această acțiune.', invalid_csrf: 'Sesiunea s-a schimbat. Reîncarcă pagina.', too_many_attempts: 'Prea multe încercări. Reîncearcă peste 15 minute.'};
+    const messages = {invalid_credentials: 'Email sau parolă incorectă.', unauthenticated: 'Conectează-te pentru a continua.', forbidden: 'Nu ai permisiune pentru această acțiune.', invalid_csrf: 'Sesiunea s-a schimbat. Reîncarcă pagina.', too_many_attempts: 'Prea multe încercări. Reîncearcă peste 15 minute.', shopify_reauthorization_required: 'Accesul Shopify a fost revocat. Generează un cod nou și reconectează aplicația din Shopify.', shopify_unavailable: 'Shopify nu răspunde momentan. Reîncearcă.', shopify_not_configured: 'Integrarea Shopify trebuie configurată pe server.'};
     throw new Error(messages[result.error] || 'Acțiunea nu a reușit. Verifică datele și reîncearcă.');
   }
   return result;
@@ -40,14 +40,17 @@ async function refresh() {
 }
 async function refreshIntegrations() {
   const {providers, connections} = await api('/api/integrations');
-  $('#provider-roadmap').textContent = `Planificate: ${providers.filter(provider => !provider.available).map(provider => provider.label).join(', ')}.`;
+  $('#provider-roadmap').textContent = `Shopify: conectare disponibilă; importul comenzilor urmează separat. Alte integrări planificate: ${providers.filter(provider => !provider.available && provider.key !== 'shopify').map(provider => provider.label).join(', ')}.`;
+  const shopifyStores = visibleStores.filter(store => store.platform === 'shopify');
+  $('#shopify-store').replaceChildren(...shopifyStores.map(store => {const option = document.createElement('option'); option.value = store.id; option.textContent = store.name; return option;}));
+  $('#shopify-intent-form').hidden = !shopifyStores.length;
   const available = providers.filter(provider => provider.available);
   $('#connection-form').hidden = !available.length;
   $('#connection-provider').replaceChildren(...available.map(provider => { const option = document.createElement('option'); option.value = provider.key; option.textContent = provider.label; return option; }));
   $('#connections').replaceChildren(...connections.map(connection => {
     const card = document.createElement('article'); card.className = 'card';
     const title = document.createElement('h3'); title.textContent = connection.label;
-    const status = document.createElement('p'); status.textContent = `${connection.provider} · ${connection.status === 'active' ? 'Disponibilă în simulator' : 'Revocată'}`;
+    const status = document.createElement('p'); status.textContent = `${connection.provider} · ${connection.status === 'active' ? (connection.provider === 'shopify' ? 'Conectată' : 'Disponibilă în simulator') : 'Revocată'}`;
     const key = document.createElement('p'); key.className = 'hint'; key.textContent = `Cheie de criptare: ${connection.keyId} · versiunea ${connection.version}`;
     card.append(title, status, key);
     const command = async (name, values = {}) => { await api(`/api/integrations/${connection.id}/${name}`, 'POST', {version: connection.version, ...values}); await refreshIntegrations(); };
@@ -56,6 +59,19 @@ async function refreshIntegrations() {
     if (connection.status !== 'active') return card;
     const revoke = document.createElement('button'); revoke.className = 'secondary'; revoke.textContent = 'Revocă accesul'; revoke.addEventListener('click', () => action(() => command('revoke')));
     card.append(revoke);
+    if (connection.provider === 'shopify') {
+      for (const association of connection.bindings) {
+        const name = document.createElement('p'); name.textContent = visibleStores.find(store => store.id === association.storeId)?.name || 'Magazin indisponibil'; card.append(name);
+        for (const [label, refresh] of [['Verifică accesul', false], ['Reînnoiește accesul', true]]) {
+          const button = document.createElement('button'); button.className = 'secondary'; button.textContent = label;
+          button.addEventListener('click', () => action(async () => {
+            try { await api('/api/shopify/check', 'POST', {storeId: association.storeId, connectionId: connection.id, refresh}); $('#message').textContent = refresh ? 'Accesul Shopify a fost reînnoit.' : 'Accesul Shopify este valid.'; }
+            finally { await refreshIntegrations(); }
+          })); card.append(button);
+        }
+      }
+      return card;
+    }
     const replacement = document.createElement('form'); replacement.autocomplete = 'off';
     const label = document.createElement('label'); label.textContent = 'Token nou de test';
     const input = document.createElement('input'); input.type = 'password'; input.required = true; input.maxLength = 4096; input.autocomplete = 'new-password'; label.append(input);
@@ -73,6 +89,8 @@ async function refreshIntegrations() {
     return card;
   }));
   if (!connections.length) { const empty = document.createElement('p'); empty.textContent = 'Nu există conexiuni configurate.'; $('#connections').append(empty); }
+  try {const {events} = await api('/api/shopify/events'); const pending = events.filter(event => event.status === 'needs_review').length; $('#shopify-events').textContent = `Evenimente Shopify recente: ${events.length}. Solicitări de verificat: ${pending}.`;}
+  catch {$('#shopify-events').textContent = 'Configurează integrarea Shopify pe server pentru conectare.';}
 }
 async function refreshOperations() {
   const data = await api('/api/operations');
@@ -99,6 +117,8 @@ async function action(work) {
   finally { buttons.forEach(button => button.disabled = false); }
 }
 function clearSecretInputs() { document.querySelectorAll('input[type="password"]').forEach(input => { input.value = ''; }); }
+$('#shopify-intent-form').addEventListener('submit', event => {event.preventDefault(); action(async () => {const result = await api('/api/shopify/intents', 'POST', Object.fromEntries(new FormData(event.target))); $('#shopify-code').value = result.code; $('#shopify-code-label').hidden = false; $('#message').textContent = 'Cod pregătit. Copiază-l în aplicația Ordely din Shopify.';});});
+$('#shopify-copy').addEventListener('click', () => action(async () => {await navigator.clipboard.writeText($('#shopify-code').value); $('#message').textContent = 'Cod copiat.';}));
 $('#login-form').addEventListener('submit', event => { event.preventDefault(); action(async () => { const data = Object.fromEntries(new FormData(event.target)); const result = await api('/api/auth/login', 'POST', data); csrf = result.csrf; event.target.reset(); await refresh(); }); });
 $('#store-form').addEventListener('input', () => { storeKey = null; });
 $('#store-form').addEventListener('submit', event => { event.preventDefault(); action(async () => { storeKey ??= crypto.randomUUID(); await api('/api/stores', 'POST', Object.fromEntries(new FormData(event.target)), storeKey); storeKey = null; event.target.reset(); await refresh(); }); });

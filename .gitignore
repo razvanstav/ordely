@@ -9,6 +9,7 @@ auth.json
 # Dependențe și artefacte generate
 /vendor/
 /node_modules/
+/.shopify/
 /var/
 /coverage/
 /.phpunit.cache/

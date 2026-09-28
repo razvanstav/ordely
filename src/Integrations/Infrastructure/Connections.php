@@ -76,6 +76,7 @@ final readonly class Connections
             $this->manage($actor);(new AccessPolicy($this->db))->require($actor,'connections.manage',$store);
             $this->db->one('SELECT id FROM stores WHERE merchant_id=? AND id=? FOR UPDATE',[Id::bytes($actor->merchantId),Id::bytes($store)]);
             $row=$this->locked($actor,$id,$version);$params=[Id::bytes($actor->merchantId),Id::bytes($store),Id::bytes($id)];
+            if($row['provider_key']==='shopify'){throw new \InvalidArgumentException('Shopify bindings are managed by authenticated installation.');}
             if($remove){$this->db->run('DELETE FROM store_provider_bindings WHERE merchant_id=? AND store_id=? AND connection_id=?',$params);}
             else{
                 if($default){$this->db->run('UPDATE store_provider_bindings SET is_default=0 WHERE merchant_id=? AND store_id=? AND kind=?',[$params[0],$params[1],(string)$row['kind']]);}

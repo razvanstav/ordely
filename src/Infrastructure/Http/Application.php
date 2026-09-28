@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ordely\Infrastructure\Http;
 
 use Closure;
+use Ordely\Adapters\Shopify\{ShopifyApi,ShopifyGateway};
 use Ordely\Identity\Domain\AccessDenied;
 use Ordely\Identity\Presentation\IdentityApi;
 use Ordely\Infrastructure\Configuration\Environment;
@@ -27,7 +28,7 @@ use Throwable;
 final readonly class Application
 {
     /** @param Closure(): PDO $connect */
-    public function __construct(private Closure $connect)
+    public function __construct(private Closure $connect,private ?ShopifyGateway $shopifyGateway=null)
     {
     }
 
@@ -39,6 +40,14 @@ final readonly class Application
         $routes->add('home', new Route('/', methods: ['GET']));
         $routes->add('script', new Route('/app.js', methods: ['GET']));
         $routes->add('style', new Route('/app.css', methods: ['GET']));
+        $routes->add('shopify_home',new Route('/shopify',methods:['GET']));
+        $routes->add('shopify_script',new Route('/shopify.js',methods:['GET']));
+        $routes->add('shopify_connect',new Route('/shopify/connect',methods:['POST']));
+        $routes->add('shopify_status',new Route('/shopify/status',methods:['GET']));
+        $routes->add('shopify_webhook',new Route('/webhooks/shopify',methods:['POST']));
+        $routes->add('shopify_intent',new Route('/api/shopify/intents',methods:['POST']));
+        $routes->add('shopify_check',new Route('/api/shopify/check',methods:['POST']));
+        $routes->add('shopify_events',new Route('/api/shopify/events',methods:['GET']));
         $routes->add('login', new Route('/api/auth/login', methods: ['POST']));
         $routes->add('logout', new Route('/api/auth/logout', methods: ['POST']));
         $routes->add('switch', new Route('/api/auth/merchant', methods: ['POST']));
@@ -59,12 +68,15 @@ final readonly class Application
             $route = (new UrlMatcher($routes, $context))->match($request->getPathInfo());
             if (Environment::string('APP_ENV', 'dev') === 'prod' && !$request->isSecure()) { throw new Problem(400, 'https_required'); }
             $name = (string) $route['_route'];
+            if($name==='home'&&$request->query->has('shop')){$name='shopify_home';}
             $response = match ($name) {
                 'health' => new JsonResponse(['status' => 'ok']),
                 'ready' => $this->readiness(),
                 'home' => $this->asset('index.html', 'text/html'),
                 'script' => $this->asset('app.js', 'text/javascript'),
                 'style' => $this->asset('app.css', 'text/css'),
+                'shopify_script'=>$this->asset('shopify.js','text/javascript'),
+                'shopify_home','shopify_connect','shopify_status','shopify_webhook','shopify_intent','shopify_check','shopify_events'=>(new ShopifyApi(new Sql(($this->connect)()),$this->shopifyGateway))->handle($name,$request),
                 'ops_list','ops_retry','ops_confirm'=>(new OperationsApi(new Sql(($this->connect)())))->handle($name,$request,isset($route['id'])?(string)$route['id']:null),
                 'integrations_list','integrations_create','integrations_rotate','integrations_credentials','integrations_revoke','integrations_bind','integrations_unbind','integrations_capabilities'=>(new IntegrationsApi(new Sql(($this->connect)())))->handle($name,$request,isset($route['id'])?(string)$route['id']:null),
                 default => (new IdentityApi(new Sql(($this->connect)())))->handle($name, $request, isset($route['id']) ? (string) $route['id'] : null),
@@ -90,7 +102,7 @@ final readonly class Application
 
         $response->headers->set('Cache-Control', 'no-store');
         $response->headers->set('X-Content-Type-Options', 'nosniff');
-        $response->headers->set('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
+        if(!$response->headers->has('Content-Security-Policy')){$response->headers->set('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");}
         $response->headers->set('Referrer-Policy', 'same-origin');
 
         return $response->prepare($request);

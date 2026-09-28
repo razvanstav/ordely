@@ -1,0 +1,6 @@
+{
+  "name": "ordely-shopify-dev",
+  "private": true,
+  "description": "Shopify CLI entry point; the application runs on PHP and native JavaScript.",
+  "scripts": {"dev": "shopify app dev"}
+}

@@ -33,6 +33,12 @@ try{
     }
     $store=$argv[3] ?? '';$connection=$argv[4] ?? '';
     $context=new ConnectionContext(new MerchantId($merchant),new StoreId($store),new ConnectionId($connection),CorrelationId::new());
+    if($mode==='shopify-refresh'){
+        $gateway=new \Ordely\Tests\Support\FakeShopifyGateway();
+        $service=new \Ordely\Adapters\Shopify\Installations($db,\Ordely\Tests\Support\ShopifyFixtures::config(),\Ordely\Tests\Support\IntegrationFixtures::cipher(),$gateway);
+        $service->withAccess($context,static function():null{usleep(150000);return null;});
+        echo json_encode(['refreshes'=>$gateway->refreshes],JSON_THROW_ON_ERROR);exit(0);
+    }
     $result=(new ExternalOperations($db))->execute($context,'test.emit',new OperationKey('same-business-intent'),new SafePayload(['store_id'=>$store]),function(OperationKey $providerKey)use($db,$merchant,$mode):ExternalId{
         if($mode==='external-crash-before'){exit(24);}
         $db->run('INSERT INTO test_external_effects(merchant_id,provider_key) VALUES(?,?)',[Id::bytes($merchant),$providerKey->value]);

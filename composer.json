@@ -5,6 +5,7 @@
     "license": "proprietary",
     "require": {
         "php": "~8.4.0",
+        "ext-curl": "*",
         "ext-mbstring": "*",
         "ext-openssl": "*",
         "ext-pdo": "*",

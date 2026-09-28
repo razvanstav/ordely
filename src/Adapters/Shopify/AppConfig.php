@@ -26,8 +26,8 @@ final readonly class AppConfig
         $shop = Environment::string('ORDELY_SHOPIFY_DEV_STORE', '');
         if ($dev && $shop === '') { throw new \RuntimeException('A development shop must be configured.'); }
         return new self(
-            Environment::string('ORDELY_SHOPIFY_CLIENT_ID', ''),
-            Environment::string('ORDELY_SHOPIFY_CLIENT_SECRET', ''),
+            Environment::string('ORDELY_SHOPIFY_CLIENT_ID', Environment::string('SHOPIFY_API_KEY', '')),
+            Environment::string('ORDELY_SHOPIFY_CLIENT_SECRET', Environment::string('SHOPIFY_API_SECRET', '')),
             $dev ? new ShopDomain($shop) : null,
         );
     }

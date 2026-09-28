@@ -8,7 +8,7 @@ ProviderConnection aparține unui merchant; `store_provider_bindings` autorizeaz
 
 `config/providers.php` este composition root pentru definiții și fabrici. Contractele rămân în Core. Resolverul verifică merchant/store/conexiune/asociere/tip, decriptează pe server și verifică din nou starea/versiunea înainte de callback. Adaptoarele autentificate nu se salvează în jobs și nu se păstrează în cache între apeluri.
 
-În `APP_ENV=dev` sau `test` sunt disponibile trei simulatoare: magazin, curier, facturare. Folosesc tokenuri inventate, nu contactează furnizori și păstrează efectele simulate doar în memorie pe durata instanței. `prod` nu le înregistrează și refuză utilizarea conexiunilor fake rămase în DB. Shopify, Oblio, Sameday și FAN sunt listate ca planificate și nu acceptă conectarea până la implementarea modulelor lor. Nu colectăm încă credențiale reale pentru acestea.
+În `APP_ENV=dev` sau `test` sunt disponibile trei simulatoare: magazin, curier, facturare. Folosesc tokenuri inventate, nu contactează furnizori și păstrează efectele simulate doar în memorie pe durata instanței. `prod` nu le înregistrează și refuză utilizarea conexiunilor fake rămase în DB. Shopify are fluxul separat de [instalare și autentificare](shopify.md) din 07; operațiile CommerceConnector urmează în 08, de aceea registry le indică încă indisponibile. Oblio, Sameday și FAN rămân planificate, fără credențiale reale colectate.
 
 Capabilitățile se citesc din adaptorul rezolvat pentru conexiunea curentă. Setările specifice fiecărui provider vor primi scheme explicite în modulul său; nu acceptăm un JSON arbitrar de configurare.
 

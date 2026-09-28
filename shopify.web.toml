@@ -1,0 +1,6 @@
+roles = ["frontend", "backend"]
+webhooks_path = "/webhooks/shopify"
+port = 8080
+
+[commands]
+dev = "php bin/serve-shopify.php"

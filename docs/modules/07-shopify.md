@@ -1,47 +1,39 @@
 # Modul 07 — Instalare și autentificare Shopify
 
-2026-09-28. **IN_PROGRESS**. Modulul 06 este închis la `9982a70`. Continuarea modulului 07 a fost autorizată prin „go”.
+2026-09-28. **REVIEW**. Continuarea autorizată prin „go”; exclusiv Ordely Shop (dev). ANATOMIK live este exclus.
 
 ## Obiectiv și limite
 
-Instalare embedded cu App Bridge și token exchange în adaptorul PHP, asociere explicită cu merchant/store Ordely, tokenuri offline criptate cu expirare/refresh, webhook inbox și dezinstalare. Importul comenzilor/catalogului aparține modulului 08; nu implementăm aceste operații aici. Nu publicăm în App Store în acest modul.
+Instalare embedded cu App Bridge și token exchange PHP, asociere explicită merchant/store Ordely, tokenuri offline criptate cu expirare/refresh, inbox lifecycle și dezinstalare. Importul comenzilor/catalogului aparține 08; publicarea App Store și procedurile complete privacy aparțin pregătirii de lansare.
 
 ## Criterii stabilite înainte de cod
 
-- [x] Validator intern ID token HS256: semnătură, audiență, expirare, nbf, issuer/destinație Shopify; domenii strict validate. Legarea la rutele HTTP rămâne în pasul 2.
-- [ ] Conectarea cere atât identitate Shopify validă, cât și autorizarea owner/admin Ordely pentru merchant/store; asocierea nu poate fi preluată de alt tenant.
-- [ ] Token exchange cere tokenuri offline cu expirare; access/refresh token criptate, expiry din răspuns, refresh serializat și reautorizare la revocare.
-- [ ] Secretele nu apar în răspunsuri, audit, loguri sau Git; nici tokenul App Bridge nu este salvat în clar.
-- [ ] Webhook HMAC pe body brut, deduplicare persistentă, recepție durabilă înainte de ACK, izolare shop/connection și dezinstalare care blochează utilizarea conexiunii.
-- [ ] Reinstalarea nu permite unui eveniment vechi să revoce conexiunea nouă; payload-urile sensibile rămân criptate.
-- [ ] UI minimal pentru inițiere/conectare/stare; CSP separat pentru suprafața embedded, fără dependență de cookies third-party.
-- [ ] Teste unitare, MySQL/HTTP, concurență și regresii; verificări locale și CI consemnate.
-- [ ] Dev store real: instalare, token exchange/refresh, livrare webhook și dezinstalare verificate; scopes/PCD și configurația aplicației confirmate.
+- [x] ID token HS256 validat: semnătură, audiență, timp, issuer/destinație; domenii canonice și allowlist dev.
+- [x] Identitate Shopify plus owner/admin Ordely autorizat; asociere unică și imposibil de preluat de alt tenant.
+- [x] Offline expiring token exchange, criptare access/refresh/scopes/expiry, refresh serializat și revocare la pierderea autorizării.
+- [x] Tokenurile nu sunt returnate în API/UI sau audit; codurile sunt stocate numai hash; logul serverului dev filtrează query strings.
+- [x] HMAC raw body, inbox criptat/deduplicat și commit înainte de ACK; dezinstalare cu blocarea accesului.
+- [x] Reinstalare simulată și evenimente vechi testate; payloadurile lifecycle rămân criptate.
+- [x] UI pentru inițiere/conectare/stare/refresh, CSP embedded și bearer tokens fără cookies third-party.
+- [x] Teste PHP/MySQL/HTTP, concurență în două procese și regresii locale.
+- [x] Dev store real: instalare, App Bridge, token exchange, refresh, webhook și dezinstalare PASS; zero scopes, fără PCD solicitat.
+- [ ] Reinstalare finală reală și predare cu conexiune activă: așteaptă autorizarea accesului standard la datele proprietarului.
+- [ ] Publicare Git și CI pentru implementarea completă.
 
-## Pași
+## Livrare
 
-1. Verificare documentație actuală, acces dev store și mediu local.
-2. Autentificare/legare sigură, persistență criptată și refresh.
-3. Webhook lifecycle, interfață minimală, teste și documentare.
-4. Validare dev store, commit/push și CI; numai apoi DONE.
+Migrația 005 păstrează ownership-ul shop/tenant/store, codurile de legare și inboxul lifecycle. Installations serializează exchange/refresh; callback-urile nu primesc adaptoare reutilizabile în afara verificării conexiunii. Perechea nouă de tokenuri se comite chiar dacă verificarea ulterioară are timeout. Uninstall funcționează și pentru merchant dezactivat. Generic bind/unbind nu poate muta instalările Shopify.
 
-## Verificări și dependențe
+Inboxul lifecycle procesează revocarea scurtă în tranzacția de recepție. Cererile privacy se păstrează `needs_review`, fără a pretinde că sunt îndeplinite; implementarea exportului/ștergerii trebuie stabilită înainte de date personale în 08/pilot. Această limită este explicită în [operare](../shopify.md).
 
-Checkout curat și `git pull --ff-only`: PASS, deja actualizat. Pregătite pe acest PC: PHP 8.4.24 în `var/tools/php-8.4.24`, Composer 2.10.3, MySQL 8.4.11 și dependențele din lockfile. Regresiile inițiale PASS: 166 lint, PHPStan 8, 73 unit/586 assertions, 56 integration/306 assertions.
+App ID public `62da15c72a85d17d1ee0cf8d7fa5058d`, Dev Dashboard app `428925190145`, API `2026-07`. `shopify.app.toml` are zero scopes și subscripții uninstall/compliance; CLI dev furnizează URL-ul HTTPS temporar. Nu s-a lansat aplicația în producție.
 
-Utilizatorul a precizat că ANATOMIK este live și a autorizat un magazin separat. Dev Dashboard nu lista niciun dev store. Au fost create:
+## Verificări
 
-- **[Ordely Shop](https://admin.shopify.com/store/ordely-shop)**, badge `dev` verificat. Basic, date fictive solicitate, fără feature previews; inventarul datelor generate nu este încă verificat.
-- **[Ordely](https://dev.shopify.com/dashboard/204104058/apps/428925190145)**, versiunea inițială `module-07-dev`, embedded, zero scopes, fără instalare în vreun magazin. URL temporar `https://localhost:8080/shopify`; nu este un endpoint HTTPS funcțional.
+`php var/tools/composer.phar check`: PASS — 188 lint, PHPStan 8, 97 unit/651 assertions, 72 integration/364 assertions. GraphQL query-ul de verificare a magazinului și configurația CLI au fost validate. [Raport 07](../testing/07-shopify.md) separă probele reale de cele sintetice.
 
-Shopify CLI 4.8.2 instalat, verificat cu Node 24.19.0 inclus în Codex; Node 21 global nu este suportat. `app config link` a ajuns la verificarea contului prin passkey, pe care utilizatorul trebuie să o finalizeze în browser. Nu au fost extrase secretele aplicației. Conectorul merchant existent nu a fost schimbat de la magazinul live.
-
-Adăugate biblioteci interne: ShopDomain, AppConfig, IdTokenVerifier, ShopIdentity, InvalidIdToken și WebhookSignature, fără rute HTTP încă. În dev este obligatoriu un domeniu permis explicit; identitatea Shopify nu acordă automat drepturi Ordely. [Raportul 07](../testing/07-shopify.md) separă testele locale de cele reale restante.
-
-Verificare completă după cod: `php var/tools/composer.phar check` PASS — 174 lint, PHPStan 8, 93 unit/629 assertions, 56 integration/306 assertions.
-
-Cod `8187f00` publicat, hash remote verificat identic; [CI Windows/Linux PASS](https://github.com/razvanstav/ordely/actions/runs/36397390326). Acesta închide doar primul pas, nu modulul. Prima sesiune de login CLI a expirat în așteptarea passkey-ului; comanda poate fi reluată când utilizatorul finalizează verificarea.
+Pe dev store, refresh real a schimbat versiunea conexiunii 1→2; uninstall real a schimbat-o 2→3 și `revoked`. Payloadul este criptat, evenimentul `app/uninstalled` este `processed`. Shopify a raportat livrare în 280 ms, fără eșec.
 
 ## Predare
 
-Unicul modul activ: 07, IN_PROGRESS. Branch: `codex/modul-01-arhitectura`. Următorul pas: finalizarea login-ului CLI, reluarea `shopify app config link` dacă sesiunea a expirat, configurarea secretelor în `.env` ignorat și a unui URL HTTPS de dezvoltare. Apoi token exchange/refresh criptat, asociere tenant/store, endpoint-uri/UI, inbox și dezinstalare. Nu instala Ordely pe ANATOMIK. Testele pe dev store sunt obligatorii înainte de DONE; 08 nu începe.
+Testul de reinstalare a ajuns la Install pe Ordely Shop. Aprobarea automată a respins acțiunea deoarece Shopify cere acces standard la nume/email/telefon/adresa proprietarului, neautorizat explicit anterior. Confirmarea este cerută utilizatorului; nu ocoli blocarea prin CLI. După aprobare, finalizează reinstalarea și legarea cu un cod nou, verifică conexiunea veche revocată, apoi CI și închiderea 07. 08 rămâne PLANNED.

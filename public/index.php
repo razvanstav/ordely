@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 try {
     require dirname(__DIR__) . '/config/bootstrap.php';
+    if(\Ordely\Infrastructure\Configuration\Environment::string('APP_ENV','dev')!=='prod'&&\Ordely\Infrastructure\Configuration\Environment::string('ORDELY_TRUST_LOOPBACK_PROXY','0')==='1'){
+        Request::setTrustedProxies(['127.0.0.1','::1'],Request::HEADER_X_FORWARDED_PROTO);
+    }
 
     $application = new Application(static fn (): PDO => (new ConnectionFactory(DatabaseConfig::fromEnvironment()))->connect());
     $application->handle(Request::createFromGlobals())->send();
