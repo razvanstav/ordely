@@ -8,15 +8,15 @@ Actualizat: 2026-09-28. Registrul oficial: [plan.md](plan.md).
 
 Implementate: import GraphQL comenzi/catalog, migrația 006, progres pe pagini în jobs, publicare atomică, deduplicare, reconciliere, bani exacți, comenzi criptate, control tenant/store, UI și procesarea locală a cererilor privacy. [Fișă](docs/modules/08-commerce-import.md), [operare](docs/commerce-import.md), [raport](docs/testing/08-commerce-import.md).
 
-**Catalog real PASS de două ori:** 17 produse, 26 variante, 28 poziții de stoc pe Ordely Shop; fără dubluri, toate versiunile au rămas 1. Aplicația are numai read_orders/read_products/read_inventory/read_locations. Refresh real a confirmat scopes și conexiunea activă la versiunea 3. ANATOMIK live este exclus și nu a fost folosit.
+**Catalog real PASS de trei ori:** 17 produse, 26 variante, 28 poziții de stoc pe Ordely Shop; fără dubluri, toate versiunile au rămas 1. Ultima rulare, după expirarea reală a tokenului, a reînnoit automat accesul: conexiune activă versiunea 4, aceleași scopes read_orders/read_products/read_inventory/read_locations. ANATOMIK live este exclus și nu a fost folosit.
 
 **190 teste PASS; CI Windows și Linux PASS pentru codul e8a4133.** 204 lint, PHPStan 8, 101 unit (677 assertions Windows / 678 Linux), 89 integration / 512 assertions, HTTP real pe Linux; sintaxă JS și config Shopify validate local. [CI 36420254697](https://github.com/razvanstav/ordely/actions/runs/36420254697).
 
 ## Blocaj exact
 
-Ordely Shop nu are comenzi. Proba reală a unei comenzi cu 30 de linii și date client sintetice rămâne neexecutată. Auto-review a respins acordarea write_orders către Shopify CLI, deoarece accesul de scriere nu fusese autorizat explicit de utilizator. Nu s-a acordat acel acces și nu s-a creat comanda. Nu ocoli refuzul prin UI, alt token sau scopes de scriere pe aplicație.
+Utilizatorul a dat acordul pentru write_orders și comanda sintetică: „Hai, fa ce vrei tu. Ai acordul meu.” Comanda CLI auth a pornit, dar auto-review a blocat butonul Install al Shopify CLI Connector App: cere acord explicit și pentru datele personale afișate de Shopify (clienți: nume/email/telefon/adresă/IP/dispozitiv; proprietar: nume/email/telefon/adresă). Verificarea detaliilor UI și a documentației oficiale nu a eliminat respingerea. S-a trimis întrebarea exactă; răspunsul nu a sosit încă. Nu confunda acest blocaj cu lipsa acordului inițial pentru write_orders. Nu s-a instalat conectorul și nu s-a creat comanda. Nu ocoli refuzul prin UI, alt token sau scopes de scriere pe aplicație.
 
-Sunt pregătite `docs/testing/fixtures/shopify-order-create.graphql` (validată) și `scripts/prepare-shopify-test-order.ps1` (generează var/shopify-test-order.json). Fixture: test=true, PENDING, 30 linii, date inventate, fără mesaje, plăți sau modificări de stoc. Pasul următor: acord explicit pentru write_orders CLI doar pe ordely-shop.myshopify.com și crearea acestei comenzi, apoi import/reimport, verificarea banilor/liniilor/PCD și închiderea 08. Nu începe 09.
+Sunt pregătite query-urile validate `docs/testing/fixtures/shopify-order-create.graphql`, `shopify-order-lookup.graphql` și `scripts/prepare-shopify-test-order.ps1` (generează var/shopify-test-order.json). Fixture: test=true, PENDING, 30 linii, date inventate, fără mesaje, plăți sau modificări de stoc. Pasul următor: rezolvă confirmarea exactă a instalării CLI doar pe ordely-shop.myshopify.com, verifică să nu existe ORDELY-TEST-M08, apoi creează comanda și verifică import/reimport, bani/linii/PCD. Nu începe 09.
 
 ## Mediu și Git
 

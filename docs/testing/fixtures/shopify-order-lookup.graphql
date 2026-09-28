@@ -1,0 +1,15 @@
+query OrdelyModule08FixtureLookup {
+  shop { myshopifyDomain currencyCode }
+  orders(first: 10, query: "tag:ordely-module-08-synthetic OR name:ORDELY-TEST-M08") {
+    nodes {
+      id
+      name
+      test
+      totalPriceSet { presentmentMoney { amount currencyCode } }
+      lineItems(first: 40) {
+        nodes { id title quantity }
+        pageInfo { hasNextPage }
+      }
+    }
+  }
+}

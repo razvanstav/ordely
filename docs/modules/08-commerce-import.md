@@ -20,7 +20,7 @@ Import reluabil, normalizat și izolat pe merchant/store din Ordely Shop (dev), 
 - [x] Suite automate obligatorii: bani, paginare, concurență, retry, revocare, privacy și tenant isolation.
 - [x] Catalog importat real de două ori pe Ordely Shop, fără dubluri sau versiuni nejustificate.
 - [x] Cod publicat în Git și CI Windows/Linux PASS pentru `e8a4133` (run 36420254697).
-- [ ] Comandă sintetică reală (>25 linii), verificare total, date client/PCD și reimport; **blocată de lipsa acordului pentru write_orders CLI**.
+- [ ] Comandă sintetică reală (>25 linii), verificare total, date client/PCD și reimport; **Install CLI blocat de auto-review pentru confirmarea datelor personale, după acordul pentru write_orders**.
 - [ ] Probele complete, CI, documente și Git verificate pentru închiderea definitivă a 08.
 
 ## Verificări
@@ -31,11 +31,11 @@ Import reluabil, normalizat și izolat pe merchant/store din Ordely Shop (dev), 
 
 D04: numai citire pe locații în 08, rezervări înainte de 18. D14: proiecții separate de contractele de comenzi/facturare, staging atomic, retenție temporară șapte zile, privacy locală. Scopes de citire confirmate real; PCD pentru câmpurile unei comenzi necesită proba restantă.
 
-Auto-review a respins acordarea write_orders către Shopify CLI: utilizatorul autorizase importul, nu explicit scrierea comenzilor. Fixture este pregătită și mutation validată, dar nu au fost executate auth sau orderCreate. Nu ocoli refuzul.
+Utilizatorul a acordat write_orders și crearea comenzii fictive. Auth CLI a deschis instalarea, dar auto-review a respins Install deoarece cere confirmarea explicită a datelor personale ale clienților/proprietarului afișate de Shopify. Detaliile permisiunilor și documentația oficială au fost verificate, fără eliminarea refuzului la reîncercare. Întrebarea exactă este în așteptare; conectorul nu este instalat și orderCreate nu s-a executat. Nu ocoli refuzul.
 
 ## Predare
 
-- Ultimul pas: cod, teste și catalog real/reimport finalizate; UI verificată; CI Windows/Linux PASS, cod `e8a4133` publicat.
-- Următorul pas: acord explicit pentru write_orders CLI numai pe dev store și o singură comandă sintetică; apoi test real, verificări și închidere.
+- Ultimul pas: a treia rulare reală confirmă refresh automat după expirare (conexiune v4), catalog 17/26/28 fără dubluri; CLI Install blocat separat. CI Windows/Linux PASS pentru cod `e8a4133`.
+- Următorul pas: confirmarea exactă a datelor din Install CLI numai pe dev store; apoi lookup fixture, creare unică, test real și închidere.
 - Branch: codex/modul-01-arhitectura; codul și documentele publicate în `e8a4133`, urmate de predarea documentară cu rezultatul CI. Verifică Git la reluare.
-- Reluare: „Continuă exclusiv modulul 08. Citește STATUS, raportul 08 și D14. Acordul pentru write_orders trebuie să existe explicit înainte de comanda de test; după aceea verifică întâi să nu existe deja ORDELY-TEST-M08. Nu începe 09.”
+- Reluare: „Continuă exclusiv modulul 08. Citește STATUS, raportul 08 și D14. Write_orders și comanda sunt aprobate; rezolvă confirmarea datelor personale cerută de auto-review la Install. Verifică întâi să nu existe deja ORDELY-TEST-M08. Nu începe 09.”

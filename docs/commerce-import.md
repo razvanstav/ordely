@@ -1,6 +1,6 @@
 # Import comenzi și catalog — modul 08
 
-Implementarea este în verificare. Catalogul real este confirmat pe Ordely Shop; testul unei comenzi reale sintetice așteaptă autorizarea creării ei. Nu folosi ANATOMIK live.
+Implementarea este în verificare. Catalogul real este confirmat pe Ordely Shop; crearea unei comenzi sintetice este aprobată, dar instalarea conectorului CLI este blocată de auto-review până la confirmarea explicită a datelor personale incluse. [Starea exactă și reluarea](testing/08-commerce-import.md). Nu folosi ANATOMIK live.
 
 ## Operare
 

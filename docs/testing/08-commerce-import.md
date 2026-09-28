@@ -28,23 +28,41 @@ Concurența este probată cu două procese PHP și DB comisă: două start-uri r
 
 ## Shopify real — numai Ordely Shop
 
-Scopes după refresh real: `read_inventory,read_locations,read_orders,read_products`; tokenurile rămân criptate. Conexiunea activă din 07 a trecut la versiunea 3. Aplicația nu are permisiuni de scriere.
+Scopes după refresh real: `read_inventory,read_locations,read_orders,read_products`; tokenurile rămân criptate. Conexiunea activă din 07 a trecut la versiunea 3, apoi la 4 prin refresh automat al tokenului expirat în a treia rulare. Aplicația nu are permisiuni de scriere.
 
 | Scenariu | Rezultat | Dovadă |
 | --- | --- | --- |
 | Start import din UI, `php bin/worker.php 150` | PASS | run 3e0d5fa6466dc693e6d06d4bd92a27e1, completed 11:56:20 UTC; 17 produse, 26 variante, 28 inventare |
 | Repetare din UI și worker | PASS | run a9c7433f93ee5d40f7cac0936cd4ddf8, completed 12:02:53 UTC; aceleași numărători, toate versiunile 1 |
+| Import după expirarea reală a access tokenului | PASS | run 3160f3902e895354c82b762d0b59c0ac, completed 13:32:18 UTC; worker 45 jobs, refresh automat versiune 3→4, 17/26/28 înregistrări și versiunile 1; orders încă gol |
 | Citire inventar API | PASS | 28 inventare provenite din cele 26 variante; nu presupune că o singură variantă a necesitat >25 locații |
 | UI variante, pagina 1 și 2 | PASS | 25 variante apoi ultima variantă; fără repetare |
 | Comparație cu Shopify Admin | PASS | Products pe ordely-shop arată „Select all 17 on page”; lista Ordely conține 17 produse |
 | Dovadă UI | PASS | Captură locală var/module-08-catalog.png, ignorată de Git |
 | Query orders pe magazinul dev | PASS, gol | Magazinul nu are comenzi; **nu validează încă importul unei comenzi** |
 | Import order cu date client, linii >25, total comparat cu Shopify | BLOCKED | E necesară o comandă sintetică; pregătită dar necreată |
-| Acordare `write_orders` către Shopify CLI pentru fixture | BLOCKED | Auto-review a respins accesul de scriere fiindcă utilizatorul autorizase importul, nu explicit scrierea comenzilor |
+| Acordare `write_orders` către Shopify CLI pentru fixture | BLOCKED la Install | Acordul utilizatorului pentru write_orders/comanda de test a fost primit. `shopify store auth --store ordely-shop.myshopify.com --scopes write_orders --no-color` a deschis instalarea. Auto-review a respins Install pentru lipsa confirmării explicite a datelor personale afișate; verificarea detaliilor și o reîncercare pe aceeași cale nu au schimbat refuzul |
+| Query verificare fixture existentă | PASS (validare), NOT_RUN pe CLI | `docs/testing/fixtures/shopify-order-lookup.graphql`, artefact ordely-08-fixture-lookup rev.1; trebuie folosit înainte de orice creare/retry după auth |
 | PCD / distribuție producție | NOT_RUN | Nu s-au solicitat și nu se pretind aprobări de producție; câmpurile personale ale unei comenzi dev urmează proba reală |
 
 ## Reluare exactă
 
-Solicită acord explicit pentru autorizarea Shopify CLI cu `write_orders` **numai pe ordely-shop.myshopify.com** și crearea unei singure comenzi sintetice cu 30 de linii. Nu ocoli respingerea prin Admin UI, alt token sau modificarea scopes aplicației.
+Utilizatorul a aprobat write_orders și comanda sintetică prin „Hai, fa ce vrei tu. Ai acordul meu.” Blocajul curent este confirmarea cerută de auto-review pentru instalarea **Shopify CLI Connector App numai pe Ordely Shop dev**, cu editarea comenzilor și acces la datele clienților (nume, email, telefon, adresă, IP/dispozitiv) și proprietarului (nume, email, telefon, adresă), până la revocare. Întrebarea exactă a fost trimisă, fără răspuns încă. Captură: var/module-08-cli-permissions.png, ignorată de Git. Nu ocoli respingerea prin Admin UI, alt token sau modificarea scopes aplicației.
+
+Detaliile UI afișează numai „Edit orders — All order history for the last 60 days”. Shopify explică faptul că accesul la comenzi include PII client, iar aplicațiile instalate au datele proprietarului: [permisiuni și PII](https://help.shopify.com/en/manual/apps/finding-choosing-apps), [write include read](https://shopify.dev/docs/apps/build/authentication-authorization/manage-access-scopes). Nu au fost cerute scopes read_customers sau staff; aceste dovezi nu au eliminat cerința suplimentară a auto-review. Nu instala până la rezolvarea confirmării.
+
+Comenzi de reluare, numai după confirmarea exactă (prefixează intern fiecare comandă Shopify cu variabilele agentului conform skill-ului CLI):
+
+```powershell
+shopify store auth --store ordely-shop.myshopify.com --scopes write_orders --no-color
+shopify store execute --store ordely-shop.myshopify.com --version 2026-07 --query-file docs/testing/fixtures/shopify-order-lookup.graphql --output-file var/shopify-test-order-lookup.json
+```
+
+Inspectează lookup-ul: domeniul trebuie să fie ordely-shop.myshopify.com; zero comenzi înainte de crearea unică. Dacă fixture există, nu crea din nou. Numai în cazul zero:
+
+```powershell
+./scripts/prepare-shopify-test-order.ps1
+shopify store execute --store ordely-shop.myshopify.com --version 2026-07 --query-file docs/testing/fixtures/shopify-order-create.graphql --variable-file var/shopify-test-order.json --allow-mutations --output-file var/shopify-test-order-result.json
+```
 
 După acord: autentificare CLI pe dev store, verifică întâi dacă tag-ul/numele `ORDELY-TEST-M08` există (pentru a nu duplica după timeout), apoi execută mutation validată cu fișierul `var/shopify-test-order.json`, `--allow-mutations` și API 2026-07. Dacă execuția este ambiguă, caută comanda înainte de retry. Fără plăți, mesaje către clienți sau schimbări de stoc. Import/reimport din aplicație, verifică 30 linii, bani și criptare; confirmă/repară PCD dev dacă Shopify refuză câmpurile. Finalizează raportul, CI și criteriile 08 înainte de 09.
