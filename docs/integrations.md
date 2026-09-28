@@ -26,7 +26,7 @@ Pe alt PC cu DB nouă generează propriul keyring. Dacă restaurezi aceeași DB,
 2. `php bin/keyring.php keyring-next keyring` creează un fișier nou, păstrează toate cheile vechi și adaugă una activă aleatoare. Nu suprascrie fișiere existente.
 3. Configurează `ORDELY_KEYRING_FILE` către calea absolută a `var/keys/keyring-next.json` pe fiecare proces web/worker și repornește procesele care au încărcat configurația veche.
 4. În UI, folosește „Recriptează cu cheia activă” pe fiecare conexiune, inclusiv cele revocate. Operația verifică versiunea, decriptează cu cheia din envelope și recriptează cu cheia activă; starea revocată rămâne revocată.
-5. `php bin/key-status.php` raportează numai ID-uri de chei și numărul de conexiuni care le referă, inclusiv cele revocate. Retragerea unei chei cere zero referințe și respectarea retenției/restore-ului backup-urilor. Nu există ștergere automată a cheilor.
+5. `php bin/key-status.php` raportează numai ID-uri de chei și numărul de conexiuni care le referă, inclusiv cele revocate, plus `webhookKeyUsage` pentru payloadurile criptate Shopify din 07. Retragerea unei chei cere zero referințe în ambele liste și respectarea retenției/restore-ului backup-urilor. Recriptarea din UI afectează conexiunile; payloadurile webhook păstrează cheia inițială, care trebuie păstrată până la procesarea/retenția lor explicită. Nu există ștergere automată a cheilor.
 
 „Înlocuiește tokenul” schimbă credențialele providerului și recriptează cu cheia activă, fără să activeze o conexiune revocată. Rotația keyring-ului schimbă cheia de stocare; nu rotește contul/tokenul la furnizor. O conexiune revocată nu se reactivează; reconectarea va avea identitate nouă.
 

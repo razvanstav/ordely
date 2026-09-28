@@ -30,10 +30,12 @@ App ID public `62da15c72a85d17d1ee0cf8d7fa5058d`, Dev Dashboard app `42892519014
 
 ## Verificări
 
-`php var/tools/composer.phar check`: PASS — 188 lint, PHPStan 8, 97 unit/651 assertions, 72 integration/364 assertions. GraphQL query-ul de verificare a magazinului și configurația CLI au fost validate. [Raport 07](../testing/07-shopify.md) separă probele reale de cele sintetice.
+`php var/tools/composer.phar check`: PASS — 188 lint, PHPStan 8, 97 unit/651 assertions, 73 integration/367 assertions. GraphQL query-ul de verificare a magazinului și configurația CLI au fost validate. [Raport 07](../testing/07-shopify.md) separă probele reale de cele sintetice.
 
 Pe dev store, refresh real a schimbat versiunea conexiunii 1→2; uninstall real a schimbat-o 2→3 și `revoked`. Payloadul este criptat, evenimentul `app/uninstalled` este `processed`. Shopify a raportat livrare în 280 ms, fără eșec.
 
 ## Predare
 
 Testul de reinstalare a ajuns la Install pe Ordely Shop. Aprobarea automată a respins acțiunea deoarece Shopify cere acces standard la nume/email/telefon/adresa proprietarului, neautorizat explicit anterior. Confirmarea este cerută utilizatorului; nu ocoli blocarea prin CLI. După aprobare, finalizează reinstalarea și legarea cu un cod nou, verifică conexiunea veche revocată, apoi CI și închiderea 07. 08 rămâne PLANNED.
+
+CI pentru codul 911944e: [PASS Windows și Linux/Compose/HTTP](https://github.com/razvanstav/ordely/actions/runs/36410445815). Inventarul cheilor a fost extins și testat pentru payloadurile webhook; această corecție este publicată separat înainte de predare.

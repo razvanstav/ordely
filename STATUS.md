@@ -10,7 +10,7 @@ Login Shopify CLI finalizat. Aplicația **Ordely** a fost instalată și conecta
 
 Implementate: asociere autorizată owner/admin Ordely + ID token Shopify, cod temporar, tokenuri criptate și refresh serializat, inbox lifecycle, deduplicare, protecție pentru evenimente vechi, UI embedded și panou local. Detalii: [operare Shopify](docs/shopify.md), [raport 07](docs/testing/07-shopify.md).
 
-Verificare locală completă PASS: 188 lint, PHPStan 8, 97 unit/651 assertions, 72 integration/364 assertions — 169 teste. Configurația Shopify și query-ul Admin GraphQL validate. CI pentru noul cod urmează după push.
+Verificare locală completă PASS: 188 lint, PHPStan 8, 97 unit/651 assertions, 73 integration/367 assertions — 170 teste. Configurația Shopify și query-ul Admin GraphQL validate. Codul `911944e` este publicat și [CI Windows/Linux PASS](https://github.com/razvanstav/ordely/actions/runs/36410445815). Corecția inventarului cheilor se publică și verifică separat.
 
 ## Pas rămas
 

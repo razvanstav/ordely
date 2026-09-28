@@ -36,3 +36,5 @@ Payloadurile webhook, tokenurile, codurile și secretele nu intră în audit. Se
 ## Surse
 
 [App structure și convenții CLI](https://shopify.dev/docs/apps/build/cli-for-apps/app-structure), [configurare aplicație](https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration), [ID tokens](https://shopify.dev/docs/apps/build/authentication-authorization/id-tokens), [token exchange și refresh](https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens), [verificarea webhookurilor](https://shopify.dev/docs/apps/build/webhooks/verify-deliveries).
+
+Inventarul cheilor include `webhookKeyUsage`. Recriptarea conexiunilor nu eliberează o cheie încă folosită pentru inbox; păstrează cheile vechi până când procesarea și retenția payloadurilor sunt rezolvate explicit. Această proprietate este verificată printr-un test MySQL cu CLI real.
