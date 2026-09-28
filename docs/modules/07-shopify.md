@@ -1,6 +1,6 @@
 # Modul 07 — Instalare și autentificare Shopify
 
-2026-09-28. **REVIEW**. Continuarea autorizată prin „go”; exclusiv Ordely Shop (dev). ANATOMIK live este exclus.
+2026-09-28. **DONE**. Continuarea autorizată prin „go”; exclusiv Ordely Shop (dev). ANATOMIK live este exclus.
 
 ## Obiectiv și limite
 
@@ -17,7 +17,7 @@ Instalare embedded cu App Bridge și token exchange PHP, asociere explicită mer
 - [x] UI pentru inițiere/conectare/stare/refresh, CSP embedded și bearer tokens fără cookies third-party.
 - [x] Teste PHP/MySQL/HTTP, concurență în două procese și regresii locale.
 - [x] Dev store real: instalare, App Bridge, token exchange, refresh, webhook și dezinstalare PASS; zero scopes, fără PCD solicitat.
-- [ ] Reinstalare finală reală și predare cu conexiune activă: așteaptă autorizarea accesului standard la datele proprietarului.
+- [x] Reinstalare finală reală efectuată de utilizator; noua conexiune activă și refresh-ul verificate, vechea conexiune păstrată revocată.
 - [x] Publicare Git și CI Windows/Linux pentru implementarea completă, inclusiv corecția inventarului cheilor.
 
 ## Livrare
@@ -36,6 +36,10 @@ Pe dev store, refresh real a schimbat versiunea conexiunii 1→2; uninstall real
 
 ## Predare
 
-Testul de reinstalare a ajuns la Install pe Ordely Shop. Aprobarea automată a respins acțiunea deoarece Shopify cere acces standard la nume/email/telefon/adresa proprietarului, neautorizat explicit anterior. Confirmarea este cerută utilizatorului; nu ocoli blocarea prin CLI. După aprobare, finalizează reinstalarea și legarea cu un cod nou, verifică conexiunea veche revocată, apoi consemnează reinstalarea și închide 07. 08 rămâne PLANNED.
+07 DONE. Utilizatorul a confirmat „gata, am dat install” și a finalizat personal reinstalarea după explicarea accesului standard la datele proprietarului. Restricția anterioară este rezolvată. Preview-ul CLI a fost repornit deoarece reinstalarea revenise la URL-ul inițial; apoi App Bridge a afișat „Magazin conectat la Ordely”.
 
-CI pentru codul 911944e: [PASS Windows și Linux/Compose/HTTP](https://github.com/razvanstav/ordely/actions/runs/36410445815). Inventarul cheilor a fost extins și testat pentru payloadurile webhook. Codul final `348c578` este publicat și [CI Windows/Linux PASS](https://github.com/razvanstav/ordely/actions/runs/36410819306). Singurul pas rămas este reinstalarea autorizată de utilizator.
+Cod nou de legare consumat cu succes: conexiune nouă `active`, tokenuri criptate, scope gol. Refresh real după reinstalare PASS, versiune 1→2; conexiunea veche rămâne `revoked`, versiune 3, iar evenimentul uninstall rămâne `processed`. Captură locală în `var/ordely-shopify-reinstalled.png`, ignorată de Git.
+
+Cod final `348c578` publicat, [CI Windows/Linux PASS](https://github.com/razvanstav/ordely/actions/runs/36410819306). În această închidere s-au schimbat numai documentele și starea mediului de test; suita de cod nu a fost rerulată fără modificări. Browserul, PHP/tunelul CLI și MySQL rămân disponibile pe acest PC. 08 rămâne PLANNED și nu a fost pornit automat.
+
+Reluare: citește AGENTS, STATUS, plan, decizii, docs/shopify.md și fișa 08; definește scopes/PCD și criteriile importului înainte de implementarea comenzilor/catalogului. Păstrează limitele privacy consemnate în operare și raport.
