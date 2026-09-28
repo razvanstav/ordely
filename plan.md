@@ -2,9 +2,9 @@
 
 Actualizat: 2026-09-28. Registrul oficial al stărilor modulelor.
 
-**01–07 DONE. 08 DEFERRED_EXTERNAL la cererea utilizatorului. 09 IN_PROGRESS, pasul 09.1 — ciorne locale.**
+**01–07 DONE. 08 DEFERRED_EXTERNAL la cererea utilizatorului. 09 IN_PROGRESS; pasul 09.1 închis, următorul 09.2.**
 
-09.1 implementat și verificat local: 207 teste, UI/API pentru ciorne manuale, migrația 007, criptare/revizii, sume exacte și concurență. CI și sincronizarea se consemnează în [fișa 09](docs/modules/09-invoicing.md). Următorul pas după această verificare: 09.2, fără a începe 10.
+09.1 închis: 207 teste locale, UI/API pentru ciorne manuale, migrația 007, criptare/revizii, sume exacte și concurență. Cod f622aab publicat cu hash remote verificat și CI Windows/Linux 36480973254 PASS; [fișa 09](docs/modules/09-invoicing.md). Următorul pas: 09.2, fără a începe 10.
 
 Reluare pe PC-ul curent la 2026-09-28: predarea `807e0da` sincronizată fără conflicte, migrațiile 005/006 aplicate și toate cele 190 de teste rerulate cu PASS. Configurarea/tokenurile Shopify de pe celălalt PC nu vin prin Git; pregătirea locală este consemnată în STATUS. Criteriul comenzii reale rămâne deschis, amânat explicit prin cererea de continuare fără login Shopify.
 

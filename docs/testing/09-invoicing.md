@@ -12,8 +12,8 @@
 | node --check resources/invoicing.js; node --check resources/app.js | PASS final |
 | php bin/http-smoke.php | PASS: 6 probe pe serverul local |
 | php bin/key-status.php | PASS: structura include invoiceDraftKeyUsage; DB locală fără ciorne |
-| git diff --check | PASS înaintea documentării finale |
-| CI Windows/MySQL și Linux/Compose/HTTP | NOT_RUN pentru noul cod; urmează după push |
+| git diff --check și legături locale în predare | PASS |
+| CI Windows/MySQL și Linux/Compose/HTTP | PASS ambele, cod f622aab, [rularea 36480973254](https://github.com/razvanstav/ordely/actions/runs/36480973254) |
 | Inspecție vizuală manuală în browser | NOT_RUN în această sesiune; sintaxa JS, servirea asset-ului și fluxul HTTP sunt verificate separat |
 | Login, import comandă reală Shopify | DEFERRED_EXTERNAL prin cererea utilizatorului, nu PASS |
 | Emitere/storno/PDF Oblio | NOT_RUN, în afara pasului 09.1 |
@@ -27,3 +27,5 @@ IdentityHttpTest pornește un proces PHP HTTP separat și folosește MySQL: logi
 Prima probă de creare concurentă a eșuat: după așteptarea inserării celeilalte tranzacții, citirea reviziei folosea un snapshot MySQL anterior commitului. Recitirea cu FOR SHARE folosește datele comise, la fel ca lock-ul metadatelor. Retestul concurent și suita completă au trecut. PHPStan a semnalat o aserțiune repetată considerată deja restrânsă în testul HTTP; răspunsurile sunt acum colectate înainte de aserțiuni, fără suppressions. JSON adânc invalid rămâne 400, nu 500.
 
 UI invalidează răspunsurile întârziate la schimbarea merchant/store/filtru; modificarea formularului invalidează calculul în curs. Câmpurile sunt dezactivate în timpul salvării. Aceste protecții au fost revizuite în cod; nu sunt prezentate drept test vizual trecut.
+
+Codul f622aab39b8ff4791bb4c6cf300471b860ceb4c6 este publicat și hash-ul remote a fost verificat identic. Predarea ulterioară CI schimbă numai documentația; dovada runtime se referă la acest cod. 09.1 este închis, 09 rămâne IN_PROGRESS pentru 09.2/09.3.
