@@ -18,6 +18,8 @@ Utilizatorul a dat acordul pentru write_orders și comanda sintetică: „Hai, f
 
 Sunt pregătite query-urile validate `docs/testing/fixtures/shopify-order-create.graphql`, `shopify-order-lookup.graphql` și `scripts/prepare-shopify-test-order.ps1` (generează var/shopify-test-order.json). Fixture: test=true, PENDING, 30 linii, date inventate, fără mesaje, plăți sau modificări de stoc. Pasul următor: rezolvă confirmarea exactă a instalării CLI doar pe ordely-shop.myshopify.com, verifică să nu existe ORDELY-TEST-M08, apoi creează comanda și verifică import/reimport, bani/linii/PCD. Nu începe 09.
 
+Sesiunea CLI auth a expirat așteptând callback-ul OAuth. După confirmare, rulează din nou auth și folosește noua pagină de instalare; pagina păstrată arată permisiunile, dar callback-ul vechi nu mai este activ.
+
 ## Mediu și Git
 
 PHP 8.4.24 în var/tools/php-8.4.24, Composer 2.10.3, MySQL 8.4.11 pe 33060, Node 24.19.0 din runtime Codex, Shopify CLI 4.8.2. Migrații 001–006 aplicate în app/test. Păstrează var/keys/keyring.json împreună cu DB. `.env`, tokenurile și contul sintetic sunt ignorate.

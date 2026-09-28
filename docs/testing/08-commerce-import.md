@@ -53,6 +53,8 @@ Detaliile UI afișează numai „Edit orders — All order history for the last 
 
 Comenzi de reluare, numai după confirmarea exactă (prefixează intern fiecare comandă Shopify cu variabilele agentului conform skill-ului CLI):
 
+Prima sesiune auth s-a încheiat cu `Timed out waiting for OAuth callback`. Repornește auth după confirmare și folosește pagina nou deschisă; nu încerca finalizarea prin vechiul callback expirat.
+
 ```powershell
 shopify store auth --store ordely-shop.myshopify.com --scopes write_orders --no-color
 shopify store execute --store ordely-shop.myshopify.com --version 2026-07 --query-file docs/testing/fixtures/shopify-order-lookup.graphql --output-file var/shopify-test-order-lookup.json
