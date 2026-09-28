@@ -1,6 +1,6 @@
 # Verificări modul 08 — 2026-09-28
 
-Stare curentă: REVIEW, 2026-09-29. Probele reale au fost reluate la cererea utilizatorului. Autorizările CLI și preview Ordely/write_orders temporar sunt primite explicit. Proba orderCreate prin CLI a demonstrat incompatibilitatea tokenului online; alternativa offline autorizată așteaptă legarea locală. Rezultatele istorice sunt păstrate mai jos.
+Stare curentă: REVIEW, 2026-09-29. Fixture-ul real există, ID 8239905505617: 30 linii/36,00 RON, creat unic prin client_credentials. Query-urile originale, paginarea 25+5, datele sintetice, normalizarea și OrderCipher au trecut de două ori. Corectat read_customers lipsă; write_orders retras și verificat. Importul/reimportul persistat prin App Bridge/worker rămâne NOT_RUN. Preview/PHP/tunel/MySQL oprite, datele păstrate. Vezi ultima secțiune pentru predarea curentă; secțiunile anterioare sunt istorice.
 
 ## Reluare verificată pe PC-ul curent
 
@@ -105,4 +105,36 @@ Browser automation nu pornește pe acest PC: ambele instrumente au returnat `win
 
 Helper-ele locale ignorate de Git: `php var/prepare-shopify-local.php` păstrează contul sintetic și regenerează codul; `php var/shopify-live-check.php status` verifică legătura. Helper-ul fixture este pregătit numai pentru dev allowlist, lookup înainte de creare, blocare locală și marker înainte de mutation; un rezultat incert interzice repetarea automată. Nu s-a executat încă modul fixture. Secretele nu sunt expuse în rezultate/documente.
 
-Configurația locală shopify.app.toml conține temporar write_orders, nepublicat în Git. Retrage-l după crearea fixture; așteaptă aplicarea preview-ului, verifică scope-urile efective și refresh-ul înainte de importul doar cu citire. La mutare pe alt PC, codul și notele vin din Git, iar setup-ul local se recreează conform docs/shopify.md; tokenurile și helper-ele var nu sunt transferate.
+La acel moment, configurația locală shopify.app.toml conținea temporar write_orders, nepublicat în Git. Acesta a fost retras ulterior, conform probelor de mai jos. La mutare pe alt PC, codul și notele vin din Git, iar setup-ul local se recreează conform docs/shopify.md; tokenurile și helper-ele var nu sunt transferate.
+
+## Continuare autonomă și predare curentă — 2026-09-29
+
+Utilizatorul a autorizat toate automatizările și accesul necesar pe Ordely dev, cerând închiderea mediului dacă un pas nu poate fi continuat fără el. Nu există acord restant pentru aceste probe. Nu s-a lucrat pe ANATOMIK live.
+
+Browser automation rămâne BLOCKED tehnic (sandbox ACL/kernel). Alternativa oficială [client credentials pentru magazinele aceleiași organizații](https://shopify.dev/docs/apps/build/authentication-authorization/client-credentials-grant) a funcționat cu aplicația Ordely deja instalată pe Ordely dev. Tokenul real a fost păstrat criptat într-un fișier ignorat, cu expirare aproximativ 24h. Acesta nu este un ID token App Bridge și nu a fost introdus artificial în shopify_links/provider_connections. Fluxul de autentificare al aplicației nu a fost modificat.
+
+| Probă executată | Rezultat și limită |
+| --- | --- |
+| `php var/shopify-own-store-probe.php`, prima încercare | FAIL transport cURL 60: lipsește CA în PHP; nu este refuz Shopify |
+| Descărcare HTTPS Mozilla CA de la curl, verificare SHA-256, configurare curl.cainfo/openssl.cafile în php.ini | PASS; fără dezactivarea verificării certificatului/hostului. Backup local și bundle în var; procedură în setup |
+| `php var/shopify-own-store-probe.php` după CA | PASS HTTP 200, domeniu Ordely dev verificat cu HttpShopifyGateway; client_credentials, expires_in=86399 |
+| `php var/shopify-own-store-test.php fixture` | PASS: lookup zero înainte, marker local înainte de mutation; creată o singură ORDELY-TEST-M08, ID `gid://shopify/Order/8239905505617`, test=true, PENDING, 30 linii, total 36,00 RON; inventory BYPASS, notificări false, fără transactions |
+| Retragere write_orders din TOML, restart preview și token nou; `php var/shopify-own-store-test.php scopes` | PASS: API confirmă exclusiv scope-uri de citire. Watcher-ul nu aplicase singur schimbarea; restartul a aplicat-o |
+| Query original resources/shopify/order.graphql cu patru scope-uri | FAIL real ACCESS_DENIED pe order.customer: cere read_customers. Defect de configurație identificat, apoi remediat |
+| Adăugare read_customers, `shopify app config validate --json`, restart preview, token nou și scopes | PASS: valid=true, issues=[]; read_customers/read_inventory/read_locations/read_orders/read_products, fără write_orders |
+| `php var/shopify-own-store-test.php read`, de două ori după corecție | PASS: indexul original și order.graphql nemodificate, pagini 25+5, 30 ID-uri de linie distincte, ImportNormalizer real, email/adresă sintetice exacte, OrderCipher seal/open real, fără text personal în envelope; hash normalizat identic la recitire |
+| Sume normalizate | PASS: original/curent 3600 bani RON, taxă sintetică 570, încasat 0, restant 3600; rata din fixture este exclusiv dată sintetică |
+| `php vendor/bin/phpunit --filter 'Shopify\|CommerceImport'`, rerulat după corecție | PASS: 58 teste / 286 assertions |
+| `php bin/http-smoke.php`, rerulat după corecție | PASS: 6 verificări |
+| `php var/shopify-live-check.php status` | connection=null: App Bridge local încă NOT_RUN; nu se pretinde import/reimport persistat din probele directe |
+| Ieșire CLI, `shopify app dev clean --store ordely-shop.myshopify.com --client-id 62da15c72a85d17d1ee0cf8d7fa5058d --no-color` | PASS: preview oprit, versiunea activă restaurată; procesele CLI/PHP/tunel închise |
+| Token nou și scopes după app dev clean | PASS: aceleași cinci scope-uri de citire; write_orders absent și după cleanup |
+| `./scripts/windows-mysql.ps1 -Action Stop` | PASS: MySQL local oprit, date păstrate în var/mysql/data |
+
+Hash-ul normalizat al comenzii la cele două citiri: `29ee735f7ceb4a1cf497cc353f6b525a3538afa68cbed0d56a1fbe6f865c1dc1`. Citirile live confirmă accesul la câmpurile sintetice în dev; nu reprezintă aprobare Shopify pentru datele de producție. Criptarea este probată cu OrderCipher pe documentul real normalizat, dar persistarea în commerce_records, staging, evenimentele și stabilitatea ID-urilor interne rămân de verificat prin fluxul complet.
+
+Helper-ul local a avut și două erori de pregătire, remediate înaintea probei finale: checksum-ul descărcat era returnat ca bytes de PowerShell (citit ulterior din fișier), iar documentul mare fusese trimis direct în Secrets (înlocuit cu OrderCipher, componenta corectă). Acestea nu au produs comenzi suplimentare. Marker-ul de creare este păstrat; nu se repetă mutation.
+
+La reluare pe acest PC: pornește MySQL și preview-ul cu TOML actual, rulează `php var/prepare-shopify-local.php` pentru cod nou și finalizează legarea autentică App Bridge. `php var/shopify-live-check.php status` trebuie să confirme conexiunea. Folosește fixture-ul existent, apoi `start`, `php bin/worker.php 150 <merchantId>` și `inspect` din helper sau UI-ul documentat; repetă importul complet și compară numărători/ID-uri/versiuni/ORDER_IMPORTED/staging/criptare DB. Helper-ele var sunt locale, neversionate; pe alt PC folosește procedura UI/worker din [operare](../commerce-import.md). Nu folosi modul fixture și nu readăuga write_orders. Nu accepta tokenul client_credentials ca pereche access/refresh și nu simula App Bridge pentru a închide testul.
+
+Surse: [Customer cere read_customers](https://shopify.dev/docs/api/admin-graphql/latest/objects/Customer), [grant oficial pentru propriile magazine](https://shopify.dev/docs/apps/build/authentication-authorization/client-credentials-grant), [Mozilla CA distribuit de curl](https://curl.se/docs/caextract.html). Proba live, nu doar validarea schemei GraphQL, a demonstrat necesitatea scope-ului lipsă.

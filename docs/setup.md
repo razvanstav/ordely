@@ -65,6 +65,23 @@ Serverul este legat numai de 127.0.0.1:33060; dacă portul este ocupat de alt pr
 
 Oprește MySQL cu `./scripts/windows-mysql.ps1 -Action Stop`; datele rămân. Serverul PHP pornit în terminal se oprește cu Ctrl+C. Helper-ele rezolvă căile relativ la propriul fișier. Nu porni Compose și varianta nativă pe același port.
 
+### Certificate HTTPS pentru PHP Windows
+
+Dacă cURL raportează eroarea 60 (`unable to get local issuer certificate`), verifică `php --ini`, `curl.cainfo` și `openssl.cafile`. Pe PC-ul curent acestea erau goale și blocau API-ul Shopify. Folosește un bundle CA de încredere; nu dezactiva verificarea TLS sau a hostului.
+
+```powershell
+$ErrorActionPreference = 'Stop'
+Invoke-WebRequest -Uri 'https://curl.se/ca/cacert.pem' -OutFile 'var/tools/cacert.pem'
+Invoke-WebRequest -Uri 'https://curl.se/ca/cacert.pem.sha256' -OutFile 'var/tools/cacert.pem.sha256'
+$expectedCaHash = ((Get-Content -LiteralPath 'var/tools/cacert.pem.sha256' -Raw).Trim() -split '\s+')[0]
+if ((Get-FileHash -LiteralPath 'var/tools/cacert.pem' -Algorithm SHA256).Hash -ne $expectedCaHash) {
+    throw 'CA bundle checksum mismatch'
+}
+$ordelyCaPath = (Resolve-Path -LiteralPath 'var/tools/cacert.pem').Path
+```
+
+Păstrează backup-ul php.ini încărcat, apoi configurează `curl.cainfo` și `openssl.cafile` cu calea absolută din `$ordelyCaPath`, între ghilimele. Repornește serverul PHP/Shopify dev pentru aplicare. Pentru o singură comandă CLI se pot folosi `php -d "curl.cainfo=$ordelyCaPath" -d "openssl.cafile=$ordelyCaPath" <script.php>`. Bundle-ul și backup-ul rămân locale în var; la alt PC configurează calea lui, iar la mutarea folderului actualizează php.ini. Verificarea și sursa: [CA Mozilla distribuit de curl](https://curl.se/docs/caextract.html).
+
 ## MySQL deja instalat
 
 Folosește MySQL 8.4, o bază de dezvoltare și una separată cu sufix `_test`. Creează un user cu drepturi numai pe aceste baze și configurează DB_HOST, DB_PORT, DB_NAME, DB_TEST_NAME, DB_USER, DB_PASSWORD în `.env` sau environment. Helper-ul Windows este opțional.

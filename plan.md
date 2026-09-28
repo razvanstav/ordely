@@ -4,6 +4,8 @@ Actualizat: 2026-09-29. Registrul oficial al stărilor modulelor.
 
 **01–07 DONE. 08 REVIEW — reluarea probelor Shopify cerută de utilizator. 09 PAUSED la finalul pasului 09.1; 09.2 nu a început.**
 
+Ultimul pas 08, 2026-09-29: fixture creată o singură dată prin client_credentials, ID 8239905505617, 30 linii/36,00 RON; query-uri reale, paginare 25+5, date sintetice, normalizare și criptare verificate de două ori. Corectat read_customers lipsă; write_orders retras și verificat. 58 teste/286 assertions și 6 probe HTTP PASS. Importul/reimportul persistat rămâne NOT_RUN până la legarea App Bridge pe acest PC. Preview/PHP/tunel/MySQL oprite; datele păstrate. Nu recrea fixture-ul. [Predare](STATUS.md), [raport](docs/testing/08-commerce-import.md).
+
 09.1 închis: 207 teste locale, UI/API pentru ciorne manuale, migrația 007, criptare/revizii, sume exacte și concurență. Cod f622aab publicat cu hash remote verificat și CI Windows/Linux 36480973254 PASS; [fișa 09](docs/modules/09-invoicing.md). Următorul pas al facturării, după reluarea 08: 09.2; 10 nu este început.
 
 Reluare pe PC-ul curent la 2026-09-28: predarea `807e0da` sincronizată fără conflicte, migrațiile 005/006 aplicate și toate cele 190 de teste rerulate cu PASS. Configurarea/tokenurile Shopify de pe celălalt PC nu vin prin Git; pregătirea locală este consemnată în STATUS. Criteriul comenzii reale rămâne deschis, amânat explicit prin cererea de continuare fără login Shopify.

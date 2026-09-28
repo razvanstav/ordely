@@ -1,10 +1,10 @@
 # Import comenzi și catalog — modul 08
 
-Implementarea este în verificare. Catalogul real este confirmat pe Ordely Shop; crearea unei comenzi sintetice este aprobată, dar instalarea conectorului CLI este blocată de auto-review până la confirmarea explicită a datelor personale incluse. [Starea exactă și reluarea](testing/08-commerce-import.md). Nu folosi ANATOMIK live.
+Implementarea este în verificare. Catalogul real este confirmat pe Ordely Shop. Fixture-ul ORDELY-TEST-M08 există: 30 linii/36,00 RON, citire/paginare/normalizare/criptare verificate. Importul și reimportul său persistat așteaptă legarea App Bridge pe PC-ul curent; acordurile sunt primite. [Starea exactă și reluarea](testing/08-commerce-import.md). Nu folosi ANATOMIK live.
 
 ## Operare
 
-Aplică migrațiile cu `php bin/migrate.php`, păstrează keyring-ul existent și pornește serverul conform [Shopify](shopify.md). Scopes aplicației: `read_orders,read_products,read_inventory,read_locations`. După schimbarea scopes în preview, reînnoiește accesul din Ordely; verificarea reală a returnat exact aceste patru scopes. Nu sunt permisiuni de scriere.
+Aplică migrațiile cu `php bin/migrate.php`, păstrează keyring-ul existent și pornește serverul conform [Shopify](shopify.md). Scopes aplicației: `read_orders,read_customers,read_products,read_inventory,read_locations`. read_customers este necesar pentru order.customer.id, inclusiv asocierea cererilor privacy cu comenzile; lipsa lui a produs ACCESS_DENIED în proba reală. După schimbarea scopes în preview, reînnoiește accesul din Ordely. Cele cinci scope-uri au fost verificate real pe dev, fără write_orders. Nu sunt permisiuni de scriere.
 
 În panoul Ordely, selectează magazinul în **Comenzi și catalog**, apoi **Sincronizează Shopify**. Rulează `php bin/worker.php 150`; procesul poate fi relansat până când coada este goală. Workerul trebuie să ruleze pentru ca butoanele să proceseze datele. În producție este necesar un supervisor, decis înainte de pilot.
 
