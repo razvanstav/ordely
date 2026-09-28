@@ -10,7 +10,8 @@ async function api(path, method = 'GET', data, idempotencyKey) {
   const response = await fetch(path, {method, credentials: 'same-origin', headers, body: data === undefined ? undefined : JSON.stringify(data)});
   const result = await response.json();
   if (!response.ok) {
-    if (response.status === 401) { $('#login').hidden = false; $('#workspace').hidden = true; csrf = ''; clearSecretInputs(); }
+    if (response.status === 401) { $('#login').hidden = false; $('#workspace').hidden = true; csrf = ''; clearSecretInputs(); document.dispatchEvent(new Event('ordely:logout')); }
+    if (response.status === 409) throw new Error('Datele nu mai corespund versiunii salvate. Redeschide elementul înainte de a încerca din nou.');
     const messages = {invalid_credentials: 'Email sau parolă incorectă.', unauthenticated: 'Conectează-te pentru a continua.', forbidden: 'Nu ai permisiune pentru această acțiune.', invalid_csrf: 'Sesiunea s-a schimbat. Reîncarcă pagina.', too_many_attempts: 'Prea multe încercări. Reîncearcă peste 15 minute.', shopify_reauthorization_required: 'Accesul Shopify a fost revocat. Generează un cod nou și reconectează aplicația din Shopify.', shopify_unavailable: 'Shopify nu răspunde momentan. Reîncearcă.', shopify_not_configured: 'Integrarea Shopify trebuie configurată pe server.'};
     throw new Error(messages[result.error] || 'Acțiunea nu a reușit. Verifică datele și reîncearcă.');
   }
@@ -25,6 +26,7 @@ async function refresh() {
   }));
   const {stores} = await api('/api/stores');
   visibleStores = stores;
+  document.dispatchEvent(new CustomEvent('ordely:context', {detail: {me, stores}}));
   $('#stores').replaceChildren(...stores.map(store => {
     const card = document.createElement('article'); card.className = 'card';
     const title = document.createElement('h2'); title.textContent = store.name;
@@ -123,8 +125,8 @@ $('#shopify-copy').addEventListener('click', () => action(async () => {await nav
 $('#login-form').addEventListener('submit', event => { event.preventDefault(); action(async () => { const data = Object.fromEntries(new FormData(event.target)); const result = await api('/api/auth/login', 'POST', data); csrf = result.csrf; event.target.reset(); await refresh(); }); });
 $('#store-form').addEventListener('input', () => { storeKey = null; });
 $('#store-form').addEventListener('submit', event => { event.preventDefault(); action(async () => { storeKey ??= crypto.randomUUID(); await api('/api/stores', 'POST', Object.fromEntries(new FormData(event.target)), storeKey); storeKey = null; event.target.reset(); await refresh(); }); });
-$('#merchants').addEventListener('change', event => action(async () => { clearSecretInputs(); const result = await api('/api/auth/merchant', 'POST', {merchantId: event.target.value}); csrf = result.csrf; connectionId = null; storeKey = null; $('#connection-form').reset(); await refresh(); }));
-$('#logout').addEventListener('click', () => action(async () => { await api('/api/auth/logout', 'POST', {}); clearSecretInputs(); csrf = ''; $('#login').hidden = false; $('#workspace').hidden = true; }));
+$('#merchants').addEventListener('change', event => action(async () => { clearSecretInputs(); document.dispatchEvent(new Event('ordely:logout')); const result = await api('/api/auth/merchant', 'POST', {merchantId: event.target.value}); csrf = result.csrf; connectionId = null; storeKey = null; $('#connection-form').reset(); await refresh(); }));
+$('#logout').addEventListener('click', () => action(async () => { await api('/api/auth/logout', 'POST', {}); document.dispatchEvent(new Event('ordely:logout')); clearSecretInputs(); csrf = ''; $('#login').hidden = false; $('#workspace').hidden = true; }));
 $('#refresh-operations').addEventListener('click', () => action(refreshOperations));
 $('#refresh-integrations').addEventListener('click', () => action(refreshIntegrations));
 $('#connection-form').addEventListener('input', () => { connectionId = null; });

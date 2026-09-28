@@ -2,13 +2,15 @@
 
 Actualizat: 2026-09-28. Registrul oficial al stărilor modulelor.
 
-**01–07 DONE. 08 DEFERRED_EXTERNAL la cererea utilizatorului. Urmează 09, fără login Shopify.**
+**01–07 DONE. 08 DEFERRED_EXTERNAL la cererea utilizatorului. 09 IN_PROGRESS, pasul 09.1 — ciorne locale.**
+
+09.1 implementat și verificat local: 207 teste, UI/API pentru ciorne manuale, migrația 007, criptare/revizii, sume exacte și concurență. CI și sincronizarea se consemnează în [fișa 09](docs/modules/09-invoicing.md). Următorul pas după această verificare: 09.2, fără a începe 10.
 
 Reluare pe PC-ul curent la 2026-09-28: predarea `807e0da` sincronizată fără conflicte, migrațiile 005/006 aplicate și toate cele 190 de teste rerulate cu PASS. Configurarea/tokenurile Shopify de pe celălalt PC nu vin prin Git; pregătirea locală este consemnată în STATUS. Criteriul comenzii reale rămâne deschis, amânat explicit prin cererea de continuare fără login Shopify.
 
 Arhitectura a fost acceptată pentru continuare prin mesajul utilizatorului „CONTINUA”. Continuăm același branch de lucru `codex/modul-01-arhitectura`, fără fragmentarea istoricului între PC-uri.
 
-Utilizatorul a autorizat modulele 03–06, executate strict în ordine: implementare, teste, documentare, commit/push, apoi următorul. Deciziile D01–D05 se închid înainte de modulele care le folosesc. Lotul 03–06 este închis, fiecare modul fiind publicat și verificat în CI înainte de următorul. La 2026-09-28, „go” autorizează continuarea cu modulul 07. 07 este închis după reinstalarea finalizată de utilizator și verificarea reconectării/refresh-ului. Mesajul „Ok, te rog.” autorizează 08; implementarea și catalogul real sunt verificate, codul e8a4133 este publicat cu CI 36420254697 PASS Windows/Linux. Ulterior, „Ai acordul meu” autorizează write_orders CLI și comanda sintetică; Install rămâne blocat de auto-review până la confirmarea explicită a datelor personale afișate de Shopify. A treia rulare a catalogului confirmă refresh automat după expirarea accesului, fără dubluri. Ulterior, utilizizatorul a cerut continuarea fără probele Shopify care cer login. Amânăm proba reală 08 și continuăm secvențial cu partea locală 09; testele automate fără cont extern rămân obligatorii. 10–21 nu sunt începute.
+Utilizatorul a autorizat modulele 03–06, executate strict în ordine: implementare, teste, documentare, commit/push, apoi următorul. Deciziile D01–D05 se închid înainte de modulele care le folosesc. Lotul 03–06 este închis, fiecare modul fiind publicat și verificat în CI înainte de următorul. La 2026-09-28, „go” autorizează continuarea cu modulul 07. 07 este închis după reinstalarea finalizată de utilizator și verificarea reconectării/refresh-ului. Mesajul „Ok, te rog.” autorizează 08; implementarea și catalogul real sunt verificate, codul e8a4133 este publicat cu CI 36420254697 PASS Windows/Linux. Ulterior, „Ai acordul meu” autorizează write_orders CLI și comanda sintetică; Install rămâne blocat de auto-review până la confirmarea explicită a datelor personale afișate de Shopify. A treia rulare a catalogului confirmă refresh automat după expirarea accesului, fără dubluri. Ulterior, utilizatorul a cerut continuarea fără probele Shopify care cer login. Amânăm proba reală 08 și continuăm secvențial cu partea locală 09; testele automate fără cont extern rămân obligatorii. 10–21 nu sunt începute.
 
 ## Stări
 
@@ -30,7 +32,7 @@ Fiecare modul pornește după închiderea celui precedent sau după amânarea ex
 | 06 | ProviderConnection, chei și registru integrări | Criptare/rotație testate; secrete absente din loguri și UI | DONE |
 | 07 | Shopify: instalare, auth, webhook inbox și dezinstalare | Dev store conectat; semnături și revocare testate | DONE |
 | 08 | Comenzi și catalog Shopify normalizate | Import repetat fără dubluri, reconciliere, paginare, variante/stoc | DEFERRED_EXTERNAL |
-| 09 | Facturare și Oblio, inclusiv storno de bază | Contract + integrare controlată; retry fără document duplicat | PLANNED |
+| 09 | Facturare și Oblio, inclusiv storno de bază | Contract + integrare controlată; retry fără document duplicat | IN_PROGRESS |
 | 10 | Shipping și Sameday | AWB, etichetă, anulare, retur, pickup și capabilities verificate | PLANNED |
 | 11 | FAN Courier | Aceeași suită de contract; funcțiile sunt confirmate pentru contul folosit | PLANNED |
 | 12 | Facturează + AWB + fulfillment + tracking | Reluare după eșec parțial fără reemiterea facturii/AWB-ului | PLANNED |

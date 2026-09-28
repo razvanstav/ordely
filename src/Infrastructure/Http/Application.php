@@ -40,6 +40,13 @@ final readonly class Application
         $routes->add('home', new Route('/', methods: ['GET']));
         $routes->add('script', new Route('/app.js', methods: ['GET']));
         $routes->add('style', new Route('/app.css', methods: ['GET']));
+        $routes->add('draft_script',new Route('/invoicing.js',methods:['GET']));
+        $routes->add('draft_list',new Route('/api/invoice-drafts',methods:['GET']));
+        $routes->add('draft_create',new Route('/api/invoice-drafts',methods:['POST']));
+        $routes->add('draft_preview',new Route('/api/invoice-drafts/preview',methods:['POST']));
+        $routes->add('draft_get',new Route('/api/invoice-drafts/{id}',requirements:['id'=>'[a-f0-9]{32}'],methods:['GET']));
+        $routes->add('draft_update',new Route('/api/invoice-drafts/{id}',requirements:['id'=>'[a-f0-9]{32}'],methods:['PUT']));
+        $routes->add('draft_archive',new Route('/api/invoice-drafts/{id}/archive',requirements:['id'=>'[a-f0-9]{32}'],methods:['POST']));
         $routes->add('shopify_home',new Route('/shopify',methods:['GET']));
         $routes->add('shopify_script',new Route('/shopify.js',methods:['GET']));
         $routes->add('shopify_connect',new Route('/shopify/connect',methods:['POST']));
@@ -74,6 +81,8 @@ final readonly class Application
             $name = (string) $route['_route'];
             if($name==='home'&&$request->query->has('shop')){$name='shopify_home';}
             $response = match ($name) {
+                'draft_list','draft_get','draft_create','draft_update','draft_archive','draft_preview'=>(new \Ordely\Invoicing\Presentation\DraftApi(new Sql(($this->connect)())))->handle($name,$request,isset($route['id'])?(string)$route['id']:null),
+                'draft_script'=>$this->asset('invoicing.js','text/javascript'),
                 'commerce_start','commerce_list','commerce_order','commerce_privacy'=>(new \Ordely\Commerce\Presentation\CommerceApi(new Sql(($this->connect)())))->handle($name,$request,isset($route['id'])?(string)$route['id']:null),
                 'health' => new JsonResponse(['status' => 'ok']),
                 'ready' => $this->readiness(),

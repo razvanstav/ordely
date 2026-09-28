@@ -6,6 +6,7 @@ use Ordely\Identity\Infrastructure\Provisioner;
 use Ordely\Infrastructure\Database\{ConnectionFactory, DatabaseConfig, Migrator, Sql};
 use Ordely\Shared\Id;
 use Ordely\Tests\Support\FixtureCleanup;
+use Ordely\Tests\Support\InvoiceFixtures;
 use PHPUnit\Framework\TestCase;
 
 final class IdentityHttpTest extends TestCase
@@ -64,6 +65,19 @@ final class IdentityHttpTest extends TestCase
             self::assertSame(200, $stores['status']);
             self::assertStringContainsString('Magazin', $stores['body']);
             $storeId=json_decode($created['body'],true,flags:JSON_THROW_ON_ERROR)['id'];$connectionId=Id::new();$credential='SYNTHETIC-REAL-HTTP-TOKEN';
+            self::assertSame(200,$this->request($base.'/invoicing.js')['status']);
+            $draftId=Id::new();$draftBody=['id'=>$draftId,'storeId'=>$storeId,'document'=>InvoiceFixtures::data()];$draftPath=$base.'/api/invoice-drafts/'.$draftId;
+            self::assertSame(200,$this->request($base.'/api/invoice-drafts/preview','POST',$draftBody,$cookie,$csrf)['status']);
+            $draftFirst=$this->request($base.'/api/invoice-drafts','POST',$draftBody,$cookie,$csrf);
+            $draftReplay=$this->request($base.'/api/invoice-drafts','POST',$draftBody,$cookie,$csrf);
+            self::assertSame(201,$draftFirst['status']);self::assertSame(201,$draftReplay['status']);
+            $detail=$this->request($draftPath.'?storeId='.$storeId,cookie:$cookie);self::assertSame(200,$detail['status']);self::assertStringContainsString('"total":"23.00"',$detail['body']);
+            self::assertSame(200,$this->request($draftPath,'PUT',[...$draftBody,'version'=>1],$cookie,$csrf)['status']);
+            self::assertSame(409,$this->request($draftPath,'PUT',[...$draftBody,'version'=>1],$cookie,$csrf)['status']);
+            self::assertSame(200,$this->request($draftPath.'/archive','POST',['storeId'=>$storeId,'version'=>2],$cookie,$csrf)['status']);
+            // An unreadable draft must fail closed, without exposing its recipient or encryption key.
+            $db->run("UPDATE invoice_draft_revisions SET document_envelope=JSON_SET(document_envelope,'$.tag',?) WHERE draft_id=? AND version=3",[base64_encode(str_repeat('x',16)),Id::bytes($draftId)]);
+            $broken=$this->request($draftPath.'?storeId='.$storeId,cookie:$cookie);self::assertSame(500,$broken['status']);self::assertStringNotContainsString('SYNTHETIC-PRIVATE-RECIPIENT',$broken['body']);self::assertStringNotContainsString($testKey,$broken['body']);
             $connection=$this->request($base.'/api/integrations','POST',['id'=>$connectionId,'provider'=>'fake-carrier','label'=>'HTTP carrier','credentials'=>['apiToken'=>$credential]],$cookie,$csrf);
             self::assertSame(201,$connection['status']);
             self::assertSame(200,$this->request($base.'/api/integrations/'.$connectionId.'/bind','POST',['storeId'=>$storeId,'version'=>1,'isDefault'=>true],$cookie,$csrf)['status']);
@@ -81,6 +95,7 @@ final class IdentityHttpTest extends TestCase
             $logged = file_get_contents($log); self::assertIsString($logged);
             self::assertStringNotContainsString($password, $logged); self::assertStringNotContainsString($cookie, $logged);
             self::assertStringNotContainsString($credential,$logged);self::assertStringNotContainsString($testKey,$logged);
+            self::assertStringNotContainsString('SYNTHETIC-PRIVATE-RECIPIENT',$logged);self::assertStringNotContainsString('SYNTHETIC-PRIVATE-ADDRESS',$logged);
         } finally {
             if (is_resource($process)) { proc_terminate($process); proc_close($process); }
             FixtureCleanup::merchant($db,$identity['merchantId'],$identity['userId']);

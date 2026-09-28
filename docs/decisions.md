@@ -127,3 +127,9 @@ Scopes aplicației sunt read_orders/read_products/read_inventory/read_locations,
 ## D15 — Continuare fără login Shopify
 
 2026-09-28, autorizat explicit: „Hai să continuăm fără testele de Shopify. Că nu pot să mă loghez.” Probele reale dependente de cont din 08 sunt amânate, nu marcate PASS sau DONE. Introducem DEFERRED_EXTERNAL, care eliberează unicul loc activ; continuăm 09 în pași locali cu teste automate offline. Nu eliminăm testele simulate existente, nu ocolim refuzul instalării CLI și nu pretindem integrare reală validată. D01/D08 rămân deschise pentru emitere/storno; pregătirea ciornelor nu alege reguli fiscale și nu trimite documente către provider.
+
+## D16 — Ciorne locale de facturi (09.1)
+
+Ales 2026-09-28 în continuarea D15: pas local independent de CMS/provider, cu document editabil și revizii criptate. Reutilizăm Money/Core CommercialLine pentru calcule; taxa totală pe linie este introdusă explicit, fără rată fiscală presupusă. Owner/admin/finance editează, operator citește, viewer nu are acces; scope merchant/store se revalidează. Crearea folosește ID stabil și comparație canonică, editarea/arhivarea cer versiunea curentă. Audit/outbox atomic conține numai referințe. Istoricul păstrează cheile vechi în inventar.
+
+Ciorna nu constituie model complet de emitere și nu primește număr fiscal. Adresa/datele emitentului/seriile și validarea fiscală se completează înaintea adaptorului și emiterii. D01/D08 rămân deschise; totalul zero într-o ciornă nu decide politica de facturare. Limite și API în [invoicing](invoicing.md).

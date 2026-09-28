@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace Ordely\Operations\Domain;
 enum AuditAction: string
 {
+    case InvoiceDraftCreated='invoice_draft_created';case InvoiceDraftUpdated='invoice_draft_updated';case InvoiceDraftArchived='invoice_draft_archived';case InvoiceDraftViewed='invoice_draft_viewed';
     case ImportStarted='import_started';case ImportCompleted='import_completed';case PrivacyProcessed='privacy_processed';case OrderViewed='order_viewed';
     case IntegrationLinked='integration_linked';case IntegrationTokenRefreshed='integration_token_refreshed';case IntegrationWebhookReceived='integration_webhook_received';
     case ConnectionCreated='connection_created';case ConnectionReencrypted='connection_reencrypted';case CredentialsReplaced='credentials_replaced';case ConnectionRevoked='connection_revoked';case ConnectionBound='connection_bound';case ConnectionUnbound='connection_unbound';

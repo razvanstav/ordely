@@ -31,6 +31,12 @@ try{
         $service=new \Ordely\Integrations\Infrastructure\Connections($db,\Ordely\Tests\Support\IntegrationFixtures::registry(),\Ordely\Tests\Support\IntegrationFixtures::cipher());
         try{$service->rotate($actor,$argv[5]??'',2);echo 'rotated';}catch(\Ordely\Operations\Domain\Conflict){echo 'conflict';}exit(0);
     }
+    if($mode==='invoice-create'||$mode==='invoice-edit'){
+        $actor=new TenantContext($merchant,$argv[3]??'',$argv[4]??'',Role::Owner,true);$store=$argv[5]??'';$id=$argv[6]??'';
+        $repo=new \Ordely\Invoicing\Infrastructure\DraftRepository($db,\Ordely\Tests\Support\InvoiceFixtures::cipher());$document=\Ordely\Tests\Support\InvoiceFixtures::document();
+        if($mode==='invoice-create'){echo $repo->create($actor,$store,$id,$document);}
+        else{try{$repo->replace($actor,$store,$id,1,$document);echo 'updated';}catch(\Ordely\Operations\Domain\Conflict){echo 'conflict';}}exit(0);
+    }
     $store=$argv[3] ?? '';$connection=$argv[4] ?? '';
     $context=new ConnectionContext(new MerchantId($merchant),new StoreId($store),new ConnectionId($connection),CorrelationId::new());
     if($mode==='shopify-refresh'){
