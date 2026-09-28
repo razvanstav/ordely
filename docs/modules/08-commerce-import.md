@@ -62,4 +62,6 @@ Proba reală a găsit ACCESS_DENIED pentru customer.id fără read_customers. Co
 
 Preview/PHP/tunel/MySQL oprite, DB păstrată. PHP TLS configurat cu CA verificat. Tokenul local client_credentials este criptat și expiră; nu este compatibil cu perechea access/refresh cerută de autentificarea aplicației și nu se introduce ca atare în DB.
 
+Corecția/predarea `7e87d9e3364977ad4d3886b97920ff3637e6b117` publicată, hash remote verificat; [CI Windows/Linux PASS, 36486355856](https://github.com/razvanstav/ordely/actions/runs/36486355856). Actualizarea următoare este numai documentară, pentru consemnarea CI.
+
 > Continuă exclusiv 08. Sincronizează Git, citește STATUS, raportul 08 și D17. Pornește MySQL și preview-ul exclusiv de citire pe ordely-shop.myshopify.com; regenerează codul local și finalizează legarea autentică App Bridge. ORDELY-TEST-M08 există, ID 8239905505617: nu o recrea și nu readăuga write_orders. Importă și reimportă prin UI/worker; verifică 30 linii, 36,00 RON, date sintetice/criptare DB, aceleași ID-uri/versiuni și un singur ORDER_IMPORTED. Actualizează testele, documentele și Git înainte de închiderea 08. 09.2 rămâne PAUSED.

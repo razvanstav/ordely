@@ -6,6 +6,8 @@ Comanda sintetică **ORDELY-TEST-M08 există**, ID Shopify `8239905505617`, crea
 
 Proba reală a descoperit lipsa read_customers pentru order.customer.id; shopify.app.toml este corectat cu cinci scope-uri exclusiv de citire. write_orders retras și absența sa verificată prin API inclusiv după oprirea preview-ului. Ultimele probe locale: config Shopify validă, 58 teste/286 assertions și 6 verificări HTTP PASS. Conexiunea App Bridge locală este încă absentă; controlul browserului nu pornește. Importul/reimportul DB cu ID-uri/versiuni/evenimente stabile rămâne NOT_RUN. Acordurile sunt primite; blocajul este tehnic (D17).
 
+Corecția și raportul publicate în `7e87d9e3364977ad4d3886b97920ff3637e6b117`, hash remote verificat. [CI 36486355856 PASS pe Windows și Linux](https://github.com/razvanstav/ordely/actions/runs/36486355856). Predarea ulterioară adaugă numai rezultatul CI în documente.
+
 ## Continuare
 
 09.1 este implementat, testat și publicat: ciorne independente de CMS, calcul exact pe server, creare/editare/arhivare, revizii criptate, autorizare merchant/store și audit. 207 teste locale PASS (106 unit/707 assertions, 101 integration/634 assertions), 213 lint, PHPStan 8, JS și 6 probe HTTP. Cod `f622aab39b8ff4791bb4c6cf300471b860ceb4c6`, push și hash remote verificate, [CI Windows/Linux PASS](https://github.com/razvanstav/ordely/actions/runs/36480973254). [Ghid](docs/invoicing.md), [raport](docs/testing/09-invoicing.md).
