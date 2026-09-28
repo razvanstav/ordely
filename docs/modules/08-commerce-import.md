@@ -1,6 +1,6 @@
 # Modul 08 — Import comenzi și catalog
 
-Stare: REVIEW, 2026-09-28. Autorizat prin „Ok, te rog.”; unicul modul activ. 01–07 DONE, 09–21 PLANNED.
+Stare: DEFERRED_EXTERNAL, 2026-09-28. Codul și testele automate sunt verificate; proba externă restantă este amânată explicit de utilizator, care nu se poate autentifica în Shopify. Continuăm cu 09, fără a declara 08 DONE.
 
 ## Obiectiv și limită
 
@@ -27,13 +27,13 @@ Import reluabil, normalizat și izolat pe merchant/store din Ordely Shop (dev), 
 
 190 teste PASS, 204 lint, PHPStan 8, JS/config Shopify valide. Catalog real: 17 produse, 26 variante, 28 inventare. Raport complet și comenzile executate: [testing 08](../testing/08-commerce-import.md). Instrucțiuni/limite: [commerce-import](../commerce-import.md).
 
-## Decizii și blocaj
+## Decizii și istoricul probei amânate
 
 D04: numai citire pe locații în 08, rezervări înainte de 18. D14: proiecții separate de contractele de comenzi/facturare, staging atomic, retenție temporară șapte zile, privacy locală. Scopes de citire confirmate real; PCD pentru câmpurile unei comenzi necesită proba restantă.
 
 Utilizatorul a acordat write_orders și crearea comenzii fictive. Auth CLI a deschis instalarea, dar auto-review a respins Install deoarece cere confirmarea explicită a datelor personale ale clienților/proprietarului afișate de Shopify. Detaliile permisiunilor și documentația oficială au fost verificate, fără eliminarea refuzului la reîncercare. Întrebarea exactă este în așteptare; conectorul nu este instalat și orderCreate nu s-a executat. Nu ocoli refuzul.
 
-## Predare
+## Predare anterioară — înlocuită pentru continuarea curentă
 
 Reluare pe PC-ul curent, 2026-09-28: fetch/pull până la `807e0da`, dependențe și migrații actualizate, suita completă 190 teste și HTTP smoke PASS. Preview local pornit. Lipsesc configurarea Shopify și contul sintetic local din predarea celuilalt PC; DB/tokenurile/keyring-ul lui nu sunt în Git. Rezolvă acest setup înainte de proba reală; aprobarea restantă pentru CLI Install nu a fost ocolită. Starea rămâne REVIEW.
 
@@ -41,3 +41,6 @@ Reluare pe PC-ul curent, 2026-09-28: fetch/pull până la `807e0da`, dependențe
 - Următorul pas: confirmarea exactă a datelor din Install CLI numai pe dev store; apoi lookup fixture, creare unică, test real și închidere.
 - Branch: codex/modul-01-arhitectura; codul și documentele publicate în `e8a4133`, urmate de predarea documentară cu rezultatul CI. Verifică Git la reluare.
 - Reluare: „Continuă exclusiv modulul 08. Citește STATUS, raportul 08 și D14. Write_orders și comanda sunt aprobate; rezolvă confirmarea datelor personale cerută de auto-review la Install. Verifică întâi să nu existe deja ORDELY-TEST-M08. Nu începe 09.”
+## Decizia curentă
+
+Utilizatorul: „Hai să continuăm fără testele de Shopify. Că nu pot să mă loghez.” Nu se mai cere login și nu se reîncearcă instalarea CLI sau crearea comenzii acum. Proba celor 30 de linii/PCD/reimport rămâne NOT_RUN/DEFERRED și se reia separat când accesul este disponibil. Următorul pas autorizat este partea locală a modulului 09. Rezultatele automate și cele trei importuri reale de catalog rămân dovezi istorice valide.

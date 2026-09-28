@@ -1,6 +1,6 @@
 # Verificări modul 08 — 2026-09-28
 
-Stare: REVIEW. Codul și catalogul real sunt verificate; testul comenzii reale sintetice este BLOCKED, deci modulul nu este DONE.
+Stare: DEFERRED_EXTERNAL, la cererea utilizatorului din 2026-09-28. Codul și catalogul real sunt verificate; proba comenzii reale sintetice rămâne neexecutată și nu este declarată PASS. Continuarea locală nu cere login Shopify.
 
 ## Reluare verificată pe PC-ul curent
 
@@ -51,7 +51,7 @@ Scopes după refresh real: `read_inventory,read_locations,read_orders,read_produ
 | Query verificare fixture existentă | PASS (validare), NOT_RUN pe CLI | `docs/testing/fixtures/shopify-order-lookup.graphql`, artefact ordely-08-fixture-lookup rev.1; trebuie folosit înainte de orice creare/retry după auth |
 | PCD / distribuție producție | NOT_RUN | Nu s-au solicitat și nu se pretind aprobări de producție; câmpurile personale ale unei comenzi dev urmează proba reală |
 
-## Reluare exactă
+## Procedură pentru proba amânată — nu se execută acum
 
 Utilizatorul a aprobat write_orders și comanda sintetică prin „Hai, fa ce vrei tu. Ai acordul meu.” Blocajul curent este confirmarea cerută de auto-review pentru instalarea **Shopify CLI Connector App numai pe Ordely Shop dev**, cu editarea comenzilor și acces la datele clienților (nume, email, telefon, adresă, IP/dispozitiv) și proprietarului (nume, email, telefon, adresă), până la revocare. Întrebarea exactă a fost trimisă, fără răspuns încă. Captură: var/module-08-cli-permissions.png, ignorată de Git. Nu ocoli respingerea prin Admin UI, alt token sau modificarea scopes aplicației.
 
