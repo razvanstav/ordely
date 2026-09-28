@@ -24,7 +24,7 @@ Shopify CLI 4.8.2 cere Node >=22.12; verificat cu Node 24.19.0 inclus în Codex,
 
 MySQL a fost oprit după teste, cu date păstrate. Repornire: `./scripts/windows-mysql.ps1 -Action Start`. Nu există preview PHP pornit.
 
-Verificare completă locală după primul pas 07: PASS — 174 lint, PHPStan 8, 93 unit/629 assertions, 56 integration/306 assertions. Include 20 teste noi/43 assertions pentru autentificare. CI-ul închis al modulului 06: [Windows/Linux PASS](https://github.com/razvanstav/ordely/actions/runs/36352683313), cod `2358a26`.
+Verificare completă locală după primul pas 07: PASS — 174 lint, PHPStan 8, 93 unit/629 assertions, 56 integration/306 assertions. Include 20 teste noi/43 assertions pentru autentificare. Codul `8187f00` este publicat și verificat: [CI Windows/Linux PASS](https://github.com/razvanstav/ordely/actions/runs/36397390326). Modulul rămâne IN_PROGRESS.
 
 ## Reluare
 

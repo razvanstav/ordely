@@ -14,6 +14,7 @@ Windows, PHP 8.4.24 portabil, Composer 2.10.3, MySQL 8.4.11. Prefix PowerShell: 
 | `php vendor/bin/phpunit --filter ShopifyAuthentication` | PASS | 20 teste, 43 assertions |
 | `php vendor/bin/phpstan analyse --no-progress --memory-limit=512M` | PASS | Level 8, fără erori după validatorii 07 |
 | `php var/tools/composer.phar check` după codul 07 | PASS | 174 lint, PHPStan 8, 93 unit/629 assertions, 56 integration/306 assertions |
+| GitHub Actions, cod `8187f00` | PASS | [CI Windows/MySQL și Linux/Compose/HTTP](https://github.com/razvanstav/ordely/actions/runs/36397390326) |
 | Dev Dashboard → Stores | PASS | Niciun dev store existent; Ordely Shop creat și badge dev verificat |
 | Dev Dashboard → Apps | PASS | Ordely, module-07-dev activă, zero scopes, neinstalată |
 | `shopify version` cu Node 24.19.0 | PASS | CLI 4.8.2 |

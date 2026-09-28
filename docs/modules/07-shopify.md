@@ -40,6 +40,8 @@ Adăugate biblioteci interne: ShopDomain, AppConfig, IdTokenVerifier, ShopIdenti
 
 Verificare completă după cod: `php var/tools/composer.phar check` PASS — 174 lint, PHPStan 8, 93 unit/629 assertions, 56 integration/306 assertions.
 
+Cod `8187f00` publicat, hash remote verificat identic; [CI Windows/Linux PASS](https://github.com/razvanstav/ordely/actions/runs/36397390326). Acesta închide doar primul pas, nu modulul. Prima sesiune de login CLI a expirat în așteptarea passkey-ului; comanda poate fi reluată când utilizatorul finalizează verificarea.
+
 ## Predare
 
 Unicul modul activ: 07, IN_PROGRESS. Branch: `codex/modul-01-arhitectura`. Următorul pas: finalizarea login-ului CLI, reluarea `shopify app config link` dacă sesiunea a expirat, configurarea secretelor în `.env` ignorat și a unui URL HTTPS de dezvoltare. Apoi token exchange/refresh criptat, asociere tenant/store, endpoint-uri/UI, inbox și dezinstalare. Nu instala Ordely pe ANATOMIK. Testele pe dev store sunt obligatorii înainte de DONE; 08 nu începe.
