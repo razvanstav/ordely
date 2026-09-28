@@ -7,6 +7,19 @@ use Ordely\Tests\Support\{CommittedDatabaseTestCase,ProcessHarness,IntegrationFi
 
 final class ShopifyConcurrencyTest extends CommittedDatabaseTestCase
 {
+    public function testConcurrentImportStartsAndWorkersPublishOnce(): void
+    {
+        $actor=$this->tenant();$store=$this->store($actor);$this->db->run("UPDATE stores SET platform_key='shopify' WHERE id=?",[Id::bytes($store)]);
+        $service=new Installations($this->db,F::config(),IntegrationFixtures::cipher(),new FakeShopifyGateway());
+        $code=$service->intent($actor,$store,new ShopDomain('ordely-test.myshopify.com'))['code'];$id=$service->connect(F::idToken(),$code);
+        $command=['commerce-start',$actor->merchantId,$store,$id,$actor->membershipId,$actor->userId];$runs=[];
+        foreach(ProcessHarness::together([$command,$command]) as $result){self::assertSame(0,$result['exit'],$result['error']);$runs[]=json_decode($result['output'],true,flags:JSON_THROW_ON_ERROR)['id'];}
+        self::assertSame($runs[0],$runs[1]);$work=['commerce-work',$actor->merchantId,$store,$id];
+        foreach(ProcessHarness::together([$work,$work]) as $result){self::assertSame(0,$result['exit'],$result['error']);self::assertNotContains('dead',json_decode($result['output'],true,flags:JSON_THROW_ON_ERROR));}
+        self::assertSame(4,(int)$this->db->run('SELECT COUNT(*) FROM commerce_records WHERE merchant_id=?',[Id::bytes($actor->merchantId)])->fetchColumn());
+        self::assertSame(1,(int)$this->db->run("SELECT COUNT(*) FROM outbox_events WHERE merchant_id=? AND event_type='ORDER_IMPORTED'",[Id::bytes($actor->merchantId)])->fetchColumn());
+        self::assertSame('completed',$this->db->run('SELECT status FROM commerce_sync_runs WHERE id=?',[Id::bytes($runs[0])])->fetchColumn());
+    }
     public function testConcurrentWorkersRefreshExpiredTokenExactlyOnce(): void
     {
         $actor=$this->tenant();$store=$this->store($actor);$this->db->run("UPDATE stores SET platform_key='shopify' WHERE id=?",[Id::bytes($store)]);

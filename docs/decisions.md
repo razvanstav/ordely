@@ -48,9 +48,11 @@ Brief-ul cere READY_FOR_OUTBOUND la recepție. Confirmăm dacă inspecția este 
 
 ## D04 — Stoc și rezervări
 
-Stare: DESCHIS. Termen: înainte de 08/18.
+Stare: STABILIT PENTRU 08; DESCHIS pentru rezervări/scrieri înainte de 18.
 
 Propunere: citire per locație, variante fără stoc dezactivate, revalidare la confirmare. Stabilim dacă rezervăm în CMS, când scădem/repunem stocul și ce face operatorul dacă între timp stocul dispare. Snapshot-ul de stoc nu este rezervare. Stocul returnat nu se repune automat fără verdict/policy.
+
+Implementare 08: citire per locație, available negativ/null distinct și observedAt; fără nicio scriere de inventar. Revalidarea și selecția înlocuitorului rămân în 18.
 
 ## D05 — Identificare client și OTP
 
@@ -112,3 +114,13 @@ Surse oficiale: [ID tokens](https://shopify.dev/docs/apps/build/authentication-a
 D13 — completare implementare 07: cod bearer Ordely aleator 256 biți, hash și TTL 10 minute, asociere unică persistentă shop/merchant/store; instalările nu se mută prin binding generic. Expiring offline tokens criptate împreună cu refresh/expiry/scopes; serializare MySQL și commit al tokenului nou chiar dacă proba următoare eșuează temporar. API 2026-07 și zero scopes verificate real. Uninstall real revocă atomic prin inbox lifecycle separat, cu timestamp pentru evenimente întârziate. Cererile privacy rămân needs_review și cer procedură/implementare înainte de date personale/pilot. Operațiile CommerceConnector rămân în 08.
 
 D08 — mediul de test și credențialele aplicației sunt configurate; instalare/refresh/uninstall reale confirmate. Distribuția/PCD/lansarea rămân deschise. Shopify cere și acces standard la datele proprietarului; utilizatorul a finalizat personal Install după explicarea acestui acces. Reinstalarea, noua conexiune și refresh-ul sunt confirmate; blocarea anterioară este rezolvată. [Operare și limite](shopify.md).
+
+## D14 — Import și proiecții (08)
+
+Ales 2026-09-28 în continuarea autorizată: port Core ImportSource pentru citiri normalizate, separat de comenzile și snapshoturile simplificate pentru facturare/fulfillment din 04. Păstrăm faptele financiare Shopify exact, inclusiv reduceri/taxe/rambursări și cantități diferite, fără forțarea unei formule de factură. Schema comună de proiecții JSON normalizate are coloane indexate pentru identitate externă unică, parent, ID intern, tenant/store, versiune și observare; liniile comenzii au ID intern stabil. Nu importăm obiecte Shopify în Core.
+
+Staging pe run, un request limitat la 25 elemente/job, commit atomic numai după toate paginile, hash canonic și outbox ORDER_IMPORTED. Două start-uri concurente se unifică; lease-ul și conexiunea se verifică inclusiv înainte de commit. Comenzile folosesc watermark cu suprapunere cinci minute; catalogul se reconciliază complet. Reconcilierea este la cerere, fără scheduler/webhookuri comerciale deocamdată. Schimbarea comenzii între pagini cere restart explicit; nu amestecăm versiuni.
+
+Comenzile/staging sunt criptate integral; inventarul de chei include toate bucățile. Privacy locală permite export, confirmarea separată a livrării răspunsului, redact și prevenirea reimportului. Staging abandonat expiră după șapte zile; publicarea/restart îl șterge imediat. Retenția datelor reale/backup, distribuția și aprobările Shopify de producție rămân deschise înainte de pilot.
+
+Scopes aplicației sunt read_orders/read_products/read_inventory/read_locations, confirmate real pe Ordely Shop. Cererea de write_orders pentru CLI și fixture a fost respinsă de auto-review fiindcă nu avea acord explicit. Nu s-a executat scrierea; modulul rămâne REVIEW până la proba reală a comenzii. Detalii și surse: [import](commerce-import.md), [raport](testing/08-commerce-import.md).

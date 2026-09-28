@@ -51,6 +51,16 @@ final class ShopifyHttpTest extends DatabaseTestCase
         self::assertSame(400,$this->request('/shopify?shop=attacker.example')->getStatusCode());
         self::assertSame(400,$this->request('/shopify?shop=foreign.myshopify.com')->getStatusCode());
     }
+    public function testCommerceHttpRequiresSessionCsrfAndTenantStoreAccess(): void
+    {
+        $actor=$this->tenant();$store=$this->store($actor);$other=$this->tenant();$foreign=$this->store($other);
+        $session=(new Sessions($this->db))->login($actor->userId.'@example.test',self::PASSWORD,'127.0.0.1');
+        self::assertSame(401,$this->request('/api/commerce?storeId='.$store)->getStatusCode());
+        self::assertSame(200,$this->request('/api/commerce?storeId='.$store,session:$session)->getStatusCode());
+        self::assertSame(403,$this->request('/api/commerce?storeId='.$foreign,session:$session)->getStatusCode());
+        self::assertSame(403,$this->request('/api/commerce/import','POST',['storeId'=>$store,'connectionId'=>Id::new()],$session,csrf:false)->getStatusCode());
+        self::assertSame(403,$this->request('/api/commerce/orders/'.Id::new().'?storeId='.$foreign,session:$session)->getStatusCode());
+    }
     public function testInvalidWebhookIsRejectedBeforeAnyTenantLookup(): void
     {
         self::assertSame(401,$this->request('/webhooks/shopify','POST',['id'=>123456])->getStatusCode());

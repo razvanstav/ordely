@@ -1,0 +1,10 @@
+query OrdelyVariants($id: ID!, $after: String) {
+  shop { currencyCode }
+  product(id: $id) {
+    id
+    variants(first: 25, after: $after) {
+      nodes { id title sku price updatedAt selectedOptions { name value } inventoryPolicy inventoryItem { id tracked } }
+      pageInfo { hasNextPage endCursor }
+    }
+  }
+}

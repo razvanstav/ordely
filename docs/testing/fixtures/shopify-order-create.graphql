@@ -1,0 +1,6 @@
+mutation OrdelyModule08TestOrder($order: OrderCreateOrderInput!, $options: OrderCreateOptionsInput) {
+  orderCreate(order: $order, options: $options) {
+    order { id name test totalPriceSet { presentmentMoney { amount currencyCode } } }
+    userErrors { field message }
+  }
+}

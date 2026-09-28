@@ -1,0 +1,29 @@
+query OrdelyOrder($id: ID!, $after: String) {
+  order(id: $id) {
+    id name createdAt updatedAt cancelledAt displayFinancialStatus displayFulfillmentStatus taxesIncluded test
+    customer { id }
+    email phone
+    shippingAddress { name company address1 address2 city provinceCode zip countryCodeV2 phone }
+    billingAddress { name company address1 address2 city provinceCode zip countryCodeV2 phone }
+    totalPriceSet { presentmentMoney { amount currencyCode } }
+    currentTotalPriceSet { presentmentMoney { amount currencyCode } }
+    currentTotalDiscountsSet { presentmentMoney { amount currencyCode } }
+    currentTotalTaxSet { presentmentMoney { amount currencyCode } }
+    currentShippingPriceSet { presentmentMoney { amount currencyCode } }
+    totalReceivedSet { presentmentMoney { amount currencyCode } }
+    totalRefundedSet { presentmentMoney { amount currencyCode } }
+    totalOutstandingSet { presentmentMoney { amount currencyCode } }
+    lineItems(first: 25, after: $after) {
+      nodes {
+        id title sku variantTitle quantity currentQuantity refundableQuantity requiresShipping
+        variant { id } product { id }
+        originalUnitPriceSet { presentmentMoney { amount currencyCode } }
+        originalTotalSet { presentmentMoney { amount currencyCode } }
+        discountedTotalSet { presentmentMoney { amount currencyCode } }
+        discountAllocations { allocatedAmountSet { presentmentMoney { amount currencyCode } } }
+        taxLines { title priceSet { presentmentMoney { amount currencyCode } } }
+      }
+      pageInfo { hasNextPage endCursor }
+    }
+  }
+}

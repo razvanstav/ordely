@@ -13,6 +13,7 @@ enum Role: string
     public function allows(string $permission): bool
     {
         return match ($permission) {
+            'orders.read' => $this !== self::Viewer,
             'stores.read' => true,
             'stores.manage', 'connections.manage', 'members.manage', 'operations.manage' => $this === self::Owner || $this === self::Admin,
             default => false,

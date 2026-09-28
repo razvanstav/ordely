@@ -1,0 +1,6 @@
+query OrdelyProducts($after: String) {
+  products(first: 25, after: $after, sortKey: ID) {
+    nodes { id title status updatedAt }
+    pageInfo { hasNextPage endCursor }
+  }
+}

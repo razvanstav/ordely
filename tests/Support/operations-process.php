@@ -39,6 +39,18 @@ try{
         $service->withAccess($context,static function():null{usleep(150000);return null;});
         echo json_encode(['refreshes'=>$gateway->refreshes],JSON_THROW_ON_ERROR);exit(0);
     }
+    if($mode==='commerce-start'||$mode==='commerce-work'){
+        $cipher=new \Ordely\Commerce\Infrastructure\OrderCipher(\Ordely\Tests\Support\IntegrationFixtures::cipher());
+        $source=new \Ordely\Tests\Support\ImportFixtures();$source->beforePage=static function():void{usleep(50000);};
+        $service=new \Ordely\Commerce\Application\ImportService($db,$source,new \Ordely\Commerce\Infrastructure\ImportRepository($db,$cipher));
+        if($mode==='commerce-start'){
+            $actor=new TenantContext($merchant,$argv[5]??'',$argv[6]??'',Role::Owner,true);
+            echo json_encode(['id'=>$service->start($actor,$context)],JSON_THROW_ON_ERROR);exit(0);
+        }
+        $worker=new \Ordely\Operations\Application\Worker(new MySqlJobQueue($db),[$service]);$statuses=[];
+        for($i=0;$i<25;++$i){$status=$worker->once($merchant);$statuses[]=$status;if($status==='idle'){break;}}
+        echo json_encode($statuses,JSON_THROW_ON_ERROR);exit(0);
+    }
     $result=(new ExternalOperations($db))->execute($context,'test.emit',new OperationKey('same-business-intent'),new SafePayload(['store_id'=>$store]),function(OperationKey $providerKey)use($db,$merchant,$mode):ExternalId{
         if($mode==='external-crash-before'){exit(24);}
         $db->run('INSERT INTO test_external_effects(merchant_id,provider_key) VALUES(?,?)',[Id::bytes($merchant),$providerKey->value]);

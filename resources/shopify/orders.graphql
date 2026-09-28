@@ -1,0 +1,6 @@
+query OrdelyOrderIndex($after: String, $query: String) {
+  orders(first: 25, after: $after, query: $query, sortKey: UPDATED_AT) {
+    nodes { id }
+    pageInfo { hasNextPage endCursor }
+  }
+}

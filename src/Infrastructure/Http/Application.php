@@ -48,6 +48,10 @@ final readonly class Application
         $routes->add('shopify_intent',new Route('/api/shopify/intents',methods:['POST']));
         $routes->add('shopify_check',new Route('/api/shopify/check',methods:['POST']));
         $routes->add('shopify_events',new Route('/api/shopify/events',methods:['GET']));
+        $routes->add('commerce_start',new Route('/api/commerce/import',methods:['POST']));
+        $routes->add('commerce_list',new Route('/api/commerce',methods:['GET']));
+        $routes->add('commerce_order',new Route('/api/commerce/orders/{id}',requirements:['id'=>'[a-f0-9]{32}'],methods:['GET']));
+        $routes->add('commerce_privacy',new Route('/api/commerce/privacy/{id}',requirements:['id'=>'[a-f0-9]{32}'],methods:['POST']));
         $routes->add('login', new Route('/api/auth/login', methods: ['POST']));
         $routes->add('logout', new Route('/api/auth/logout', methods: ['POST']));
         $routes->add('switch', new Route('/api/auth/merchant', methods: ['POST']));
@@ -70,6 +74,7 @@ final readonly class Application
             $name = (string) $route['_route'];
             if($name==='home'&&$request->query->has('shop')){$name='shopify_home';}
             $response = match ($name) {
+                'commerce_start','commerce_list','commerce_order','commerce_privacy'=>(new \Ordely\Commerce\Presentation\CommerceApi(new Sql(($this->connect)())))->handle($name,$request,isset($route['id'])?(string)$route['id']:null),
                 'health' => new JsonResponse(['status' => 'ok']),
                 'ready' => $this->readiness(),
                 'home' => $this->asset('index.html', 'text/html'),

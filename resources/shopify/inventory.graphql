@@ -1,0 +1,11 @@
+query OrdelyInventory($id: ID!, $after: String) {
+  productVariant(id: $id) {
+    id inventoryItem {
+      tracked
+      inventoryLevels(first: 25, after: $after) {
+        nodes { id location { id name isActive } quantities(names: ["available"]) { name quantity } }
+        pageInfo { hasNextPage endCursor }
+      }
+    }
+  }
+}

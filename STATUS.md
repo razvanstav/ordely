@@ -1,27 +1,27 @@
 # Starea curentă — Ordely
 
-Actualizat: 2026-09-28. Registrul stărilor: [plan.md](plan.md).
+Actualizat: 2026-09-28. Registrul oficial: [plan.md](plan.md).
 
-**Modulele 01–07 sunt DONE. Niciun modul activ. Următorul: 08 — PLANNED, neînceput.**
+**01–07 DONE. Modulul 08 este unicul activ, în REVIEW. 09–21 nu sunt începute.**
 
-## Shopify conectat
+## Modul 08
 
-Aplicația **Ordely** este reinstalată și conectată exclusiv pe **[Ordely Shop (dev)](https://admin.shopify.com/store/ordely-shop/apps/ordely)**. Utilizatorul a finalizat personal Install după explicarea accesului standard la datele proprietarului. Preview-ul CLI HTTPS a fost refăcut după reinstalare.
+Implementate: import GraphQL comenzi/catalog, migrația 006, progres pe pagini în jobs, publicare atomică, deduplicare, reconciliere, bani exacți, comenzi criptate, control tenant/store, UI și procesarea locală a cererilor privacy. [Fișă](docs/modules/08-commerce-import.md), [operare](docs/commerce-import.md), [raport](docs/testing/08-commerce-import.md).
 
-Noua conexiune este activă, cu tokenuri criptate și refresh real verificat (versiune 2). Vechea conexiune rămâne revocată (versiune 3), iar webhookul real `app/uninstalled` este `processed`. App Bridge afișează „Magazin conectat la Ordely”. ANATOMIK live nu a fost folosit.
+**Catalog real PASS de două ori:** 17 produse, 26 variante, 28 poziții de stoc pe Ordely Shop; fără dubluri, toate versiunile au rămas 1. Aplicația are numai read_orders/read_products/read_inventory/read_locations. Refresh real a confirmat scopes și conexiunea activă la versiunea 3. ANATOMIK live este exclus și nu a fost folosit.
 
-Modulul 07 include autorizare owner/admin Ordely + ID token Shopify, cod temporar, token exchange/refresh cu expirare, criptare, inbox lifecycle, deduplicare, revocare, protecție pentru evenimente vechi și UI minimal. Detalii: [fișa 07](docs/modules/07-shopify.md), [raport](docs/testing/07-shopify.md), [operare Shopify](docs/shopify.md).
+**190 teste PASS:** 204 lint, PHPStan 8, 101 unit / 677 assertions, 89 integration / 510 assertions, sintaxă JS și config Shopify valide. Ultimul guard înainte de commit: teste țintite 17 / 145 assertions și PHPStan PASS. CI pentru noul cod urmează după push.
 
-## Verificări și publicare
+## Blocaj exact
 
-170 teste locale PASS: 188 lint, PHPStan 8, 97 unit/651 assertions, 73 integration/367 assertions. Codul complet `348c578` este publicat și [CI Windows/Linux PASS](https://github.com/razvanstav/ordely/actions/runs/36410819306). La închiderea 07 nu s-a modificat codul; s-au verificat reinstalarea, noul token exchange, refresh-ul și stările conexiunilor, apoi documentația.
+Ordely Shop nu are comenzi. Proba reală a unei comenzi cu 30 de linii și date client sintetice rămâne neexecutată. Auto-review a respins acordarea write_orders către Shopify CLI, deoarece accesul de scriere nu fusese autorizat explicit de utilizator. Nu s-a acordat acel acces și nu s-a creat comanda. Nu ocoli refuzul prin UI, alt token sau scopes de scriere pe aplicație.
 
-Scopes sunt goale, API `2026-07`. Importul comenzilor/catalogului și aprobările PCD urmează în 08. Cererile privacy au recepție durabilă `needs_review`; procedura de îndeplinire și retenție trebuie stabilită înainte de import de date personale/pilot. Nu este o lansare în producție/App Store.
+Sunt pregătite `docs/testing/fixtures/shopify-order-create.graphql` (validată) și `scripts/prepare-shopify-test-order.ps1` (generează var/shopify-test-order.json). Fixture: test=true, PENDING, 30 linii, date inventate, fără mesaje, plăți sau modificări de stoc. Pasul următor: acord explicit pentru write_orders CLI doar pe ordely-shop.myshopify.com și crearea acestei comenzi, apoi import/reimport, verificarea banilor/liniilor/PCD și închiderea 08. Nu începe 09.
 
-## Mediu local și reluare
+## Mediu și Git
 
-PHP 8.4.24 în `var/tools/php-8.4.24`, Composer 2.10.3, MySQL 8.4.11 pe 33060, Node 24.19.0 din runtime Codex, Shopify CLI 4.8.2. Migrații 001–005 aplicate în app/test; keyring existent în `var/keys/keyring.json`, CA bundle local cu verificare TLS activă. `.env`, cheile, contul sintetic și tokenurile sunt ignorate de Git. XAMPP nemodificat.
+PHP 8.4.24 în var/tools/php-8.4.24, Composer 2.10.3, MySQL 8.4.11 pe 33060, Node 24.19.0 din runtime Codex, Shopify CLI 4.8.2. Migrații 001–006 aplicate în app/test. Păstrează var/keys/keyring.json împreună cu DB. `.env`, tokenurile și contul sintetic sunt ignorate.
 
-MySQL și `shopify app dev --store ordely-shop.myshopify.com` rămân pornite. Panou local: `http://127.0.0.1:8080/`, cont sintetic în `var/dev-account.json`. Aplicația embedded și panoul local sunt lăsate deschise. Tunelul HTTPS depinde de procesele acestui PC și se schimbă la restart; pentru reluare urmează docs/shopify.md. Păstrează keyring-ul dacă păstrezi/restaurezi DB.
+MySQL și preview CLI rămân pornite; panou local http://127.0.0.1:8080/. Workerul este CLI: php bin/worker.php 150; nu există supervisor sau scheduler de producție. Tunelul HTTPS se schimbă la restart. Contul local sintetic este în var/dev-account.json, fără afișarea secretelor.
 
-Remote `https://github.com/razvanstav/ordely.git`, branch `codex/modul-01-arhitectura`. Citește AGENTS, planul, deciziile și fișa 08 înainte de următoarea implementare. 08 nu a fost pornit automat.
+Remote https://github.com/razvanstav/ordely.git, branch codex/modul-01-arhitectura. Commit/push/CI se consemnează la finalul pasului. La reluare citește AGENTS, fișa 08, raportul și D14. Retenția pentru date reale, distribuția și aprobările de producție rămân înainte de pilot.

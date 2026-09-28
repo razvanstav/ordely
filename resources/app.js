@@ -37,10 +37,11 @@ async function refresh() {
   if (!$('#operations-panel').hidden) await refreshOperations();
   $('#integrations-panel').hidden = !(['owner', 'admin'].includes(me.role) && me.allStores);
   if (!$('#integrations-panel').hidden) await refreshIntegrations();
+  await prepareCommerce(me);
 }
 async function refreshIntegrations() {
   const {providers, connections} = await api('/api/integrations');
-  $('#provider-roadmap').textContent = `Shopify: conectare disponibilă; importul comenzilor urmează separat. Alte integrări planificate: ${providers.filter(provider => !provider.available && provider.key !== 'shopify').map(provider => provider.label).join(', ')}.`;
+  $('#provider-roadmap').textContent = `Shopify: conectare și import comenzi/catalog. Alte integrări planificate: ${providers.filter(provider => !provider.available && provider.key !== 'shopify').map(provider => provider.label).join(', ')}.`;
   const shopifyStores = visibleStores.filter(store => store.platform === 'shopify');
   $('#shopify-store').replaceChildren(...shopifyStores.map(store => {const option = document.createElement('option'); option.value = store.id; option.textContent = store.name; return option;}));
   $('#shopify-intent-form').hidden = !shopifyStores.length;
@@ -89,7 +90,7 @@ async function refreshIntegrations() {
     return card;
   }));
   if (!connections.length) { const empty = document.createElement('p'); empty.textContent = 'Nu există conexiuni configurate.'; $('#connections').append(empty); }
-  try {const {events} = await api('/api/shopify/events'); const pending = events.filter(event => event.status === 'needs_review').length; $('#shopify-events').textContent = `Evenimente Shopify recente: ${events.length}. Solicitări de verificat: ${pending}.`;}
+  try {const {events} = await api('/api/shopify/events'); const pending = events.filter(event => event.status === 'needs_review').length; $('#shopify-events').textContent = `Evenimente Shopify recente: ${events.length}. Solicitări de verificat: ${pending}.`; renderPrivacy(events);}
   catch {$('#shopify-events').textContent = 'Configurează integrarea Shopify pe server pentru conectare.';}
 }
 async function refreshOperations() {
@@ -128,4 +129,96 @@ $('#refresh-operations').addEventListener('click', () => action(refreshOperation
 $('#refresh-integrations').addEventListener('click', () => action(refreshIntegrations));
 $('#connection-form').addEventListener('input', () => { connectionId = null; });
 $('#connection-form').addEventListener('submit', event => { event.preventDefault(); action(async () => { connectionId ??= crypto.randomUUID().replaceAll('-', ''); const data = Object.fromEntries(new FormData(event.target)); await api('/api/integrations', 'POST', {id: connectionId, provider: data.provider, label: data.label, credentials: {apiToken: data.apiToken}}); connectionId = null; event.target.reset(); await refreshIntegrations(); }); });
+let commerceCursor = null;
+let commerceTimer = null;
+let commerceGeneration = 0;
+let commerceCanRead = false;
+async function prepareCommerce(me) {
+  commerceCanRead = me.role !== 'viewer';
+  clearTimeout(commerceTimer); commerceGeneration++; commerceCursor = null;
+  $('#commerce-detail').replaceChildren();
+  const stores = visibleStores.filter(store => store.platform === 'shopify');
+  $('#commerce-panel').hidden = !stores.length;
+  $('#commerce-actions').hidden = !['owner', 'admin'].includes(me.role);
+  $('#commerce-store').replaceChildren(...stores.map(store => {const option = document.createElement('option'); option.value = store.id; option.textContent = store.name; return option;}));
+  if (stores.length) await refreshCommerce();
+}
+function commerceText(tag, text) {const element = document.createElement(tag); element.textContent = text; return element;}
+function moneyLabel(money) {
+  const negative = money.minor.startsWith('-');
+  const digits = money.minor.replace('-', '').padStart(money.exponent + 1, '0');
+  const value = money.exponent ? `${digits.slice(0, -money.exponent)},${digits.slice(-money.exponent)}` : digits;
+  return `${negative ? '-' : ''}${value} ${money.currency}`;
+}
+async function refreshCommerce(after = null) {
+  clearTimeout(commerceTimer);
+  const generation = ++commerceGeneration, store = $('#commerce-store').value, kind = $('#commerce-kind').value;
+  if (!store || $('#workspace').hidden) return;
+  const data = await api(`/api/commerce?storeId=${store}&kind=${kind}${after ? `&after=${after}` : ''}`);
+  if (generation !== commerceGeneration || store !== $('#commerce-store').value) return;
+  commerceCursor = data.nextCursor;
+  $('#commerce-next').hidden = !commerceCursor;
+  const run = data.run;
+  $('#commerce-progress').textContent = !run ? 'Nu există încă un import.' : run.status === 'completed' ? `Sincronizare finalizată · ${run.completed_at} UTC` : run.status === 'cancelled' ? 'Import oprit.' : Number(run.failed) ? `Import incomplet · ${run.failed} lucrări necesită atenție. Verifică accesul Shopify și lucrările în fundal.` : `Sincronizare în curs · ${run.done}/${run.tasks} pagini procesate. Datele apar la final.`;
+  $('#commerce-restart').hidden = !run || run.status !== 'running';
+  const labels = {order:'comenzi', product:'produse', variant:'variante', inventory:'poziții de stoc'};
+  $('#commerce-counts').textContent = data.counts.map(item => `${item.count} ${labels[item.kind]}`).join(' · ');
+  $('#commerce-records').replaceChildren(...data.records.map(record => {
+    const card = document.createElement('article'); card.className = 'card'; const item = record.data;
+    card.append(commerceText('h3', (record.parentTitle ? `${record.parentTitle} · ` : '') + (item.number || item.title || item.locationName)));
+    if (kind === 'order') {
+      card.append(commerceText('p', `${moneyLabel(item.totals.current)} · ${item.paymentStatus} · ${item.fulfillmentStatus}${item.cancelledAt ? ' · Anulată' : ''}`));
+      const button = commerceText('button', 'Detalii comandă'); button.className = 'secondary';
+      button.addEventListener('click', () => action(async () => {
+        const result = await api(`/api/commerce/orders/${record.id}?storeId=${store}`);
+        if (store !== $('#commerce-store').value) return;
+        const order = result.order, detail = $('#commerce-detail'); detail.replaceChildren(commerceText('h3', order.number));
+        for (const line of order.lines) detail.append(commerceText('p', `${line.title} ${line.variantTitle} · SKU ${line.sku || '—'} · ${line.quantity} buc. comandate / ${line.currentQuantity} curente`));
+        detail.append(commerceText('p', `Total curent: ${moneyLabel(order.totals.current)} · Încasat: ${moneyLabel(order.totals.received)} · Rambursat: ${moneyLabel(order.totals.refunded)}`));
+        detail.append(commerceText('p', `Contact: ${order.email || 'indisponibil'} · ${order.phone || 'indisponibil'}`));
+        for (const [label, address] of [['Livrare', order.shippingAddress], ['Facturare', order.billingAddress]]) detail.append(commerceText('p', `${label}: ${address ? Object.values(address).filter(Boolean).join(', ') : 'adresă indisponibilă'}`));
+      })); if (commerceCanRead) card.append(button);
+    } else if (kind === 'variant') card.append(commerceText('p', `${item.sku || 'Fără SKU'} · ${item.options.map(option => `${option.name}: ${option.value}`).join(', ')} · ${moneyLabel(item.price)}`));
+    else if (kind === 'inventory') card.append(commerceText('p', `${item.available === null ? 'Stoc neurmărit' : `${item.available} disponibile`}${!item.locationActive ? ' · Locație inactivă' : ''}`));
+    else card.append(commerceText('p', item.status));
+    card.append(commerceText('small', `Observat: ${record.observedAt} UTC · versiunea ${record.version}`)); return card;
+  }));
+  if (!data.records.length) $('#commerce-records').append(commerceText('p', 'Nu există date importate în această categorie.'));
+  if (run?.status === 'running' && !Number(run.failed)) commerceTimer = setTimeout(() => refreshCommerce(after).catch(error => {$('#commerce-progress').textContent = error.message;}), 5000);
+}
+async function startCommerce(full = false, restart = false) {
+  const storeId = $('#commerce-store').value;
+  const {connectionId: importConnection} = await api(`/api/commerce?storeId=${storeId}`);
+  if (!importConnection) throw new Error('Conectează întâi magazinul la Shopify.');
+  await api('/api/commerce/import', 'POST', {storeId, connectionId: importConnection, full, restart});
+  await refreshCommerce();
+}
+$('#commerce-store').addEventListener('change', () => {$('#commerce-detail').replaceChildren(); action(() => refreshCommerce());});
+$('#commerce-kind').addEventListener('change', () => action(() => refreshCommerce()));
+$('#commerce-refresh').addEventListener('click', () => action(() => refreshCommerce()));
+$('#commerce-next').addEventListener('click', () => action(() => refreshCommerce(commerceCursor)));
+$('#commerce-start').addEventListener('click', () => action(() => startCommerce()));
+$('#commerce-full').addEventListener('click', () => action(() => startCommerce(true)));
+$('#commerce-restart').addEventListener('click', () => action(() => startCommerce(true, true)));
+function renderPrivacy(events) {
+  $('#shopify-privacy').replaceChildren(...events.filter(event => event.status === 'needs_review' && ['customers/data_request', 'customers/redact', 'shop/redact'].includes(event.topic)).map(event => {
+    const card = document.createElement('article'); card.className = 'card';
+    card.append(commerceText('h3', event.topic === 'customers/data_request' ? 'Cerere de acces la date' : 'Cerere de ștergere a datelor'), commerceText('p', `Primită: ${event.received_at} UTC · ${event.id}`));
+    const request = name => api(`/api/commerce/privacy/${event.id}`, 'POST', {action: name});
+    if (event.topic === 'customers/data_request') {
+      const download = commerceText('button', 'Descarcă datele solicitate');
+      download.addEventListener('click', () => action(async () => {
+        const data = await request('export'); const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], {type:'application/json'}));
+        const link = document.createElement('a'); link.href = url; link.download = `ordely-privacy-${event.id}.json`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+        $('#message').textContent = 'Export pregătit. Cererea rămâne deschisă până confirmi transmiterea către solicitant.';
+      }));
+      const delivered = commerceText('button', 'Confirmă că ai transmis răspunsul'); delivered.className = 'secondary';
+      delivered.addEventListener('click', () => action(async () => {await request('confirm-delivered'); await refreshIntegrations();})); card.append(download, delivered);
+    } else {
+      const erase = commerceText('button', 'Șterge datele aferente cererii'); erase.className = 'secondary';
+      erase.addEventListener('click', () => {if (window.confirm('Datele solicitate vor fi șterse din Ordely, iar reimportul lor va fi blocat. Confirmi procesarea cererii?')) action(async () => {await request('redact'); await refreshIntegrations(); await refreshCommerce();});});card.append(erase);
+    }
+    return card;
+  }));
+}
 refresh().catch(error => { if ($('#login').hidden) $('#message').textContent = error.message; });
