@@ -1,5 +1,7 @@
 # Conexiuni și chei — modul 06
 
+Actualizare 07: aplicația Ordely și magazinul **Ordely Shop (dev)** au fost create, dar conectarea nu este încă implementată. ANATOMIK este live și exclus explicit din teste. Urmează [fișa modulului 07](modules/07-shopify.md); furnizorul rămâne indisponibil în registru până la integrarea efectivă.
+
 ProviderConnection aparține unui merchant; `store_provider_bindings` autorizează explicit fiecare magazin. FK-urile compuse verifică merchant-ul și tipul commerce/carrier/invoice. Mai multe conexiuni pot fi asociate aceluiași magazin; maximum una implicită per tip, impus de MySQL. Revocarea păstrează conexiunea, asocierile și istoricul, dar oprește utilizarea.
 
 ## Registru și limite

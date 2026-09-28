@@ -100,3 +100,11 @@ Ales 2026-09-28: MySQL queue cu index ordonat, SKIP LOCKED, token/fencing și le
 ## D12 — Conexiuni și criptare (06)
 
 Ales 2026-09-28: AES-256-GCM din OpenSSL deja disponibil, cheie aleatoare 32 bytes/nonce 12/tag 16; keyring separat de DB/Git, AAD cu merchant/conexiune/provider/key ID și versiunea formatului. Rotație prin fișier nou care păstrează cheile vechi, apoi recriptare versionată inclusiv pentru arhive revocate; inventar înainte de retragerea cheilor. Owner/admin cu all_stores gestionează secretele comune merchant-ului. Registry/fabrici în composition root, capabilities din adaptor, simulatoare numai dev/test. Providerii reali, setările specifice și autorizarea lor rămân în modulele respective. Surse și operare: [integrations](integrations.md).
+
+## D13 — Mediu și autentificare Shopify (07)
+
+Ales 2026-09-28: magazin separat **Ordely Shop (dev)** și aplicație **Ordely**, create în Dev Dashboard. Utilizatorul a exclus explicit ANATOMIK live din integrare/teste. Dev allowlist obligatoriu în backend; secretele rămân în fișiere ignorate/criptate, fără chat/Git.
+
+API stabil `2026-07`, confirmat și în Dev Dashboard. Direcție embedded cu App Bridge, instalare gestionată de Shopify, token exchange PHP și offline `expiring=1`, fără framework JS. ID token validează identitatea; drepturile Ordely se verifică separat. Scopes inițiale goale; comenzi/catalog și PCD numai la funcționalitățile care le cer. URL local temporar, fără instalare în vreun magazin; URL HTTPS funcțional și probe reale restante.
+
+Surse oficiale: [ID tokens](https://shopify.dev/docs/apps/build/authentication-authorization/id-tokens), [token exchange/refresh](https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens), [expirare offline](https://shopify.dev/docs/apps/build/authentication-authorization/migrate-to-expiring-offline-access-tokens), [webhook HMAC](https://shopify.dev/docs/apps/build/webhooks/verify-deliveries). D08 rămâne deschis pentru distribuție/PCD și validarea end-to-end.
