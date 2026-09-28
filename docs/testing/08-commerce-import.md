@@ -18,6 +18,9 @@ Mediu: Windows, PHP 8.4.24, MySQL 8.4.11 pe 33060, migrații 001–006 în app/t
 | Shopify search_docs și validate pentru resources/shopify/*.graphql | PASS | inventory/orders/products/variants rev.1; order rev.2; artefacte ordely-08-* |
 | Mutation fixture `docs/testing/fixtures/shopify-order-create.graphql` | PASS (validare) | artefact ordely-08-test-order rev.1; **NU executată** |
 | `./scripts/prepare-shopify-test-order.ps1` | PASS | pregătește JSON local: 30 linii sintetice, test=true, PENDING, inventory BYPASS, ambele notificări false |
+| [CI 36420254697](https://github.com/razvanstav/ordely/actions/runs/36420254697), cod `e8a4133` | PASS | Windows PHP + native MySQL: 101 unit / 677 assertions, 89 integration / 512 assertions; Linux PHP + MySQL + HTTP: 101 unit / 678 assertions, 89 integration / 512 assertions. Ambele: 204 lint, PHPStan 8 și suita completă; Linux: verificări HTTP reale |
+
+Commitul de cod `e8a4133c608dfcdfae9007ceec57e250180e194f` este publicat pe branch-ul `codex/modul-01-arhitectura`; hash-ul remote a fost verificat identic. Actualizarea de predare după CI modifică numai documente, fără teste runtime noi.
 
 Testele modulului acoperă: decimal exact și precizie invalidă, monedă necunoscută, taxe/reduceri/rambursări păstrate distinct, adrese/variante lipsă, stoc negativ/neurmarit, criptare document mare și protecție tenant/store/ordine bucăți, paginare și publicare atomică, import repetat fără evenimente duble, reconcilieri, watermark/retry, expirarea lease-ului, conexiune revocată în timpul citirii, restart cu job vechi în zbor, izolare tenant/store, CSRF/sesiune/HTTP, rol viewer, 429/THROTTLED/ACCESS_DENIED fără răspuns parțial, export privacy fără confirmare falsă a livrării, redact/reimport, protecție reinstalare, schimbarea comenzii între pagini, expirarea staging-ului abandonat.
 

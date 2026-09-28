@@ -19,6 +19,7 @@ Import reluabil, normalizat și izolat pe merchant/store din Ordely Shop (dev), 
 - [x] UI: start/progres/listare/detalii/paginare și privacy pentru operator autorizat.
 - [x] Suite automate obligatorii: bani, paginare, concurență, retry, revocare, privacy și tenant isolation.
 - [x] Catalog importat real de două ori pe Ordely Shop, fără dubluri sau versiuni nejustificate.
+- [x] Cod publicat în Git și CI Windows/Linux PASS pentru `e8a4133` (run 36420254697).
 - [ ] Comandă sintetică reală (>25 linii), verificare total, date client/PCD și reimport; **blocată de lipsa acordului pentru write_orders CLI**.
 - [ ] Probele complete, CI, documente și Git verificate pentru închiderea definitivă a 08.
 
@@ -34,7 +35,7 @@ Auto-review a respins acordarea write_orders către Shopify CLI: utilizatorul au
 
 ## Predare
 
-- Ultimul pas: cod, teste și catalog real/reimport finalizate; UI verificată.
+- Ultimul pas: cod, teste și catalog real/reimport finalizate; UI verificată; CI Windows/Linux PASS, cod `e8a4133` publicat.
 - Următorul pas: acord explicit pentru write_orders CLI numai pe dev store și o singură comandă sintetică; apoi test real, verificări și închidere.
-- Branch: codex/modul-01-arhitectura; codul și documentele se publică împreună. Verifică Git/CI la reluare.
+- Branch: codex/modul-01-arhitectura; codul și documentele publicate în `e8a4133`, urmate de predarea documentară cu rezultatul CI. Verifică Git la reluare.
 - Reluare: „Continuă exclusiv modulul 08. Citește STATUS, raportul 08 și D14. Acordul pentru write_orders trebuie să existe explicit înainte de comanda de test; după aceea verifică întâi să nu existe deja ORDELY-TEST-M08. Nu începe 09.”

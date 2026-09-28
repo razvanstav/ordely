@@ -6,7 +6,7 @@ Actualizat: 2026-09-28. Registrul oficial al stărilor modulelor.
 
 Arhitectura a fost acceptată pentru continuare prin mesajul utilizatorului „CONTINUA”. Continuăm același branch de lucru `codex/modul-01-arhitectura`, fără fragmentarea istoricului între PC-uri.
 
-Utilizatorul a autorizat modulele 03–06, executate strict în ordine: implementare, teste, documentare, commit/push, apoi următorul. Deciziile D01–D05 se închid înainte de modulele care le folosesc. Lotul 03–06 este închis, fiecare modul fiind publicat și verificat în CI înainte de următorul. La 2026-09-28, „go” autorizează continuarea cu modulul 07. 07 este închis după reinstalarea finalizată de utilizator și verificarea reconectării/refresh-ului. Mesajul „Ok, te rog.” autorizează 08; implementarea și catalogul real sunt verificate, iar testul comenzii sintetice așteaptă acordul pentru write_orders CLI. 09–21 rămân neîncepute.
+Utilizatorul a autorizat modulele 03–06, executate strict în ordine: implementare, teste, documentare, commit/push, apoi următorul. Deciziile D01–D05 se închid înainte de modulele care le folosesc. Lotul 03–06 este închis, fiecare modul fiind publicat și verificat în CI înainte de următorul. La 2026-09-28, „go” autorizează continuarea cu modulul 07. 07 este închis după reinstalarea finalizată de utilizator și verificarea reconectării/refresh-ului. Mesajul „Ok, te rog.” autorizează 08; implementarea și catalogul real sunt verificate, codul e8a4133 este publicat cu CI 36420254697 PASS Windows/Linux, iar testul comenzii sintetice așteaptă acordul pentru write_orders CLI. 09–21 rămân neîncepute.
 
 ## Stări
 
