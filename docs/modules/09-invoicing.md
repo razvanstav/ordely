@@ -1,6 +1,6 @@
 # Modul 09 — Facturare
 
-2026-09-28. **IN_PROGRESS**, unicul activ. 09.1 închis; următorul pas 09.2. 08 este DEFERRED_EXTERNAL prin cererea utilizatorului. Lucrăm secvențial, fără Shopify live.
+2026-09-28. **PAUSED** la finalul 09.1; următorul pas 09.2. Utilizatorul a cerut reluarea probelor Shopify, astfel că 08 este temporar unicul activ. Progresul și CI 09.1 rămân păstrate.
 
 ## Pas 09.1 — ciorne locale
 

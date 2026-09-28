@@ -133,3 +133,11 @@ Scopes aplicației sunt read_orders/read_products/read_inventory/read_locations,
 Ales 2026-09-28 în continuarea D15: pas local independent de CMS/provider, cu document editabil și revizii criptate. Reutilizăm Money/Core CommercialLine pentru calcule; taxa totală pe linie este introdusă explicit, fără rată fiscală presupusă. Owner/admin/finance editează, operator citește, viewer nu are acces; scope merchant/store se revalidează. Crearea folosește ID stabil și comparație canonică, editarea/arhivarea cer versiunea curentă. Audit/outbox atomic conține numai referințe. Istoricul păstrează cheile vechi în inventar.
 
 Ciorna nu constituie model complet de emitere și nu primește număr fiscal. Adresa/datele emitentului/seriile și validarea fiscală se completează înaintea adaptorului și emiterii. D01/D08 rămân deschise; totalul zero într-o ciornă nu decide politica de facturare. Limite și API în [invoicing](invoicing.md).
+
+## D17 — Reluarea probei 08 și fixture prin token offline
+
+2026-09-29. Utilizatorul a cerut reluarea Shopify după login și a autorizat explicit, în două răspunsuri, CLI Connector App/write_orders/datele personale afișate și preview-ul Ordely cu write_orders temporar. Refuzurile auto-review anterioare au fost depășite prin aceste acorduri; nu se repetă întrebările pentru aceeași destinație și același scop.
+
+orderCreate este permis numai cu offline token; store auth/execute CLI oferă online. Proba CLI a eșuat fără creare, lookup-ul ulterior fiind gol. Testul aprobat continuă prin tokenul offline al aplicației Ordely după legarea autentică App Bridge. Fixture: o singură comandă sintetică de 30 linii, test=true, PENDING, fără notificări/plăți și inventory BYPASS; lookup înaintea creării și reconciliere înainte de orice retry ambiguu. Write_orders se retrage după creare, iar importul/reimportul se verifică numai cu citire. Nu extindem scope-urile aplicației în configurația publicată în Git și nu folosim ANATOMIK live. [Probe și surse](testing/08-commerce-import.md).
+
+08 este unicul modul REVIEW; 09 PAUSED la finalul pasului 09.1. Revine activ numai după finalizarea sau reamânarea explicită a probei 08.

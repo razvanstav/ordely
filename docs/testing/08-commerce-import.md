@@ -1,6 +1,6 @@
 # Verificări modul 08 — 2026-09-28
 
-Stare: DEFERRED_EXTERNAL, la cererea utilizatorului din 2026-09-28. Codul și catalogul real sunt verificate; proba comenzii reale sintetice rămâne neexecutată și nu este declarată PASS. Continuarea locală nu cere login Shopify.
+Stare curentă: REVIEW, 2026-09-29. Probele reale au fost reluate la cererea utilizatorului. Autorizările CLI și preview Ordely/write_orders temporar sunt primite explicit. Proba orderCreate prin CLI a demonstrat incompatibilitatea tokenului online; alternativa offline autorizată așteaptă legarea locală. Rezultatele istorice sunt păstrate mai jos.
 
 ## Reluare verificată pe PC-ul curent
 
@@ -51,7 +51,7 @@ Scopes după refresh real: `read_inventory,read_locations,read_orders,read_produ
 | Query verificare fixture existentă | PASS (validare), NOT_RUN pe CLI | `docs/testing/fixtures/shopify-order-lookup.graphql`, artefact ordely-08-fixture-lookup rev.1; trebuie folosit înainte de orice creare/retry după auth |
 | PCD / distribuție producție | NOT_RUN | Nu s-au solicitat și nu se pretind aprobări de producție; câmpurile personale ale unei comenzi dev urmează proba reală |
 
-## Procedură pentru proba amânată — nu se execută acum
+## Procedură istorică — înlocuită de proba offline de la final
 
 Utilizatorul a aprobat write_orders și comanda sintetică prin „Hai, fa ce vrei tu. Ai acordul meu.” Blocajul curent este confirmarea cerută de auto-review pentru instalarea **Shopify CLI Connector App numai pe Ordely Shop dev**, cu editarea comenzilor și acces la datele clienților (nume, email, telefon, adresă, IP/dispozitiv) și proprietarului (nume, email, telefon, adresă), până la revocare. Întrebarea exactă a fost trimisă, fără răspuns încă. Captură: var/module-08-cli-permissions.png, ignorată de Git. Nu ocoli respingerea prin Admin UI, alt token sau modificarea scopes aplicației.
 
@@ -74,3 +74,35 @@ shopify store execute --store ordely-shop.myshopify.com --version 2026-07 --quer
 ```
 
 După acord: autentificare CLI pe dev store, verifică întâi dacă tag-ul/numele `ORDELY-TEST-M08` există (pentru a nu duplica după timeout), apoi execută mutation validată cu fișierul `var/shopify-test-order.json`, `--allow-mutations` și API 2026-07. Dacă execuția este ambiguă, caută comanda înainte de retry. Fără plăți, mesaje către clienți sau schimbări de stoc. Import/reimport din aplicație, verifică 30 linii, bani și criptare; confirmă/repară PCD dev dacă Shopify refuză câmpurile. Finalizează raportul, CI și criteriile 08 înainte de 09.
+
+## Reluare reală pe PC-ul curent — 2026-09-29
+
+Acorduri explicite primite în această sesiune:
+
+- „Da, autorizez explicit pe Ordely Shop dev”: CLI Connector App, write_orders și datele clienților (nume/email/telefon/adresă/IP/dispozitiv) și proprietarului (nume/email/telefon/adresă), până la revocare.
+- „Am confirmat asocierea CLI”: loginul contului pe acest PC.
+- „Da, autorizez preview-ul și accesul temporar Ordely”: actualizarea preview-ului Ordely, write_orders temporar pe aplicație și crearea aceleiași fixture prin token offline, apoi retragerea scrierii și import/reimport. Nu este necesar un nou acord pentru aceiași pași.
+
+| Probă executată | Rezultat și limită |
+| --- | --- |
+| npm install --prefix var/shopify-cli --no-audit --no-fund @shopify/cli@4.8.2; shopify version | PASS, instalare locală ignorată de Git |
+| shopify store auth list | Fără sesiuni inițiale pe acest PC |
+| shopify app config validate --json după login | PASS, valid=true, issues=[] |
+| shopify store auth --store ordely-shop.myshopify.com --scopes write_orders --no-color | PASS, după acordul explicit |
+| shopify app env pull --client-id 62da15c72a85d17d1ee0cf8d7fa5058d --env-file .env --no-color | PASS, ieșirea cu secrete suprimată, .env existent păstrat; allowlist Ordely dev adăugat |
+| Lookup fixture prin CLI, API 2026-07 | PASS de două ori: domeniu exact, RON, zero rezultate |
+| orderCreate prin CLI, input 30 linii/test/PENDING/BYPASS/notificări false | FAIL API ACCESS_DENIED: cere offline token. Nicio comandă creată, confirmat prin lookup ulterior |
+| shopify app dev --store ordely-shop.myshopify.com --client-id 62da15c72a85d17d1ee0cf8d7fa5058d --skip-dependencies-installation --no-color | PASS după al doilea acord; preview Ready, URL HTTPS, read_inventory/read_locations/read_orders/read_products/write_orders auto-granted |
+| Pagina embedded locală și /ready | PASS HTTP 200 |
+| php vendor/bin/phpunit --filter 'Shopify\|CommerceImport' | PASS: 58 teste / 286 assertions |
+| php bin/http-smoke.php | PASS: 6 probe |
+| Legare App Bridge și token offline în DB locală | ÎN AȘTEPTARE: connection=null la ultima verificare |
+| Creare offline, retragere write_orders, import/reimport 30 linii | NOT_RUN; depind de legarea autentică |
+
+Validatorul GraphQL confirmă lookup și orderCreate (revizia 2). Lista sa de scope-uri include alternative cumulativ; [Order](https://shopify.dev/docs/api/admin-graphql/latest/objects/Order) cere read_orders SAU read_marketplace_orders SAU read_quick_sale. Nu am cerut scope-urile alternative; [orderCreate](https://shopify.dev/docs/api/admin-graphql/latest/mutations/orderCreate) cere write_orders și offline token. [CLI store auth](https://shopify.dev/docs/api/shopify-cli/store/store-auth) păstrează un token online. Procedura CLI de creare de mai sus este depășită și nu trebuie repetată.
+
+Browser automation nu pornește pe acest PC: ambele instrumente au returnat `windows sandbox failed: helper_unknown_error: apply deny-read ACLs`. Nu s-au schimbat setări de securitate. Pagina de preview a fost deschisă prin tasta p a CLI; codul local este în var/shopify-link-code.txt (TTL 10 minute). Utilizatorul trebuie să îl introducă în aplicația Ordely din Shopify și să apese Conectează magazinul; apoi agentul verifică DB, fără presupunerea unei conectări reușite doar pe baza UI.
+
+Helper-ele locale ignorate de Git: `php var/prepare-shopify-local.php` păstrează contul sintetic și regenerează codul; `php var/shopify-live-check.php status` verifică legătura. Helper-ul fixture este pregătit numai pentru dev allowlist, lookup înainte de creare, blocare locală și marker înainte de mutation; un rezultat incert interzice repetarea automată. Nu s-a executat încă modul fixture. Secretele nu sunt expuse în rezultate/documente.
+
+Configurația locală shopify.app.toml conține temporar write_orders, nepublicat în Git. Retrage-l după crearea fixture; așteaptă aplicarea preview-ului, verifică scope-urile efective și refresh-ul înainte de importul doar cu citire. La mutare pe alt PC, codul și notele vin din Git, iar setup-ul local se recreează conform docs/shopify.md; tokenurile și helper-ele var nu sunt transferate.

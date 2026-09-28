@@ -1,6 +1,6 @@
 # Modul 08 — Import comenzi și catalog
 
-Stare: DEFERRED_EXTERNAL, 2026-09-28. Codul și testele automate sunt verificate; proba externă restantă este amânată explicit de utilizator, care nu se poate autentifica în Shopify. Continuăm cu 09, fără a declara 08 DONE.
+Stare: REVIEW, 2026-09-29, unicul activ. Utilizatorul a cerut reluarea probei Shopify după login și a acordat explicit permisiunile necesare. 09 este PAUSED la finalul 09.1; codul său rămâne publicat și verificat.
 
 ## Obiectiv și limită
 
@@ -20,7 +20,7 @@ Import reluabil, normalizat și izolat pe merchant/store din Ordely Shop (dev), 
 - [x] Suite automate obligatorii: bani, paginare, concurență, retry, revocare, privacy și tenant isolation.
 - [x] Catalog importat real de două ori pe Ordely Shop, fără dubluri sau versiuni nejustificate.
 - [x] Cod publicat în Git și CI Windows/Linux PASS pentru `e8a4133` (run 36420254697).
-- [ ] Comandă sintetică reală (>25 linii), verificare total, date client/PCD și reimport; **Install CLI blocat de auto-review pentru confirmarea datelor personale, după acordul pentru write_orders**.
+- [ ] Comandă sintetică reală (>25 linii), verificare total, date client/PCD și reimport; **CLI autorizat, dar orderCreate cere token offline; preview Ordely autorizat și pornit, legarea locală încă așteptată**.
 - [ ] Probele complete, CI, documente și Git verificate pentru închiderea definitivă a 08.
 
 ## Verificări
@@ -41,6 +41,12 @@ Reluare pe PC-ul curent, 2026-09-28: fetch/pull până la `807e0da`, dependențe
 - Următorul pas: confirmarea exactă a datelor din Install CLI numai pe dev store; apoi lookup fixture, creare unică, test real și închidere.
 - Branch: codex/modul-01-arhitectura; codul și documentele publicate în `e8a4133`, urmate de predarea documentară cu rezultatul CI. Verifică Git la reluare.
 - Reluare: „Continuă exclusiv modulul 08. Citește STATUS, raportul 08 și D14. Write_orders și comanda sunt aprobate; rezolvă confirmarea datelor personale cerută de auto-review la Install. Verifică întâi să nu existe deja ORDELY-TEST-M08. Nu începe 09.”
-## Decizia curentă
+## Decizia anterioară — amânarea
 
 Utilizatorul: „Hai să continuăm fără testele de Shopify. Că nu pot să mă loghez.” Nu se mai cere login și nu se reîncearcă instalarea CLI sau crearea comenzii acum. Proba celor 30 de linii/PCD/reimport rămâne NOT_RUN/DEFERRED și se reia separat când accesul este disponibil. Următorul pas autorizat este partea locală a modulului 09. Rezultatele automate și cele trei importuri reale de catalog rămân dovezi istorice valide.
+
+## Reluare curentă — 2026-09-29
+
+Utilizatorul a autorizat explicit CLI Connector App și datele personale afișate. Autentificările CLI au reușit, dar orderCreate necesită token offline; CLI folosește online. Lookup ulterior confirmă zero fixture. Utilizatorul a autorizat separat actualizarea preview-ului Ordely și write_orders temporar pentru aceeași comandă, urmat de retragerea scrierii. Preview pornit; .env/keyring și cont sintetic locale, fără secrete în Git. Codul de legare există în var/shopify-link-code.txt, cu TTL 10 minute. Controlul browserului are eroare sandbox ACL; utilizatorul finalizează legarea în aplicația Shopify. Nu se modifică ANATOMIK live.
+
+Urmează: legare autentică App Bridge; lookup înaintea creării unice prin token offline; retragere write_orders, refresh și verificare scope-uri; import complet/reimport, 30 linii, 36.00 RON estimat, date sintetice și criptare, ID-uri/evenimente stabile. Numai după aceste probe poate deveni 08 DONE.
