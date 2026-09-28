@@ -10,13 +10,13 @@ Login Shopify CLI finalizat. Aplicația **Ordely** a fost instalată și conecta
 
 Implementate: asociere autorizată owner/admin Ordely + ID token Shopify, cod temporar, tokenuri criptate și refresh serializat, inbox lifecycle, deduplicare, protecție pentru evenimente vechi, UI embedded și panou local. Detalii: [operare Shopify](docs/shopify.md), [raport 07](docs/testing/07-shopify.md).
 
-Verificare locală completă PASS: 188 lint, PHPStan 8, 97 unit/651 assertions, 73 integration/367 assertions — 170 teste. Configurația Shopify și query-ul Admin GraphQL validate. Codul `911944e` este publicat și [CI Windows/Linux PASS](https://github.com/razvanstav/ordely/actions/runs/36410445815). Corecția inventarului cheilor se publică și verifică separat.
+Verificare locală completă PASS: 188 lint, PHPStan 8, 97 unit/651 assertions, 73 integration/367 assertions — 170 teste. Configurația Shopify și query-ul Admin GraphQL validate. Codul complet `348c578` este publicat și [CI Windows/Linux PASS](https://github.com/razvanstav/ordely/actions/runs/36410819306), inclusiv inventarul cheilor pentru webhookuri.
 
 ## Pas rămas
 
 Aplicația este momentan dezinstalată din Ordely Shop, după testul reușit. Reinstalarea este pregătită în browser. Shopify cere acces standard la datele proprietarului (nume, email, telefon, adresă), chiar cu scopes goale. Aprobarea automată a respins click-ul Install deoarece acest acces nu fusese explicit autorizat. Întrebarea a fost transmisă utilizatorului; nu relua instalarea prin CLI sau altă cale fără răspuns. Codul curent citește numai ID-ul și domeniul magazinului.
 
-După aprobare: apasă Install pe Ordely Shop, deschide aplicația în preview-ul CLI, generează un cod Ordely nou, conectează și verifică păstrarea conexiunii vechi ca revocată. Apoi consemnează CI și închide 07. Nu începe 08 automat.
+După aprobare: apasă Install pe Ordely Shop, deschide aplicația în preview-ul CLI, generează un cod Ordely nou, conectează și verifică păstrarea conexiunii vechi ca revocată. Apoi consemnează reinstalarea și închide 07; verificările locale și CI ale codului sunt deja PASS. Nu începe 08 automat.
 
 ## Mediu local
 

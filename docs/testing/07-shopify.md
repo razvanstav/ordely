@@ -21,7 +21,7 @@
 | Criptare în DB reală | PASS | Decriptare validă; valorile tokenurilor absente din envelope în clar |
 | Dezinstalare reală și webhook | PASS | 2026-09-28 10:24:11 UTC: app/uninstalled processed, conexiune revoked, versiune 3; Dashboard Shopify 280 ms, 0% eșec |
 | Reinstalare finală reală | BLOCKED | Ecran Install cere datele proprietarului; auto-review a solicitat autorizare explicită. Întrebare trimisă utilizatorului |
-| CI implementare completă, cod 911944e | PASS | [Windows/Linux/MySQL/HTTP](https://github.com/razvanstav/ordely/actions/runs/36410445815) |
+| CI implementare și inventar chei, cod 348c578 | PASS | [Windows/Linux/MySQL/HTTP](https://github.com/razvanstav/ordely/actions/runs/36410819306) |
 | CI primul pas, cod 8187f00 | PASS | [Windows/Linux](https://github.com/razvanstav/ordely/actions/runs/36397390326) |
 
 Cazuri automate: JWT expirat/malformat/algoritm/audiență/issuer greșit; SSRF/domenii externe; raw HMAC; schimb tokenuri cu expiring=1; erori API sanitizate; cod expirat; roluri și membership revocat; izolare cross-store/tenant inclusiv după revocare; refuz bind generic; retry idempotent; refresh urmat de timeout; pierderea autorizării; duplicate și conflict webhook; payload shop ID greșit; uninstall după reinstalare cu timestamp vechi/lipsă; uninstall pentru merchant dezactivat; payload privacy criptat și pending; CSP/CSRF/bearer HTTP.

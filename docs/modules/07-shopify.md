@@ -18,7 +18,7 @@ Instalare embedded cu App Bridge și token exchange PHP, asociere explicită mer
 - [x] Teste PHP/MySQL/HTTP, concurență în două procese și regresii locale.
 - [x] Dev store real: instalare, App Bridge, token exchange, refresh, webhook și dezinstalare PASS; zero scopes, fără PCD solicitat.
 - [ ] Reinstalare finală reală și predare cu conexiune activă: așteaptă autorizarea accesului standard la datele proprietarului.
-- [ ] Publicare Git și CI pentru implementarea completă.
+- [x] Publicare Git și CI Windows/Linux pentru implementarea completă, inclusiv corecția inventarului cheilor.
 
 ## Livrare
 
@@ -36,6 +36,6 @@ Pe dev store, refresh real a schimbat versiunea conexiunii 1→2; uninstall real
 
 ## Predare
 
-Testul de reinstalare a ajuns la Install pe Ordely Shop. Aprobarea automată a respins acțiunea deoarece Shopify cere acces standard la nume/email/telefon/adresa proprietarului, neautorizat explicit anterior. Confirmarea este cerută utilizatorului; nu ocoli blocarea prin CLI. După aprobare, finalizează reinstalarea și legarea cu un cod nou, verifică conexiunea veche revocată, apoi CI și închiderea 07. 08 rămâne PLANNED.
+Testul de reinstalare a ajuns la Install pe Ordely Shop. Aprobarea automată a respins acțiunea deoarece Shopify cere acces standard la nume/email/telefon/adresa proprietarului, neautorizat explicit anterior. Confirmarea este cerută utilizatorului; nu ocoli blocarea prin CLI. După aprobare, finalizează reinstalarea și legarea cu un cod nou, verifică conexiunea veche revocată, apoi consemnează reinstalarea și închide 07. 08 rămâne PLANNED.
 
-CI pentru codul 911944e: [PASS Windows și Linux/Compose/HTTP](https://github.com/razvanstav/ordely/actions/runs/36410445815). Inventarul cheilor a fost extins și testat pentru payloadurile webhook; această corecție este publicată separat înainte de predare.
+CI pentru codul 911944e: [PASS Windows și Linux/Compose/HTTP](https://github.com/razvanstav/ordely/actions/runs/36410445815). Inventarul cheilor a fost extins și testat pentru payloadurile webhook. Codul final `348c578` este publicat și [CI Windows/Linux PASS](https://github.com/razvanstav/ordely/actions/runs/36410819306). Singurul pas rămas este reinstalarea autorizată de utilizator.
