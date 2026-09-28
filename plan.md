@@ -4,6 +4,8 @@ Actualizat: 2026-09-28. Registrul oficial al stărilor modulelor.
 
 **Modulele 01–07 sunt DONE. Modulul 08 este unicul activ, în REVIEW.**
 
+Reluare pe PC-ul curent la 2026-09-28: predarea `807e0da` sincronizată fără conflicte, migrațiile 005/006 aplicate și toate cele 190 de teste rerulate cu PASS. Configurarea/tokenurile Shopify de pe celălalt PC nu vin prin Git; pregătirea locală este consemnată în STATUS. Criteriul comenzii reale rămâne deschis.
+
 Arhitectura a fost acceptată pentru continuare prin mesajul utilizatorului „CONTINUA”. Continuăm același branch de lucru `codex/modul-01-arhitectura`, fără fragmentarea istoricului între PC-uri.
 
 Utilizatorul a autorizat modulele 03–06, executate strict în ordine: implementare, teste, documentare, commit/push, apoi următorul. Deciziile D01–D05 se închid înainte de modulele care le folosesc. Lotul 03–06 este închis, fiecare modul fiind publicat și verificat în CI înainte de următorul. La 2026-09-28, „go” autorizează continuarea cu modulul 07. 07 este închis după reinstalarea finalizată de utilizator și verificarea reconectării/refresh-ului. Mesajul „Ok, te rog.” autorizează 08; implementarea și catalogul real sunt verificate, codul e8a4133 este publicat cu CI 36420254697 PASS Windows/Linux. Ulterior, „Ai acordul meu” autorizează write_orders CLI și comanda sintetică; Install rămâne blocat de auto-review până la confirmarea explicită a datelor personale afișate de Shopify. A treia rulare a catalogului confirmă refresh automat după expirarea accesului, fără dubluri. 09–21 rămân neîncepute.

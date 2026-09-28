@@ -2,6 +2,12 @@
 
 Stare: REVIEW. Codul și catalogul real sunt verificate; testul comenzii reale sintetice este BLOCKED, deci modulul nu este DONE.
 
+## Reluare verificată pe PC-ul curent
+
+2026-09-28, cod/predare `807e0da` după 10 commituri preluate fără conflicte. `composer install` și `check-platform-reqs` PASS; PHP 8.4.24 cu curl și MySQL 8.4.11. `php bin/migrate.php` aplică 005/006; schema de test este actualizată de suită. `composer check` PASS: 204 lint, PHPStan 8, 101 unit/677 assertions, 89 integration/512 assertions. `node --check resources/app.js` și `resources/shopify.js` PASS; `php bin/http-smoke.php` PASS, 6 verificări, preview standalone 8080.
+
+Nu s-au rerulat probele Shopify reale pe acest PC: client ID/secret și dev allowlist lipsesc local, iar DB/tokenurile celuilalt PC nu au fost transferate. `.env` și keyring-ul existente aici au fost păstrate. Rezultatele reale de mai jos sunt dovezile sesiunii de pe celălalt PC, nu rezultate pretinse ale sincronizării curente.
+
 ## Automat
 
 Mediu: Windows, PHP 8.4.24, MySQL 8.4.11 pe 33060, migrații 001–006 în app/test; Node 24.19.0 și Shopify CLI 4.8.2.

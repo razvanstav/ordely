@@ -35,6 +35,8 @@ Utilizatorul a acordat write_orders și crearea comenzii fictive. Auth CLI a des
 
 ## Predare
 
+Reluare pe PC-ul curent, 2026-09-28: fetch/pull până la `807e0da`, dependențe și migrații actualizate, suita completă 190 teste și HTTP smoke PASS. Preview local pornit. Lipsesc configurarea Shopify și contul sintetic local din predarea celuilalt PC; DB/tokenurile/keyring-ul lui nu sunt în Git. Rezolvă acest setup înainte de proba reală; aprobarea restantă pentru CLI Install nu a fost ocolită. Starea rămâne REVIEW.
+
 - Ultimul pas: a treia rulare reală confirmă refresh automat după expirare (conexiune v4), catalog 17/26/28 fără dubluri; CLI Install blocat separat. CI Windows/Linux PASS pentru cod `e8a4133`.
 - Următorul pas: confirmarea exactă a datelor din Install CLI numai pe dev store; apoi lookup fixture, creare unică, test real și închidere.
 - Branch: codex/modul-01-arhitectura; codul și documentele publicate în `e8a4133`, urmate de predarea documentară cu rezultatul CI. Verifică Git la reluare.
