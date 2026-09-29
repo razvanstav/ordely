@@ -1,8 +1,10 @@
 # Modul 08 — Import comenzi și catalog
 
-Stare: REVIEW, 2026-09-29, unicul activ. Utilizatorul a cerut reluarea probei Shopify după login și a acordat explicit permisiunile necesare. 09 este PAUSED la finalul 09.1; codul său rămâne publicat și verificat.
+Stare: DONE, 2026-09-29. Importul/reimportul persistat a trecut pe PC-ul inițial, cu conexiunea App Bridge autentică existentă și worker real. 09 este PAUSED după 09.1; 09.2 este următorul pas separat.
 
 ## Obiectiv și limită
+
+Pas de reluare pe PC-ul inițial, 2026-09-29: Git sincronizat la `bea3206`; conexiunea App Bridge autentică din 07 există local, cu refresh neexpirat. Verificăm reînnoirea ei cu cele cinci scope-uri de citire, apoi import/reimport HTTP + worker al fixture-ului existent. Acceptare: 30 linii/3600 bani RON, date sintetice corecte și criptate în DB, paginare 25+5, ID-uri/versiuni/hash stabile, un singur ORDER_IMPORTED și staging gol la final. Refolosim conexiunea existentă dacă reînnoirea reușește; nu recreăm fixture-ul.
 
 Import reluabil, normalizat și izolat pe merchant/store din Ordely Shop (dev), folosind autentificarea 07 și jobs 05. Include comenzi/linii/bani/statusuri/client, produse/variante/opțiuni/stoc, reconciliere și UI. Exclude scrieri de stoc, rezervări, facturi, AWB și fulfillment. ANATOMIK live nu se folosește.
 
@@ -23,18 +25,28 @@ Import reluabil, normalizat și izolat pe merchant/store din Ordely Shop (dev), 
 - [x] Comandă sintetică reală creată o singură dată: ORDELY-TEST-M08, ID 8239905505617, 30 linii, 36,00 RON; fără plăți/notificări/stoc.
 - [x] Query-uri reale și normalizare în două pagini 25+5, total/date sintetice și OrderCipher verificate; recitire cu același hash.
 - [x] read_customers necesar order.customer.id adăugat; write_orders retras și verificat prin API.
-- [ ] Import/reimport persistat al fixture-ului prin autentificarea App Bridge și worker, cu ID-uri interne/versiuni/evenimente stabile; conexiunea locală lipsește încă.
-- [ ] Probele complete, CI, documente și Git verificate pentru închiderea definitivă a 08.
+- [x] Import/reimport persistat prin conexiunea App Bridge existentă, HTTP și worker; ID-uri interne/versiuni/hash-uri/evenimente stabile.
+- [x] Probele complete, CI pentru codul publicat și documentele de închidere verificate; commit/push documentar la predare conform workflow-ului.
+
+## Închidere și punct exact de reluare
+
+Refresh real al conexiunii originale din 07: v4→v5, cinci scope-uri de citire. Import HTTP autentic + 47 jobs: run `ddd8da2b13fdf6b9a0881a2315d16bc9`, completed 05:45:22 UTC. Reimport: run `25a18ae2afc5b1b761ebd11e09341227`, 3+44 jobs, completed 05:47:41 UTC. Fiecare rulare: 46 tasks, zero eșecuri. Nicio simulare App Bridge și niciun token client_credentials introdus în DB.
+
+Comandă internă `ba49d8549742be78f6436a0f6b2dc3a5`, 30 linii/3600 bani RON; ID-urile/versiunile/hash-urile tuturor proiecțiilor sunt identice după reimport, un singur ORDER_IMPORTED. Oprirea după trei jobs a confirmat 25 linii criptate în staging și proiecția publicată completă, neschimbată; reluarea a publicat 30 și a golit staging-ul. Sumele și datele sintetice verificate prin endpointul HTTP de detalii.
+
+Git inițial curat, fast-forward `807e0da`→`bea3206`. Migrația 007 aplicată app/test; 207 teste și CI existent PASS, fără schimbare de cod/config. MySQL/preview rămân pornite. Helper-ele `var/resume-08-*` sunt locale, ignorate. Inspecția vizuală a comenzii nu s-a repetat; probele HTTP și UI anterioare sunt distincte.
+
+> 08 DONE. La reluare verifică Git, STATUS și plan. Următorul pas este 09.2: reactivează exclusiv 09, citește fișa 09 și D01/D08/D16, fixează criteriile pentru date complete de emitere și adaptorul Oblio, clarifică regulile/contul/seriile înainte de emitere. Nu recrea fixture-ul Shopify, nu readăuga write_orders și nu începe 10. Istoricul de mai jos nu înlocuiește această predare.
 
 ## Verificări
 
-190 teste PASS, 204 lint, PHPStan 8, JS/config Shopify valide. Catalog real: 17 produse, 26 variante, 28 inventare. Raport complet și comenzile executate: [testing 08](../testing/08-commerce-import.md). Instrucțiuni/limite: [commerce-import](../commerce-import.md).
+La închidere: 207 teste PASS (106 unit/707 assertions, 101 integration/634 assertions), 213 lint, PHPStan 8, JS/config Shopify valide și 6 probe HTTP. Catalog 17 produse/26 variante/28 inventare și o comandă sintetică de 30 linii/36,00 RON. CI Windows/Linux pentru ultimul cod `7e87d9e` reverificat PASS. [Raport și comenzi](../testing/08-commerce-import.md), [operare](../commerce-import.md).
 
 ## Decizii și istoricul probei amânate
 
-D04: numai citire pe locații în 08, rezervări înainte de 18. D14: proiecții separate de contractele de comenzi/facturare, staging atomic, retenție temporară șapte zile, privacy locală. Scopes de citire confirmate real; PCD pentru câmpurile unei comenzi necesită proba restantă.
+D04: numai citire pe locații în 08. D14: proiecții separate, staging atomic, retenție temporară șapte zile, privacy locală. D17: cinci scope-uri de citire și câmpurile sintetice confirmate live, inclusiv în DB. Aprobările de producție rămân distincte.
 
-Utilizatorul a acordat write_orders și crearea comenzii fictive. Auth CLI a deschis instalarea, dar auto-review a respins Install deoarece cere confirmarea explicită a datelor personale ale clienților/proprietarului afișate de Shopify. Detaliile permisiunilor și documentația oficială au fost verificate, fără eliminarea refuzului la reîncercare. Întrebarea exactă este în așteptare; conectorul nu este instalat și orderCreate nu s-a executat. Nu ocoli refuzul.
+Istoric înainte de D17: auto-review a cerut confirmarea datelor personale. Acordurile au fost ulterior primite explicit; fixture-ul a fost creat o singură dată, scrierea retrasă și importul persistat verificat. Acest blocaj nu mai este activ.
 
 ## Predare anterioară — înlocuită pentru continuarea curentă
 
@@ -54,7 +66,7 @@ Utilizatorul a autorizat explicit CLI Connector App și datele personale afișat
 
 Această etapă a fost urmată de probele de mai jos; nu mai este necesară crearea fixture-ului.
 
-## Predare curentă — după continuarea autonomă
+## Predare de pe PC-ul secundar — istoric, înlocuită de închiderea de mai sus
 
 Acordul utilizatorului acoperă automatizarea și accesul Ordely dev; nu lipsesc aprobări. Browserul rămâne indisponibil tehnic. Client_credentials a funcționat legitim pentru aplicația și dev store-ul aceleiași organizații, permițând crearea fixture-ului și probe directe de citire. Nu este o simulare a App Bridge și nu a creat artificial o conexiune în DB. Modulul păstrează autentificarea embedded existentă.
 

@@ -2,21 +2,21 @@
 
 Actualizat: 2026-09-29. Registrul oficial al stărilor modulelor.
 
-**01–07 DONE. 08 REVIEW — reluarea probelor Shopify cerută de utilizator. 09 PAUSED la finalul pasului 09.1; 09.2 nu a început.**
+**01–08 DONE. 09 PAUSED după 09.1; 09.2 este următorul pas, încă neînceput. Niciun modul în implementare la predare.**
 
-Ultimul pas 08, 2026-09-29: fixture creată o singură dată prin client_credentials, ID 8239905505617, 30 linii/36,00 RON; query-uri reale, paginare 25+5, date sintetice, normalizare și criptare verificate de două ori. Corectat read_customers lipsă; write_orders retras și verificat. 58 teste/286 assertions și 6 probe HTTP PASS. Importul/reimportul persistat rămâne NOT_RUN până la legarea App Bridge pe acest PC. Preview/PHP/tunel/MySQL oprite; datele păstrate. Nu recrea fixture-ul. [Predare](STATUS.md), [raport](docs/testing/08-commerce-import.md).
+Închidere 08, 2026-09-29: Git sincronizat la `bea3206`; conexiunea App Bridge existentă reînnoită real (v4→v5), cinci scope-uri de citire. Import/reimport HTTP + worker PASS: fixture existentă 8239905505617, 30 linii/36,00 RON, paginare 25+5, criptare DB/staging, publicare atomică, ID-uri/versiuni/hash-uri stabile și un singur ORDER_IMPORTED. Catalog 17/26/28 stabil. 207 teste, 213 lint, PHPStan 8, JS și 6 probe HTTP PASS. MySQL/preview rămân pornite. [Predare](STATUS.md), [raport](docs/testing/08-commerce-import.md).
 
-Corecția 08 `7e87d9e` este publicată, hash remote identic și [CI Windows/Linux 36486355856 PASS](https://github.com/razvanstav/ordely/actions/runs/36486355856). Starea REVIEW păstrează explicit proba persistată restantă.
+Corecția 08 `7e87d9e` este publicată; [CI Windows/Linux 36486355856 PASS](https://github.com/razvanstav/ordely/actions/runs/36486355856), reverificat la închidere. Proba persistată restantă este acum PASS. Această predare modifică numai documentația versionată.
 
 09.1 închis: 207 teste locale, UI/API pentru ciorne manuale, migrația 007, criptare/revizii, sume exacte și concurență. Cod f622aab publicat cu hash remote verificat și CI Windows/Linux 36480973254 PASS; [fișa 09](docs/modules/09-invoicing.md). Următorul pas al facturării, după reluarea 08: 09.2; 10 nu este început.
 
-Reluare pe PC-ul curent la 2026-09-28: predarea `807e0da` sincronizată fără conflicte, migrațiile 005/006 aplicate și toate cele 190 de teste rerulate cu PASS. Configurarea/tokenurile Shopify de pe celălalt PC nu vin prin Git; pregătirea locală este consemnată în STATUS. Criteriul comenzii reale rămâne deschis, amânat explicit prin cererea de continuare fără login Shopify.
+Istoric 2026-09-28: probele externe 08 au fost amânate explicit pentru a continua 09.1 fără login Shopify (D15). Istoricul detaliat și autorizările sunt în jurnal și D17. Amânarea și blocajul tehnic de pe PC-ul secundar sunt închise prin probele persistate de pe PC-ul inițial.
 
 Arhitectura a fost acceptată pentru continuare prin mesajul utilizatorului „CONTINUA”. Continuăm același branch de lucru `codex/modul-01-arhitectura`, fără fragmentarea istoricului între PC-uri.
 
-Utilizatorul a autorizat modulele 03–06, executate strict în ordine: implementare, teste, documentare, commit/push, apoi următorul. Deciziile D01–D05 se închid înainte de modulele care le folosesc. Lotul 03–06 este închis, fiecare modul fiind publicat și verificat în CI înainte de următorul. La 2026-09-28, „go” autorizează continuarea cu modulul 07. 07 este închis după reinstalarea finalizată de utilizator și verificarea reconectării/refresh-ului. Mesajul „Ok, te rog.” autorizează 08; implementarea și catalogul real sunt verificate, codul e8a4133 este publicat cu CI 36420254697 PASS Windows/Linux. Ulterior, „Ai acordul meu” autorizează write_orders CLI și comanda sintetică; Install rămâne blocat de auto-review până la confirmarea explicită a datelor personale afișate de Shopify. A treia rulare a catalogului confirmă refresh automat după expirarea accesului, fără dubluri. Ulterior, utilizatorul a cerut continuarea fără probele Shopify care cer login. Amânăm proba reală 08 și continuăm secvențial cu partea locală 09; testele automate fără cont extern rămân obligatorii. 10–21 nu sunt începute.
+Modulele 03–06 au fost autorizate și închise strict secvențial, apoi 07 și 08. Acordurile Shopify dev și crearea unică a fixture-ului sunt consemnate în D17. write_orders a fost retras; nu se recreează comanda. 10–21 nu sunt începute.
 
-La cererea nouă „hai și cu testele shopify”, reluăm exclusiv 08. Utilizatorul a confirmat explicit CLI Connector App/write_orders și datele clienților/proprietarului numai pe Ordely Shop dev. 09.1 rămâne închis și publicat; 09.2 așteaptă finalizarea probei 08.
+Reluarea cerută prin „Cloneaza ce e pe github si hai sa continuam” a închis proba 08. 09.1 rămâne păstrat; 09.2 se reia separat, cu D01/D08 și criterii definite înainte de implementare.
 
 ## Stări
 
@@ -37,7 +37,7 @@ Fiecare modul pornește după închiderea celui precedent sau după amânarea ex
 | 05 | Outbox, inbox, jobs, idempotency și audit | Concurență, restart worker, timeout ambiguu și retry fără dubluri | DONE |
 | 06 | ProviderConnection, chei și registru integrări | Criptare/rotație testate; secrete absente din loguri și UI | DONE |
 | 07 | Shopify: instalare, auth, webhook inbox și dezinstalare | Dev store conectat; semnături și revocare testate | DONE |
-| 08 | Comenzi și catalog Shopify normalizate | Import repetat fără dubluri, reconciliere, paginare, variante/stoc | REVIEW |
+| 08 | Comenzi și catalog Shopify normalizate | Import repetat fără dubluri, reconciliere, paginare, variante/stoc | DONE |
 | 09 | Facturare și Oblio, inclusiv storno de bază | Contract + integrare controlată; retry fără document duplicat | PAUSED |
 | 10 | Shipping și Sameday | AWB, etichetă, anulare, retur, pickup și capabilities verificate | PLANNED |
 | 11 | FAN Courier | Aceeași suită de contract; funcțiile sunt confirmate pentru contul folosit | PLANNED |

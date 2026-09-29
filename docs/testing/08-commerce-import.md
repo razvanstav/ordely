@@ -1,6 +1,6 @@
 # Verificări modul 08 — 2026-09-28
 
-Stare curentă: REVIEW, 2026-09-29. Fixture-ul real există, ID 8239905505617: 30 linii/36,00 RON, creat unic prin client_credentials. Query-urile originale, paginarea 25+5, datele sintetice, normalizarea și OrderCipher au trecut de două ori. Corectat read_customers lipsă; write_orders retras și verificat. Importul/reimportul persistat prin App Bridge/worker rămâne NOT_RUN. Preview/PHP/tunel/MySQL oprite, datele păstrate. Vezi ultima secțiune pentru predarea curentă; secțiunile anterioare sunt istorice.
+Stare curentă: DONE, 2026-09-29. Ultima secțiune consemnează importul/reimportul persistat HTTP + worker și verificările de închidere. Rezultatele BLOCKED/NOT_RUN ale etapelor anterioare sunt istorice; aprobările de producție rămân în afara probei dev.
 
 ## Reluare verificată pe PC-ul curent
 
@@ -140,3 +140,37 @@ La reluare pe acest PC: pornește MySQL și preview-ul cu TOML actual, rulează 
 Surse: [Customer cere read_customers](https://shopify.dev/docs/api/admin-graphql/latest/objects/Customer), [grant oficial pentru propriile magazine](https://shopify.dev/docs/apps/build/authentication-authorization/client-credentials-grant), [Mozilla CA distribuit de curl](https://curl.se/docs/caextract.html). Proba live, nu doar validarea schemei GraphQL, a demonstrat necesitatea scope-ului lipsă.
 
 Publicare: commit `7e87d9e3364977ad4d3886b97920ff3637e6b117`, push reușit și hash origin verificat identic. [CI 36486355856](https://github.com/razvanstav/ordely/actions/runs/36486355856) completed/success: Windows PHP + native MySQL și Linux PHP + MySQL + HTTP, ambele PASS. Actualizarea ulterioară schimbă doar documentele pentru a salva acest rezultat; fără probe runtime noi și fără declararea importului persistat ca trecut.
+
+## Închidere 08 — PC inițial, 2026-09-29
+
+Cererea de continuare a găsit clona curată la 807e0da; fetch/pull fast-forward a adus șapte commit-uri până la bea3206. DB și keyring-ul acestui PC păstrează conexiunea App Bridge autentică din modulul 07. Refresh-ul neexpirat a permis reluarea directă, fără legare simulată sau copierea tokenului client_credentials de pe celălalt PC.
+
+Mediu efectiv: Windows PowerShell, PHP 8.4.24 portabil, MySQL 8.4.11/127.0.0.1:33060, Composer 2.10.3, Node 24.19.0 din runtime Codex, Shopify CLI 4.8.2, app dev exclusiv ordely-shop.myshopify.com. Migrația 007 aplicată app/test; cheile existente păstrate. Comenzile PHP de mai jos au folosit var/tools/php-8.4.24 în PATH sau executabilul său explicit. Comenzile Shopify au avut prefixele agentului conform skill-ului CLI.
+
+| Comandă/scenariu efectiv | Rezultat | Dovadă și limite |
+| --- | --- | --- |
+| git fetch origin; git pull --ff-only | PASS după escaladarea filesystem | Inițial sandbox a refuzat .git/FETCH_HEAD; execuția autorizată a sincronizat 807e0da→bea3206, fără conflicte |
+| php var/tools/composer.phar install --no-interaction --prefer-dist | PASS cu avertisment | Lockfile respectat, nimic de instalat; sursa filtrului Packagist inaccesibilă din sandbox. Nu reprezintă audit de securitate actual |
+| ./scripts/windows-mysql.ps1 -Action Start; php bin/migrate.php; php bin/migrate.php --test | PASS | MySQL deja pornit; 007 aplicată în app și test |
+| php var/tools/composer.phar check | PASS | 213 lint, PHPStan 8; 106 unit/707 assertions + 101 integration/634 assertions = 207 teste |
+| shopify app config validate --json | PASS după execuția cu acces de rețea | valid=true, issues=[]; primul apel limitat de sandbox EACCES |
+| shopify app dev --store ordely-shop.myshopify.com --client-id 62da15c72a85d17d1ee0cf8d7fa5058d --skip-dependencies-installation --no-color | PASS | Preview Ready; numai read_customers/read_inventory/read_locations/read_orders/read_products |
+| php bin/http-smoke.php | PASS | 6 verificări HTTP reale pe 127.0.0.1:8080 |
+| node --check resources/app.js; node --check resources/shopify.js; node --check resources/invoicing.js | PASS cu Node 24.19.0 explicit | Node global 21 încercat inițial: FAIL mediu EPERM/lstat; runtime-ul documentat 24.19.0 a trecut toate cele trei verificări |
+| php var/resume-08-http.php refresh; php var/shopify-proof.php | PASS | Login HTTP/cookie/CSRF real, endpoint /api/shopify/check; conexiune active v4→v5, TTL access ~3600s, cinci scope-uri de citire și tokenuri criptate |
+| php var/resume-08-http.php start; php bin/worker.php 150 <merchantId>; php var/resume-08-http.php baseline | PASS | Import complet, 47 jobs, 46 tasks, zero failed; toate cele 11 verificări ale probei trecute |
+| php var/resume-08-http.php start; php bin/worker.php 3 <merchantId>; php var/resume-08-http.php staging | PASS | Reimport oprit după trei jobs: 25 linii criptate în staging; proiecția publicată rămâne completă cu 30 linii și ID-uri/versiuni/hash/eveniment neschimbate |
+| php bin/worker.php 150 <merchantId>; php var/resume-08-http.php compare | PASS | 44 jobs suplimentare; 46 tasks finalizate, zero failed; 12 verificări trecute, două pagini comandă, staging gol |
+| gh run view 36486355856 --repo razvanstav/ordely --json status,conclusion,headSha,url,jobs | PASS | completed/success; headSha 7e87d9e3364977ad4d3886b97920ff3637e6b117; Windows PHP/native MySQL și Linux PHP/MySQL/HTTP success |
+| Inspecție UI a comenzii în această sesiune | NOT_RUN | Tabul local este la login. Detaliile s-au verificat prin endpoint HTTP autentic; probele UI anterioare și testele automate rămân distincte |
+| Aprobări și date de producție | NOT_RUN, în afara închiderii dev 08 | Nu se pretinde aprobare PCD de producție, distribuție sau politică de retenție validată |
+
+Import: run `ddd8da2b13fdf6b9a0881a2315d16bc9`, 05:44:59–05:45:22 UTC. Reimport: `25a18ae2afc5b1b761ebd11e09341227`, 05:47:01–05:47:41 UTC. Fixture existentă Shopify 8239905505617, comandă internă `ba49d8549742be78f6436a0f6b2dc3a5`, test=true/PENDING, total original/curent 3600 bani RON, taxă sintetică 570, încasat 0/restant 3600. 30 ID-uri externe și interne de linie distincte; două pagini 25+5. Email/adresă sintetice comparate exact cu fixture-ul, fără publicarea valorilor personale în raport.
+
+După reimport: un singur ORDER_IMPORTED, versiune comandă 1; comparație identică pentru toate ID-urile/versiunile/hash-urile celor 72 proiecții (1 comandă, 17 produse, 26 variante, 28 inventare) și cele 30 ID-uri de linie. Envelope-ul DB și staging-ul conțin chunks criptate, fără email/adresă în clar. Endpointul HTTP de detalii returnează documentul decriptat numai după autentificare; helper-ul se deloghează după fiecare probă. Staging complet gol după publicare. Nicio comandă nouă, scriere de stoc, notificare sau plată.
+
+Helper-ul local var/resume-08-http.php citește numai contul sintetic existent, validează merchant/store față de shopify_links și folosește API-urile produsului pentru refresh/start/detalii. Nu injectează sesiuni sau tokenuri Shopify în DB. Baseline/comparații conțin numai metadate și rezultate sanitizate; sunt ignorate de Git. Pe alt PC, folosește fluxul UI/worker din ghid sau reconstruiește proba HTTP, păstrând verificările descrise.
+
+Concluzie: criteriul persistării reale 08 este PASS; modulul este DONE. Codul/configurația versionate nu s-au schimbat în această sesiune. MySQL/preview PHP/Shopify/tunel rămân pornite; workerul a terminat și nu are supervisor. Următorul pas separat este 09.2, cu D01/D08.
+
+Verificare documentară de închidere: git diff --check PASS; verificare PowerShell a linkurilor Markdown relative PASS (8 fișiere, 24 linkuri), stări 08 DONE/09 PAUSED concordante în plan, STATUS și fișe. Fișierele de runtime/config nu sunt modificate.

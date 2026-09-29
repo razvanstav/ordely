@@ -1,6 +1,6 @@
 # Modul 09 — Facturare
 
-2026-09-28. **PAUSED** la finalul 09.1; următorul pas 09.2. Utilizatorul a cerut reluarea probelor Shopify, astfel că 08 este temporar unicul activ. Progresul și CI 09.1 rămân păstrate.
+2026-09-29. **PAUSED** la finalul 09.1; următorul pas 09.2. Proba 08 a fost închisă pe PC-ul inițial; progresul și CI 09.1 rămân păstrate. 09.2 se reactivează separat în plan, înaintea lucrului său.
 
 ## Pas 09.1 — ciorne locale
 
@@ -21,4 +21,4 @@
 
 ## Punct de reluare pe alt PC / în altă conversație
 
-> Verifică Git și STATUS înainte de reluare. 08 este unicul activ: fixture-ul există și citirea live este verificată, dar importul/reimportul persistat încă așteaptă App Bridge. Nu începe 09.2 până la închiderea sau reamânarea explicită a 08. Când 09 revine activ, citește fișa 09 și D01/D08/D15/D16, aplică migrațiile până la 007 și definește criteriile 09.2 pentru date complete de emitere și adaptor Oblio. Clarifică regulile fiscale înaintea emiterii. Nu începe 10; actualizează documentele, testele și Git la sfârșitul pasului.
+> Verifică Git și STATUS înainte de reluare. 01–08 DONE; 09 PAUSED după 09.1. Reactivează numai 09 în plan, citește fișa 09 și D01/D08/D16, verifică migrațiile până la 007 și definește criteriile 09.2 pentru date complete de emitere și adaptor Oblio. Clarifică regulile și contul/seriile înainte de emitere. Nu începe 10; actualizează documentele, testele și Git la sfârșitul pasului.

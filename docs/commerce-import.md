@@ -1,6 +1,6 @@
 # Import comenzi și catalog — modul 08
 
-Implementarea este în verificare. Catalogul real este confirmat pe Ordely Shop. Fixture-ul ORDELY-TEST-M08 există: 30 linii/36,00 RON, citire/paginare/normalizare/criptare verificate. Importul și reimportul său persistat așteaptă legarea App Bridge pe PC-ul curent; acordurile sunt primite. [Starea exactă și reluarea](testing/08-commerce-import.md). Nu folosi ANATOMIK live.
+Modulul 08 este închis. Catalogul și importul/reimportul persistat al fixture-ului ORDELY-TEST-M08 sunt confirmate pe Ordely Shop dev: 30 linii/36,00 RON, ID-uri și versiuni stabile, un singur ORDER_IMPORTED, criptare DB/staging și publicare atomică. [Probe și limite](testing/08-commerce-import.md). Nu folosi ANATOMIK live; nu recrea fixture-ul și nu readăuga write_orders.
 
 ## Operare
 
