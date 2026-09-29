@@ -66,3 +66,29 @@ Acoperire nouă: validarea email/cheie înainte de persistare, form-urlencoded a
 git diff --check și verificarea PowerShell a linkurilor relative din cele șapte documente de predare: PASS. Planul păstrează numai 09 IN_PROGRESS. Contul sintetic de dezvoltare, .env, keyring și eventualele credentiale locale nu sunt incluse în Git.
 
 Publicare finală: `11dddf49ebe76f2720df52914df34699ca12c927`, push PASS și git ls-remote confirmă hash identic. Scannerul local al staged diff a verificat absența secretelor configurate, parolei dev și credentialelor decryptate din conexiunile locale: PASS. [CI 36551856411](https://github.com/razvanstav/ordely/actions/runs/36551856411) PASS Windows PHP/MySQL și Linux PHP/MySQL/HTTP; gh run watch --exit-status folosit pentru urmărire. Actualizarea ulterioară schimbă numai documentele de predare.
+
+## Reorganizarea UI — 2026-09-29
+
+Cerere explicită a utilizatorului, D19, în același modul 09. Git curat înainte de lucru, `git fetch origin` și `git pull --ff-only` PASS (Already up to date). Criteriile au fost scrise în fișă înainte de cod. Schimbate numai HTML/CSS/JS și documentația aferentă; fără migrații, dependențe sau API-uri noi.
+
+Mediu: Windows, PHP 8.4.24 din var/tools/php-8.4.24 adăugat în PATH, MySQL 8.4.11, Node 24.19.0 din runtime-ul Codex, Chrome conectat la http://127.0.0.1:8080. Sesiune owner și magazin de dezvoltare existente. Nu s-au trimis cereri către Shopify/Oblio; s-au citit proiecțiile deja importate local.
+
+| Comandă / scenariu executat | Rezultat |
+| --- | --- |
+| `php var/tools/composer.phar check` | PASS: Composer validate, 222 lint, PHPStan 8, 112 unit/768 assertions și 108 integration/664 assertions, total 220 teste |
+| `php bin/http-smoke.php` | PASS: 6 verificări |
+| `node --check resources/app.js` și `node --check resources/invoicing.js` | PASS, inclusiv după ajustarea finală a focusului la închiderea configurării |
+| Chrome: toate cele șase pagini din meniu | PASS: o singură pagină principală vizibilă; titlu/URL/link activ corecte, Acasă 1 magazin/1 comandă/17 produse din datele locale |
+| Browser Back, reload pe Facturare, Enter pe Integrări | PASS: pagină păstrată la reload, întoarcere funcțională, focus pe titlul paginii la navigare |
+| Acasă → Configurează și Integrări → Shopify/Oblio | PASS: numai formularul ales vizibil; focus pe titlul configurării; Închide revine la butonul serviciului ales; credențialele nu au fost completate |
+| Facturare → Ciornă nouă → calcul sintetic | PASS: net 10.00 RON + taxă 2.00 RON = 12.00 RON; editor închis fără salvare sau emitere |
+| Activitate sistem: filtrul implicit și toată activitatea recentă | PASS: zero înregistrări de atenție; 100 înregistrări la schimbarea filtrului, toate detaliile tehnice închise; filtrul implicit restaurat |
+| Viewport temporar 390×844: toate paginile și formularul de ciornă/Oblio | PASS: scrollWidth egal cu clientWidth, o singură pagină vizibilă, formular pe o coloană, focus pe referință la ciornă nouă; override resetat la final |
+| DOM: ID-uri unice; consola Chrome | PASS: fără ID-uri duplicate, fără erori JS capturate |
+| Inspecție vizuală desktop/mobil | PASS: sidebar desktop, meniu compact mobil, formulare separate, opțiuni avansate închise; pagina finală Acasă |
+| UI pentru fiecare rol / schimbare între doi merchants | NOT_RUN în browser în această sesiune; condițiile au fost revizuite în cod, iar izolarea/drepturile backend rămân acoperite de suita existentă |
+| Salvare ciornă din noul UI, apel extern, conectare reală Oblio, emitere | NOT_RUN în această probă vizuală; calculul local și testele HTTP nu sunt dovezi pentru aceste operații |
+
+Composer a avertizat că nu poate crea directorul global de cache în sandbox și a continuat fără cache; verificările au ieșit cu cod 0. Capturile au fost inspectate în instrumentul de browser; nu există fișiere de captură versionate. Ultima ajustare de cod a fost întoarcerea focusului la butonul Shopify/Oblio corect, verificată în Chrome și prin sintaxa JS; CSS completează coloana pentru rolurile fără ghid de conectare. Nu s-au adăugat teste care doar reproduc markup-ul.
+
+Publicarea acestui pas și rularea CI se consemnează după execuție; CI vechi nu validează noul UI. 09 rămâne IN_PROGRESS, proba reală Oblio NOT_RUN.

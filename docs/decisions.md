@@ -157,3 +157,9 @@ D01/D08 — pregătire 09.2, 2026-09-29: după „ok”, 09 redevine unicul IN_P
 Nu salvăm încă profilul de emitere, nu presupunem sandbox și nu executăm operații asupra documentelor, stocului, emailului sau SPV. Listele sunt citite la cerere, compania este validată în cont înaintea seriilor/TVA, iar rolul și contextul conexiunii se revalidează după rețea. Tokenul temporar nu este persistat; emailul/cheia API rămân în infrastructura de criptare, după salvarea prin UI. Browserul furnizează valori mascate, astfel introducerea directă de către utilizator este necesară pentru proba reală; nu se cer chei în chat.
 
 D01 rămâne deschis; D08 este confirmat numai pentru existența contului și pregătirea locală. Firma/seria și condițiile probelor fiscale rămân de stabilit înainte de 09.3. Citirea nomenclatoarelor nu dovedește emitere/idempotency/storno validate.
+
+## D19 — Gruparea interfeței existente în modulul 09
+
+2026-09-29, cerere explicită de simplificare și design: utilizatorul nu se poate orienta în panoul care afișează toate funcțiile simultan. Reorganizăm interfețele deja implementate în același modul 09, înainte de proba Oblio. Meniul separă activitățile zilnice, configurarea și diagnosticul; Acasă arată numai numărători disponibile și pași bazați pe configurația locală. Formularele și detaliile tehnice se deschid la cerere. Conexiunile salvate sunt distincte de accesul verificat.
+
+Implementarea rămâne HTML/CSS/JavaScript nativ, cu navigare prin fragment URL, controale semantice, focus și aranjare adaptivă. API-urile, drepturile și contractele Core sunt păstrate; nu adăugăm funcții comerciale, onboarding complet sau agregări noi din modulul 20. Acesta rămâne PLANNED, iar 09 unicul IN_PROGRESS. Probele UI folosesc datele sintetice locale și nu emit documente sau sincronizări noi. [Rezultate](testing/09-invoicing.md).

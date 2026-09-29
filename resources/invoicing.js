@@ -65,7 +65,7 @@
       view.addEventListener('click', () => action(async () => { const current = epoch; const result = await api(`/api/invoice-drafts/${item.id}?storeId=${store}`); if (sameContext(current)) showEditor(result); }));
       card.append(title, total, version, view); el('draft-list').append(card);
     }
-    if (!el('draft-list').children.length) { const empty = document.createElement('p'); empty.textContent = 'Nicio ciornă pentru acest magazin și filtru.'; el('draft-list').append(empty); }
+    if (!el('draft-list').children.length) el('draft-list').append(emptyState(el('draft-status').value === 'ARCHIVED' ? 'Nicio ciornă arhivată.' : 'Prima ta ciornă începe aici.', canWrite ? 'Alege magazinul și apasă „Ciornă nouă” pentru a pregăti o factură.' : 'Ciornele create de echipa ta vor apărea aici.'));
     nextCursor = data.nextCursor; el('draft-next').hidden = !nextCursor;
   }
   document.addEventListener('ordely:context', event => {
@@ -82,7 +82,7 @@
   for (const id of ['draft-store', 'draft-status']) el(id).addEventListener('change', () => { ++epoch; nextCursor = null; resetEditor(); action(() => loadList()); });
   el('draft-refresh').addEventListener('click', () => action(() => loadList()));
   el('draft-next').addEventListener('click', () => action(() => loadList(true)));
-  el('draft-new').addEventListener('click', () => { if (!el('draft-store').value) { el('message').textContent = 'Adaugă mai întâi un magazin Ordely. Poate fi Manual / test.'; return; } resetEditor(); showEditor(null); });
+  el('draft-new').addEventListener('click', () => { if (!el('draft-store').value) { el('message').textContent = 'Adaugă mai întâi un magazin din secțiunea Magazine.'; return; } resetEditor(); showEditor(null); el('draft-editor').scrollIntoView({block:'start'}); el('draft-reference').focus({preventScroll:true}); });
   el('draft-close').addEventListener('click', resetEditor);
   el('draft-add-line').addEventListener('click', () => { if (el('draft-lines').children.length < 50) { addLine(); invalidate(); } });
   el('draft-form').addEventListener('input', invalidate);
