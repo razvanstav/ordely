@@ -16,7 +16,8 @@ final class ProviderRegistryTest extends TestCase
             self::assertInstanceOf(CommerceConnector::class,$registry->get('fake-commerce')->build($secret));
             self::assertInstanceOf(CarrierProvider::class,$registry->get('fake-carrier')->build($secret));
             self::assertInstanceOf(InvoiceProvider::class,$registry->get('fake-invoice')->build($secret));
-            foreach(['shopify','sameday','fan','oblio'] as $key){self::assertFalse($registry->get($key)->available());}
+            foreach(['shopify','sameday','fan'] as $key){self::assertFalse($registry->get($key)->available());}
+            self::assertTrue($registry->get('oblio')->available());self::assertInstanceOf(InvoiceProvider::class,$registry->get('oblio')->build(\Ordely\Tests\Support\OblioFixtures::credentials()));
             $_ENV['APP_ENV']='prod';$production=$this->registry();self::assertCount(4,$production->metadata());
             $this->expectException(\InvalidArgumentException::class);$production->get('fake-carrier');
         }finally{if($before===null){unset($_ENV['APP_ENV']);}else{$_ENV['APP_ENV']=$before;}}

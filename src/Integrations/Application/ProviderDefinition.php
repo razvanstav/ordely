@@ -7,13 +7,15 @@ use Ordely\Integrations\Domain\{ProviderKind,Secrets};
 final readonly class ProviderDefinition
 {
     /** @param (\Closure(Secrets):(CommerceConnector|CarrierProvider|InvoiceProvider))|null $factory
-     * @param list<string> $credentialFields */
-    public function __construct(public string $key,public string $label,public ProviderKind $kind,public array $credentialFields=[],private ?\Closure $factory=null) {}
+     * @param list<string> $credentialFields
+     * @param (\Closure(Secrets):void)|null $validator */
+    public function __construct(public string $key,public string $label,public ProviderKind $kind,public array $credentialFields=[],private ?\Closure $factory=null,private ?\Closure $validator=null) {}
     public function available(): bool { return $this->factory!==null; }
     public function validate(Secrets $credentials): void
     {
         $actual=array_keys($credentials->reveal());$expected=$this->credentialFields;sort($actual);sort($expected);
         if(!$this->available()||$actual!==$expected){throw new \InvalidArgumentException('Provider configuration unavailable.');}
+        if($this->validator!==null){($this->validator)($credentials);}
     }
     public function build(Secrets $credentials): CommerceConnector|CarrierProvider|InvoiceProvider
     {

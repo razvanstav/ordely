@@ -1,6 +1,6 @@
 # Starea curentă — Ordely
 
-2026-09-29. Registrul: [plan.md](plan.md). **01–08 DONE. 09 IN_PROGRESS, unicul activ: pregătirea 09.2.** 09.1 este păstrat; codul 09.2 nu a început. 10–21 neîncepute.
+2026-09-29. Registrul: [plan.md](plan.md). **01–08 DONE. 09 IN_PROGRESS, unicul activ: 09.2b, conexiune locală Oblio și citirea configurației implementate.** 09.1 este păstrat. Proba autentificată Oblio așteaptă introducerea credențialelor în formular; 10–21 neîncepute.
 
 ## Modulul 08 închis
 
@@ -12,9 +12,13 @@ La cererea „Cloneaza ce e pe github si hai sa continuam”, clona existentă d
 
 ## Următorul pas
 
-Răspunsul „ok” a reluat 09.2. [Plan concret și criterii](docs/oblio-integration.md): completarea datelor de facturare, conexiune/nomenclatoare, apoi adaptor; 09.3 gestionează efectele durabile. Documentația și exemplele oficiale Oblio sunt verificate, fără apeluri autentificate sau emitere. Întrebări în așteptare: politica D01 (zero/compensare/storno/original verificat) și mediul/contul D08. Nu presupune răspunsurile. Următoarea implementare este 09.2a după fixarea regulilor relevante; nu se cer chei în chat.
+Utilizatorul confirmă contul Oblio și autorizează pregătirea locală. 09.2b este prioritar față de 09.2a: formular email/cheie API, criptare și binding existente, port Core neutru, adaptor cu autentificare și trei citiri, endpoint cu CSRF/roluri/merchant/store și revalidare după rețea. UI separă conexiunea salvată de accesul verificat și arată firme/serii de factură/TVA la cerere. Niciun document nu poate fi emis de acest adaptor. [Operare și limite](docs/oblio-integration.md).
 
-09.1 este implementat și publicat: ciorne independente de CMS, calcul exact, creare/editare/arhivare, revizii criptate, tenant/store și audit; cod `f622aab`, [CI PASS](https://github.com/razvanstav/ordely/actions/runs/36480973254). 09.2 nu a început: date complete de emitere, deciziile D01/D08, conexiunea/adaptorul Oblio. Emitere/storno/PDF rămân neimplementate. La reluare, continuă numai 09, citește [fișa 09](docs/modules/09-invoicing.md), D01/D08/D16 și definește criteriile 09.2 înainte de cod. Clarifică regulile de facturare și contul/seriile înaintea probelor de emitere. Nu începe 10.
+**220 teste locale PASS**: 112 unit/768 assertions și 108 integration/664 assertions; 222 lint, PHPStan 8, JavaScript și 6 probe HTTP PASS. UI: login local și formular nou inspectate în Chrome. Browserul furnizează valori mascate la citirea câmpurilor de cont Oblio; încercarea de transfer a fost oprită de validarea emailului, fără conexiune creată. Câmpurile au fost golite, formularul „Oblio local” rămâne deschis pentru introducere directă. Proba reală firme/serii/TVA: **NOT_RUN**. Detalii în [raport](docs/testing/09-invoicing.md).
+
+Reluare exactă: după salvarea conexiunii în UI, asociaz-o magazinului local și verifică numai citirea firmelor/seriilor/TVA; consemnează rezultatele fără date reale. Apoi 09.2a: datele complete/profilul de emitere și politica D01. Contul există, dar firma/seria de teste și setările stoc/email/SPV nu sunt stabilite; D08 rămâne deschis pentru emitere. Nu se cer chei în chat.
+
+09.1 este implementat și publicat: ciorne independente de CMS, calcul exact, creare/editare/arhivare, revizii criptate, tenant/store și audit; cod `f622aab`, [CI PASS](https://github.com/razvanstav/ordely/actions/runs/36480973254). 09.2a/c și 09.3 rămân neimplementate: date complete de emitere, maparea facturii, emitere/storno/PDF. La reluare continuă numai 09; citește [fișa 09](docs/modules/09-invoicing.md), D01/D08/D16/D18. Nu începe 10.
 
 ## Mediu și Git
 

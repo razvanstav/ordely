@@ -39,3 +39,28 @@ Documentația oficială https://www.oblio.eu/api și exemplele oficiale https://
 Runtime nou, MySQL, UI 09.2, autentificare/read-only/emitere/storno/PDF Oblio: NOT_RUN, neimplementate în această etapă. Cele 207 teste PASS ale codului actual rămân probe anterioare, nu sunt declarate rerulate pentru documentație.
 
 Verificări documentare: git diff --check PASS; verificare PowerShell a celor 7 documente și a linkurilor relative PASS; tabelul planului confirmă un singur modul activ, 09. Nicio verificare runtime suplimentară necesară acestui pas documentar.
+
+## Implementare locală 09.2b — 2026-09-29
+
+Mediu: Windows, PHP 8.4.24, MySQL 8.4.11 app/test separate, migrații existente 001–007. Node 24.19.0 din runtime-ul local. Nicio migrație nouă. Toate fixture-urile de transport/DB sunt sintetice.
+
+| Comandă/scenariu efectiv | Rezultat |
+| --- | --- |
+| php var/tools/composer.phar check, prima rulare | FAIL într-o aserțiune nouă care presupunea ordinea rândurilor de audit fără ORDER BY; corectată să verifice exact o înregistrare a acțiunii, independent de ordine |
+| php var/tools/composer.phar check, rularea finală după corecție | PASS integral: validate strict, 222 lint, PHPStan 8, 112 unit/768 assertions și 108 integration/664 assertions |
+| php bin/lint.php (prin composer check) | PASS: 222 fișiere |
+| php vendor/phpstan/phpstan/phpstan analyse --no-progress --memory-limit=512M | PASS: PHPStan 8, rerulat după corecția testului |
+| php vendor/bin/phpunit --testsuite Unit (prin composer check) | PASS: 112 teste / 768 assertions |
+| php vendor/bin/phpunit --testsuite Integration, după corecție | PASS: 108 teste / 664 assertions |
+| node --check resources/app.js (Node 24.19.0) | PASS |
+| php bin/http-smoke.php | PASS: 6 probe pe serverul local |
+| Chrome, login Ordely și formular conexiune | PASS: email/parolă locale, încărcare interfață, provider Oblio și câmpuri email/cheie, inspectare vizuală |
+| Transfer automat al credentialelor din tabul Oblio | BLOCKED: accesul DOM furnizează valori mascate; validarea emailului a împiedicat trimiterea formularului. Câmpuri golite; salvare directă cerută utilizatorului |
+| Autentificare și citire firme/serii/TVA din contul real | NOT_RUN până la salvarea credentialelor în UI |
+| Salvarea profilului fiscal, emitere/storno/PDF/email/stoc/SPV | NOT_RUN, în afara pasului și neimplementate |
+
+Acoperire nouă: validarea email/cheie înainte de persistare, form-urlencoded auth, bearer separat, companie verificată înainte de nomenclatoare, filtrare serii de factură, conservarea lexicală a TVA inclusiv 7.1250, JSON/token/date invalide, 401/403/429/5xx/redirect, lipsa credentialelor din răspuns/audit/DB în clar, toate metodele documentelor Unsupported fără rețea. Integrare pe MySQL: API/sesiune/CSRF/origin/versiune/roluri/store/tenant, revocare conexiune/rotație/disable membership între începutul și sfârșitul apelului, audit numai după revalidare, erori generice și Retry-After. Schimbările în timpul transportului sunt injectate controlat în aceste teste; nu sunt prezentate ca probe concurente noi cu două procese.
+
+În prima rulare țintită, fixture-ul folosea status membership inexistent (`revoked`); corectat la `disabled` conform schemei. Primele două erori PHPStan erau adnotări @return pe aceeași linie cu @param; separate, fără suppressions. Nu există defecte de test restante. CI pentru codul nou se consemnează după publicare; probele CI vechi nu validează acest adaptor.
+
+git diff --check și verificarea PowerShell a linkurilor relative din cele șapte documente de predare: PASS. Planul păstrează numai 09 IN_PROGRESS. Contul sintetic de dezvoltare, .env, keyring și eventualele credentiale locale nu sunt incluse în Git.

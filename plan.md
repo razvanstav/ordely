@@ -2,7 +2,9 @@
 
 Actualizat: 2026-09-29. Registrul oficial al stărilor modulelor.
 
-**01–08 DONE. 09 IN_PROGRESS, unicul activ: pregătirea 09.2 după răspunsul „ok”. 09.1 rămâne închis; codul 09.2 nu este încă început.**
+**01–08 DONE. 09 IN_PROGRESS, unicul activ: 09.2b implementat local — conexiune criptată și citire Oblio, cu proba de cont încă NOT_RUN. 09.1 rămâne închis.**
+
+Pas 09.2b, 2026-09-29: utilizatorul confirmă contul și autorizează integrarea locală; 220 teste, 222 lint, PHPStan 8, JS și HTTP PASS. Formular verificat în Chrome; credențialele sunt mascate pentru citirea automată, astfel introducerea lor direct în UI este următorul pas. Nu există încă o conexiune reală salvată/probă autentificată sau profil de emitere. 09.2a/c și 09.3 rămân de implementat, D01 și mediul de emitere D08 deschise. [Fișa 09](docs/modules/09-invoicing.md), [raport](docs/testing/09-invoicing.md).
 
 Închidere 08, 2026-09-29: Git sincronizat la `bea3206`; conexiunea App Bridge existentă reînnoită real (v4→v5), cinci scope-uri de citire. Import/reimport HTTP + worker PASS: fixture existentă 8239905505617, 30 linii/36,00 RON, paginare 25+5, criptare DB/staging, publicare atomică, ID-uri/versiuni/hash-uri stabile și un singur ORDER_IMPORTED. Catalog 17/26/28 stabil. 207 teste, 213 lint, PHPStan 8, JS și 6 probe HTTP PASS. MySQL/preview rămân pornite. [Predare](STATUS.md), [raport](docs/testing/08-commerce-import.md).
 

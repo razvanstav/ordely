@@ -1,6 +1,6 @@
 # Pregătirea integrării Oblio — 09.2
 
-2026-09-29. Document de implementare înainte de cod; modulul 09 este unicul IN_PROGRESS. 09.1 rămâne funcțional. Nu există încă adaptor Oblio sau probă de cont real.
+2026-09-29. Modulul 09 este unicul IN_PROGRESS. 09.1 rămâne funcțional. 09.2b are adaptor de citire și configurare locală; datele complete și operațiile fiscale 09.2a/c–09.3 rămân de implementat. Proba autentificată de cont este încă NOT_RUN.
 
 ## Ce trebuie completat în model
 
@@ -46,4 +46,17 @@ Pagina publică nu explică durata/domeniul cheii idempotente sau reconcilierea 
 
 **D01, propunere neacceptată încă:** numai pentru schimb/retrimitere, selecție cu total zero → fără factură nouă/COD 0; fără compensarea automată a prețului returului cu înlocuitorul; storno numai prin acțiune explicită, pe original verificat. Facturile externe se referă numai după verificarea lor; o referință neverificabilă blochează storno. Regula nu spune că o comandă obișnuită plătită, cu COD 0, nu primește factură. Regula de produs nu închide validarea fiscală din D01.
 
-**D08, informație lipsă:** cont cu firmă/serie pentru teste sau doar cont de producție; separat trebuie confirmate setările efective de stoc, email și SPV. Cheile se introduc local prin configurația securizată care va fi livrată, nu în chat/Git. Până la răspuns continuă doar analiza/modelarea care nu presupune aceste alegeri; nu există apeluri Oblio autentificate în această etapă.
+**D08:** utilizatorul confirmă contul și pregătirea locală. Nu știm încă dacă firma/seria este pentru teste sau producție; separat trebuie confirmate setările efective de stoc, email și SPV înainte de emitere. Cheile se introduc în formularul local implementat, nu în chat/Git. Citirea automată a câmpurilor contului din Chrome returnează valori mascate; introducerea directă în UI este pasul restant.
+
+## Operarea locală disponibilă — 09.2b
+
+1. În Ordely, Conexiuni și integrări → Adaugă o conexiune → Oblio. Introdu denumirea, emailul contului și cheia API din Date cont Oblio. Nu este necesară regenerarea cheii.
+2. Salvează; acest pas criptează datele în provider_connections și validează forma lor, fără să confirme autentificarea. Lista nu întoarce credentialele salvate. Înlocuirea și recriptarea folosesc versiunea conexiunii.
+3. Asociază conexiunea magazinului local. Numai owner/admin cu acces la toate magazinele pot gestiona credentialele comune ale merchant-ului.
+4. Citește firmele, alege explicit firma de verificat și citește seriile/TVA. Rezultatul este o observație la cerere; nu persistă încă un profil fiscal și nu completează automat ciornele.
+
+POST /api/invoice-configuration primește storeId, connectionId, version și opțional companyId. Verifică sesiunea/CSRF/origin, rolul curent și legătura merchant/store/conexiune, înainte și după rețea. Compania trebuie să existe în lista contului înainte de solicitarea seriilor sale. Auditul păstrează numai versiunea și numărul de rezultate. Datele contului nu sunt scrise în audit sau loguri; răspunsul HTTP are no-store, iar UI șterge rezultatele la schimbarea contextului.
+
+Transportul fixează HTTPS www.oblio.eu, fără redirects, cu TLS verificat, timeout 5 s conectare/20 s cerere și răspuns maxim 1 MiB. Numai autentificarea și cele trei citiri sunt admise. O citire cere un token nou, păstrat în memoria cererii; nu există polling sau retry automat. 401/403 devin o eroare de autentificare a providerului, 429/5xx/timeout/JSON invalid devin eroare temporară sigură; Retry-After numeric este propagat când există. Numerele JSON sunt conservate textual pentru TVA, maximum patru zecimale, fără alegerea unei cote legale pentru utilizator.
+
+InvoiceProvider declară numai invoice_configuration; creare/anulare/storno/PDF/trimitere și citirea documentelor răspund Unsupported fără transport. Nu sunt implementate opțiunile stoc/email/SPV sau reconcilierea documentelor. Ciornele 09.1 nu se schimbă. [Probe și limite](testing/09-invoicing.md).
