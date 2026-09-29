@@ -6,6 +6,8 @@ Actualizat: 2026-09-29. Registrul oficial al stărilor modulelor.
 
 Pas UI cerut de utilizator, 2026-09-29, finalizat local: suprafețele existente grupate în șase pagini, Acasă cu date reale și pași de configurare, formulare la cerere și diagnostic separat. Desktop/mobil, navigare, calcul ciornă, 220 teste, lint/PHPStan/JS/HTTP PASS; [raport](docs/testing/09-invoicing.md). D19 consemnează extinderea în 09; 20 rămâne PLANNED. Reluare: feedback pe Acasă, apoi conexiunea din Integrări → Oblio. Nu s-au apelat furnizorii în această probă UI.
 
+UI `b1709f0` publicat, HEAD/remote identice și [CI Windows/Linux 36575021341 PASS](https://github.com/razvanstav/ordely/actions/runs/36575021341). Predarea ulterioară este numai documentară.
+
 Pas 09.2b, 2026-09-29: utilizatorul confirmă contul și autorizează integrarea locală; 220 teste, 222 lint, PHPStan 8, JS și HTTP PASS. Formular verificat în Chrome; credențialele sunt mascate pentru citirea automată, astfel introducerea lor direct în UI este următorul pas. Nu există încă o conexiune reală salvată/probă autentificată sau profil de emitere. 09.2a/c și 09.3 rămân de implementat, D01 și mediul de emitere D08 deschise. [Fișa 09](docs/modules/09-invoicing.md), [raport](docs/testing/09-invoicing.md).
 
 Codul 09.2b `11dddf4` este publicat, hash remote verificat și [CI Windows/Linux 36551856411 PASS](https://github.com/razvanstav/ordely/actions/runs/36551856411). 09 rămâne IN_PROGRESS.

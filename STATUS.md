@@ -22,7 +22,7 @@ Utilizatorul confirmă contul Oblio și autorizează pregătirea locală. 09.2b 
 
 **220 teste locale PASS**: 112 unit/768 assertions și 108 integration/664 assertions; 222 lint, PHPStan 8, JavaScript și 6 probe HTTP PASS. Browserul furnizează valori mascate la citirea câmpurilor de cont Oblio; încercarea anterioară de transfer a fost oprită de validarea emailului, fără conexiune creată. Câmpurile sunt goale; după reorganizare formularul se deschide din Acasă → Configurează sau Integrări → Oblio. Proba reală firme/serii/TVA: **NOT_RUN**. Detalii în [raport](docs/testing/09-invoicing.md).
 
-Adaptorul `11dddf4` este publicat, cu [CI Windows/Linux 36551856411 PASS](https://github.com/razvanstav/ordely/actions/runs/36551856411). Reorganizarea UI este o schimbare nouă; publicarea și CI proprii se consemnează separat după execuție.
+Adaptorul `11dddf4` este publicat, cu [CI Windows/Linux 36551856411 PASS](https://github.com/razvanstav/ordely/actions/runs/36551856411). Reorganizarea UI `b1709f0` este publicată, hash local/remote identic verificat și [CI Windows/Linux 36575021341 PASS](https://github.com/razvanstav/ordely/actions/runs/36575021341). Predarea ulterioară consemnează numai verificările, fără alt cod runtime.
 
 Reluare exactă: pornește din Acasă pentru feedbackul utilizatorului asupra grupării. Pentru continuarea 09.2b, deschide Integrări → Oblio; după salvarea directă a conexiunii, asociaz-o magazinului local și verifică numai citirea firmelor/seriilor/TVA, fără date reale în raport. Apoi 09.2a: datele complete/profilul de emitere și politica D01. Firma/seria de teste și setările stoc/email/SPV nu sunt stabilite; D08 rămâne deschis pentru emitere. Nu se cer chei în chat.
 

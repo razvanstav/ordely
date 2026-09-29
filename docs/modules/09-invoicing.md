@@ -27,6 +27,8 @@
 
 Pagina finală deschisă: Acasă. Formularul Oblio nu mai rămâne permanent pe ecran; se deschide din ghid sau Integrări → Oblio. Acest pas UI este finalizat; proba reală Oblio și restul modulului rămân restante.
 
+Cod UI `b1709f0` publicat; hash local/remote identic, scanare staged fără secrete, linkuri relative și diff check PASS. [CI Windows/Linux 36575021341 PASS](https://github.com/razvanstav/ordely/actions/runs/36575021341). Actualizarea ulterioară este numai documentară.
+
 ### Implementarea conexiunii 09.2b
 
 Utilizatorul confirmă un cont Oblio și autorizează pregătirea integrării locale. Începem cu 09.2b, independent de regulile D01 încă neconfirmate. Nu presupunem că firma deschisă în browser este sandbox. Acest pas nu include emitere, storno, email, stoc sau SPV și nu salvează încă profilul de emitere.
