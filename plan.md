@@ -6,6 +6,8 @@ Actualizat: 2026-09-29. Registrul oficial al stărilor modulelor.
 
 Pas 09.2b, 2026-09-29: utilizatorul confirmă contul și autorizează integrarea locală; 220 teste, 222 lint, PHPStan 8, JS și HTTP PASS. Formular verificat în Chrome; credențialele sunt mascate pentru citirea automată, astfel introducerea lor direct în UI este următorul pas. Nu există încă o conexiune reală salvată/probă autentificată sau profil de emitere. 09.2a/c și 09.3 rămân de implementat, D01 și mediul de emitere D08 deschise. [Fișa 09](docs/modules/09-invoicing.md), [raport](docs/testing/09-invoicing.md).
 
+Codul 09.2b `11dddf4` este publicat, hash remote verificat și [CI Windows/Linux 36551856411 PASS](https://github.com/razvanstav/ordely/actions/runs/36551856411). 09 rămâne IN_PROGRESS.
+
 Închidere 08, 2026-09-29: Git sincronizat la `bea3206`; conexiunea App Bridge existentă reînnoită real (v4→v5), cinci scope-uri de citire. Import/reimport HTTP + worker PASS: fixture existentă 8239905505617, 30 linii/36,00 RON, paginare 25+5, criptare DB/staging, publicare atomică, ID-uri/versiuni/hash-uri stabile și un singur ORDER_IMPORTED. Catalog 17/26/28 stabil. 207 teste, 213 lint, PHPStan 8, JS și 6 probe HTTP PASS. MySQL/preview rămân pornite. [Predare](STATUS.md), [raport](docs/testing/08-commerce-import.md).
 
 Corecția 08 `7e87d9e` este publicată; [CI Windows/Linux 36486355856 PASS](https://github.com/razvanstav/ordely/actions/runs/36486355856), reverificat la închidere. Proba persistată restantă este acum PASS. Această predare modifică numai documentația versionată.

@@ -23,6 +23,8 @@ Implementat: port InvoiceConfigurationReader și rezultat neutru, adaptor Oblio 
 
 Probe locale PASS: 220 teste (112 unit/768 assertions, 108 integration/664 assertions), 222 lint, PHPStan 8, JS și 6 HTTP. UI login/formular inspectate în Chrome. Proba reală rămâne NOT_RUN: citirea automatizată a câmpurilor Oblio furnizează valori mascate, iar validarea browserului a împiedicat salvarea. Formular golit și lăsat deschis; utilizatorul este invitat să introducă direct datele și să salveze. 09.2b nu este declarat verificat live sau închis.
 
+Cod `11dddf4` publicat, hash remote identic; [CI Windows/Linux 36551856411 PASS](https://github.com/razvanstav/ordely/actions/runs/36551856411).
+
 ## Pașii următori ai modulului, încă neimplementați
 
 Pregătirea 09.2 este documentată în [planul integrării Oblio](../oblio-integration.md): lipsurile modelului actual, etape 09.2a–c și criterii înainte de cod. Contul și pregătirea locală sunt confirmate; regulile D01 și firma/seria/mediul de emitere D08 încă lipsesc. „ok” nu este interpretat ca acceptare a regulilor detaliate care nu fuseseră prezentate încă.
