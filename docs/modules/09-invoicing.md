@@ -1,6 +1,6 @@
 # Modul 09 — Facturare
 
-2026-09-29. **PAUSED** la finalul 09.1; următorul pas 09.2. Proba 08 a fost închisă pe PC-ul inițial; progresul și CI 09.1 rămân păstrate. 09.2 se reactivează separat în plan, înaintea lucrului său.
+2026-09-29. **IN_PROGRESS**, unicul modul activ. Răspunsul „ok” după închiderea 08 autorizează continuarea pregătirii 09.2. 09.1 și CI rămân păstrate; implementarea 09.2 nu a început încă.
 
 ## Pas 09.1 — ciorne locale
 
@@ -15,10 +15,12 @@
 
 ## Pașii următori ai modulului, încă neimplementați
 
+Pregătirea 09.2 este documentată în [planul integrării Oblio](../oblio-integration.md): lipsurile modelului actual, etape 09.2a–c și criterii de acceptare înainte de cod. API-ul și exemplele oficiale sunt verificate documentar. Au fost cerute regulile D01 și disponibilitatea unui mediu/cont D08; răspunsurile sunt în așteptare. „ok” nu este interpretat ca acceptare a regulilor detaliate care nu fuseseră prezentate încă.
+
 09.2: validarea datelor complete pentru emitere și a regulilor D01, conexiune/adaptor Oblio și schema sa. 09.3: emitere/storno/reconciliere/PDF prin operații durabile, contract tests și proba controlată a contului. Contul și seriile D08 se stabilesc înainte de probe externe.
 
 09 nu este DONE după 09.1. Ciorna locală nu este document fiscal, nu declanșează rambursare/storno și nu dovedește integrarea Oblio. Nu începem 10.
 
 ## Punct de reluare pe alt PC / în altă conversație
 
-> Verifică Git și STATUS înainte de reluare. 01–08 DONE; 09 PAUSED după 09.1. Reactivează numai 09 în plan, citește fișa 09 și D01/D08/D16, verifică migrațiile până la 007 și definește criteriile 09.2 pentru date complete de emitere și adaptor Oblio. Clarifică regulile și contul/seriile înainte de emitere. Nu începe 10; actualizează documentele, testele și Git la sfârșitul pasului.
+> Verifică Git și STATUS. 01–08 DONE; 09 este unicul IN_PROGRESS, în pregătirea 09.2. Citește docs/oblio-integration.md, D01/D08/D16 și răspunsurile utilizatorului la cele două întrebări. Fixează politica de produs și mediul de probă, apoi implementează 09.2a cu criteriile documentate, păstrând ciornele vechi. Nu presupune cote TVA/sandbox/storno validate și nu emite documente din simpla confirmare a continuării. Nu începe 10; actualizează testele, documentele și Git.

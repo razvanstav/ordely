@@ -1,6 +1,6 @@
 # Registru de decizii
 
-Actualizat: 2026-09-28. `CERINȚĂ` provine din brief/utilizator; `PROPUS` nu înseamnă aprobat. Pentru acceptare se notează data și decizia utilizatorului, fără a presupune aprobarea din lipsa unui răspuns.
+Actualizat: 2026-09-29. `CERINȚĂ` provine din brief/utilizator; `PROPUS` nu înseamnă aprobat. Pentru acceptare se notează data și decizia utilizatorului, fără a presupune aprobarea din lipsa unui răspuns.
 
 ## Stabilite prin cerințe
 
@@ -147,3 +147,5 @@ D17 — continuare autonomă, 2026-09-29: utilizatorul a autorizat automatizări
 Corecție de scope necesară modulului 08: read_customers se adaugă permanent în configurația de citire, deoarece query-ul existent order.customer.id a fost refuzat real fără el. ID-ul clientului este folosit și în corelarea privacy. Accesul la datele clienților în Ordely dev este deja autorizat. [Customer](https://shopify.dev/docs/api/admin-graphql/latest/objects/Customer) confirmă cerința. write_orders a fost retras după creare; cinci scope-uri exclusiv de citire verificate înainte și după app dev clean. Configurația publicată nu acordă scriere. Browserul indisponibil rămâne blocaj tehnic, nu acord restant. Detalii și limite în raportul 08.
 
 D17 — închidere pe PC-ul inițial, 2026-09-29: după fetch/pull la bea3206, conexiunea App Bridge autentică din 07 era păstrată local și refresh-ul ei a reușit (v4→v5, cinci scope-uri de citire). Nu este necesară o nouă legare dacă această conexiune validă există. Import/reimport HTTP + worker au trecut: 30 linii/36,00 RON, criptare DB/staging, paginare 25+5, publicare atomică, ID-uri/versiuni/hash stabile și un singur ORDER_IMPORTED. Fixture-ul nu s-a recreat. 08 DONE; 09.2 se reia separat. Git transferă codul și dovezile, nu conexiunea sau cheile fiecărui PC. [Dovezi finale](testing/08-commerce-import.md).
+
+D01/D08 — pregătire 09.2, 2026-09-29: după „ok”, 09 redevine unicul IN_PROGRESS. Propunerea de produs și întrebarea privind contul/mediul Oblio sunt formulate în docs/oblio-integration.md și trimise utilizatorului; răspunsurile încă lipsesc. D01 rămâne DESCHIS (produs și validarea responsabilului fiscal), D08 DESCHIS pentru Oblio. Continuarea nu acordă implicit emitere pe producție. Criteriile 09.2a–c sunt definite înainte de cod; nu se modifică aplicația până la fixarea alegerilor care afectează implementarea. Verificarea API-ului este documentară, distinctă de o integrare reală.

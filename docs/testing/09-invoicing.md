@@ -29,3 +29,13 @@ Prima probă de creare concurentă a eșuat: după așteptarea inserării celeil
 UI invalidează răspunsurile întârziate la schimbarea merchant/store/filtru; modificarea formularului invalidează calculul în curs. Câmpurile sunt dezactivate în timpul salvării. Aceste protecții au fost revizuite în cod; nu sunt prezentate drept test vizual trecut.
 
 Codul f622aab39b8ff4791bb4c6cf300471b860ceb4c6 este publicat și hash-ul remote a fost verificat identic. Predarea ulterioară CI schimbă numai documentația; dovada runtime se referă la acest cod. 09.1 este închis, 09 rămâne IN_PROGRESS pentru 09.2/09.3.
+
+## Pregătire 09.2 — 2026-09-29
+
+Schimbare numai de documentație, înaintea implementării. Git: git status --short --branch, branch și remote verificate; git fetch origin și git pull --ff-only PASS, Already up to date. Inspecție manuală: fișa/ghidul 09, D01/D08/D16, brief, arhitectură, Core InvoiceDraft/CustomerSnapshot/CommercialLine și DraftDocument.
+
+Documentația oficială https://www.oblio.eu/api și exemplele oficiale https://github.com/OblioSoftware/OblioApi citite cu web open/find: PASS documentar; nu reprezintă probă de cont. Planul, lipsurile datelor și criteriile sunt în ../oblio-integration.md. D01/D08: răspunsuri utilizator în așteptare.
+
+Runtime nou, MySQL, UI 09.2, autentificare/read-only/emitere/storno/PDF Oblio: NOT_RUN, neimplementate în această etapă. Cele 207 teste PASS ale codului actual rămân probe anterioare, nu sunt declarate rerulate pentru documentație.
+
+Verificări documentare: git diff --check PASS; verificare PowerShell a celor 7 documente și a linkurilor relative PASS; tabelul planului confirmă un singur modul activ, 09. Nicio verificare runtime suplimentară necesară acestui pas documentar.

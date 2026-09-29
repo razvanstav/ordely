@@ -1,6 +1,6 @@
 # Starea curentă — Ordely
 
-2026-09-29. Registrul: [plan.md](plan.md). **01–08 DONE. 09 PAUSED după 09.1; următorul pas este 09.2.** Nu există modul în implementare la această predare. 10–21 neîncepute.
+2026-09-29. Registrul: [plan.md](plan.md). **01–08 DONE. 09 IN_PROGRESS, unicul activ: pregătirea 09.2.** 09.1 este păstrat; codul 09.2 nu a început. 10–21 neîncepute.
 
 ## Modulul 08 închis
 
@@ -12,7 +12,9 @@ La cererea „Cloneaza ce e pe github si hai sa continuam”, clona existentă d
 
 ## Următorul pas
 
-09.1 este implementat și publicat: ciorne independente de CMS, calcul exact, creare/editare/arhivare, revizii criptate, tenant/store și audit; cod `f622aab`, [CI PASS](https://github.com/razvanstav/ordely/actions/runs/36480973254). 09.2 nu a început: date complete de emitere, deciziile D01/D08, conexiunea/adaptorul Oblio. Emitere/storno/PDF rămân neimplementate. La reluare, reactivează numai 09 în plan, citește [fișa 09](docs/modules/09-invoicing.md), D01/D08/D16 și definește criteriile 09.2 înainte de cod. Clarifică regulile de facturare și contul/seriile înaintea probelor de emitere. Nu începe 10.
+Răspunsul „ok” a reluat 09.2. [Plan concret și criterii](docs/oblio-integration.md): completarea datelor de facturare, conexiune/nomenclatoare, apoi adaptor; 09.3 gestionează efectele durabile. Documentația și exemplele oficiale Oblio sunt verificate, fără apeluri autentificate sau emitere. Întrebări în așteptare: politica D01 (zero/compensare/storno/original verificat) și mediul/contul D08. Nu presupune răspunsurile. Următoarea implementare este 09.2a după fixarea regulilor relevante; nu se cer chei în chat.
+
+09.1 este implementat și publicat: ciorne independente de CMS, calcul exact, creare/editare/arhivare, revizii criptate, tenant/store și audit; cod `f622aab`, [CI PASS](https://github.com/razvanstav/ordely/actions/runs/36480973254). 09.2 nu a început: date complete de emitere, deciziile D01/D08, conexiunea/adaptorul Oblio. Emitere/storno/PDF rămân neimplementate. La reluare, continuă numai 09, citește [fișa 09](docs/modules/09-invoicing.md), D01/D08/D16 și definește criteriile 09.2 înainte de cod. Clarifică regulile de facturare și contul/seriile înaintea probelor de emitere. Nu începe 10.
 
 ## Mediu și Git
 
