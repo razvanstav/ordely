@@ -1,5 +1,7 @@
 # Starea curentă — Ordely
 
+Publicare 09.2a.2.1: cod `6556a4f` trimis pe branch-ul proiectului, HEAD/origin identice și checkout curat verificate. [CI Windows/Linux 36701852570 PASS](https://github.com/razvanstav/ordely/actions/runs/36701852570), urmărit cu `gh run watch 36701852570 --exit-status --interval 10` până la exit 0. Regresie locală: 240 teste, 232 lint, PHPStan 8, două sintaxe JS și 6 probe HTTP PASS. Linkuri relative, diff/staged check și scanner staged pentru secrete/date fiscale PASS. Această predare ulterioară modifică numai documentația; nu pretinde o nouă probă de emitere.
+
 ## Pregătire facturare din CMS — 09.2a.2.1
 
 2026-09-30: subpas implementat, 09 rămâne unicul IN_PROGRESS. Din Comenzi → „Pregătește facturarea” se deschide în Facturare o vedere numai de citire: client/adresă de facturare, firmă/serie locală, sume exacte și toate liniile importate, cu lipsurile explicite. Nu se înlocuiește adresa de facturare cu livrarea, nu se deduce cota TVA sau tipul clientului. Prețurile cu/fără taxe, reducerile, cantitățile originale/curente și taxele rămân distincte. Conexiunea schimbată cere reverificare; API și repository validează merchant/store/rol/granturi. Nicio emitere ori scriere în CMS/stoc; ciornele existente nu se modifică.

@@ -1,5 +1,7 @@
 # Modul 09 — Facturare
 
+Publicare 09.2a.2.1: cod `6556a4f` trimis pe branch-ul proiectului, HEAD/origin identice și checkout curat verificate. [CI Windows/Linux 36701852570 PASS](https://github.com/razvanstav/ordely/actions/runs/36701852570), urmărit cu `gh run watch 36701852570 --exit-status --interval 10` până la exit 0. Regresie locală: 240 teste, 232 lint, PHPStan 8, două sintaxe JS și 6 probe HTTP PASS. Linkuri relative, diff/staged check și scanner staged pentru secrete/date fiscale PASS. Această predare ulterioară modifică numai documentația; nu pretinde o nouă probă de emitere.
+
 ## Pas 09.2a.2.1 — pregătirea datelor din CMS (implementat)
 
 Autorizat 2026-09-30: utilizatorul confirmă continuarea dezvoltării și preluarea datelor din CMS. Primul subpas al 09.2a.2 este o vedere numai de citire, pornită dintr-o comandă importată. Criterii înainte de cod: client/adresă exclusiv din billingAddress, fără fallback tacit la livrare; monedă, cantități, prețuri, reduceri și taxe păstrate exact, cu baza cu/fără taxe explicită; fără deducerea cotei TVA sau CUI din texte; profilul firmei/seriei verificat pentru același merchant/store; listă de lipsuri și blocaje, fără a declara factura gata de emitere. Context/rol/granturi la HTTP și repository, no-store și audit fără conținut personal. Vedere în Facturare, cu date șterse la schimbarea magazinului/comerciantului/logout și protecție împotriva răspunsurilor întârziate. Ciornele existente rămân neschimbate; nu emite, nu scrie în CMS/stoc și nu implementează refuzuri/AWB.

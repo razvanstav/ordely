@@ -1,5 +1,7 @@
 # Plan Ordely
 
+Publicare 09.2a.2.1: cod `6556a4f` trimis pe branch-ul proiectului, HEAD/origin identice și checkout curat verificate. [CI Windows/Linux 36701852570 PASS](https://github.com/razvanstav/ordely/actions/runs/36701852570), urmărit cu `gh run watch 36701852570 --exit-status --interval 10` până la exit 0. Regresie locală: 240 teste, 232 lint, PHPStan 8, două sintaxe JS și 6 probe HTTP PASS. Linkuri relative, diff/staged check și scanner staged pentru secrete/date fiscale PASS. Această predare ulterioară modifică numai documentația; nu pretinde o nouă probă de emitere.
+
 ## Pas curent — 09.2a.2.1 implementat
 
 2026-09-30: 09 unicul IN_PROGRESS. Pregătirea numai de citire a facturării dintr-o comandă CMS este disponibilă în Facturare: date de facturare, profil, sume/linii exacte și lista lipsurilor. Izolare/roluri/granturi, profil invalidat și audit fără date personale testate; 9 teste noi PASS, PHPStan 8 și Chrome desktop/mobil PASS. [Raport și regresie finală](docs/testing/09-invoicing.md). Nu există emitere, completări salvate sau scrieri de stoc. Urmează 09.2a.2.2, completările persistate și snapshot fiscal legat de versiunea comenzii/profilului. 09.2a.2 nu este încă închis; 10–21 rămân PLANNED.

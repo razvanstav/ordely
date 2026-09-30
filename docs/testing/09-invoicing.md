@@ -211,3 +211,5 @@ Testele acoperă: adrese lipsă și fără substituție, firmă fără CUI, tip/
 Selectorii inițiali pentru summary și filtrul Stare nu au corespuns API-ului browser; s-au folosit elementele documentate din snapshot/sursă și scenariile finale au trecut. Corecția de focus a fost reverificată după reload. Viewport-ul temporar a fost resetat. Vederea finală rămâne deschisă în Facturare; raportul nu include date reale ale profilului.
 
 Verificarea documentelor și publicarea/CI se consemnează după execuție; numai 09 rămâne activ.
+
+Publicare 09.2a.2.1: cod `6556a4f` trimis pe branch-ul proiectului, HEAD/origin identice și checkout curat verificate. [CI Windows/Linux 36701852570 PASS](https://github.com/razvanstav/ordely/actions/runs/36701852570), urmărit cu `gh run watch 36701852570 --exit-status --interval 10` până la exit 0. Regresie locală: 240 teste, 232 lint, PHPStan 8, două sintaxe JS și 6 probe HTTP PASS. Linkuri relative, diff/staged check și scanner staged pentru secrete/date fiscale PASS. Această predare ulterioară modifică numai documentația; nu pretinde o nouă probă de emitere.
