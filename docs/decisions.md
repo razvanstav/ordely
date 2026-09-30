@@ -1,5 +1,13 @@
 # Registru de decizii
 
+## D25 — Scheletul întregii aplicații înaintea aprofundării facturării
+
+2026-09-30: utilizatorul respinge ritmul de subpași mici/exemple și clarifică explicit „Scheletul întregii aplicații”. Prioritatea este structura comună: navigare, ecrane, legături între fluxuri, componente și contexte PHP pregătite. Aceasta este o extindere transversală autorizată a lotului curent, fără a declara implementate funcțiile viitoare și fără a marca 09 DONE. Logica modulelor 10–21 rămâne PLANNED și se conectează secvențial după schelet; lipsurile comenzii sintetice nu blochează construirea structurii.
+
+Registrul de ecrane este resources/workspace.js; backend-ul PHP existent servește acest asset, iar autorizarea rutelor UI păstrează rolurile/configurarea allStores. Ecranele neconectate arată starea reală, fără date fabricate, API-uri de scriere simulate sau pretinse documente/AWB/plăți. Acțiunile/câmpurile viitoare sunt dezactivate prin fieldset, inclusiv în timpul reactivării globale a butoanelor. Aceste restricții UI nu înlocuiesc autorizarea server-side a viitoarelor comenzi.
+
+Verificări proporționale: nu se adaugă teste care repetă fiecare ecran gol; o singură regresie existentă la sfârșitul lotului, sintaxe și probe de navigare/layout. Testele de bani, acces și efecte externe existente se păstrează. Folder-ele viitoare folosesc Domain/Application/Infrastructure/Presentation, porturile Core deja definite, fără servicii false care întorc succes. Stoc management/reintegrare rămâne amânat conform D04.
+
 ## D24 — Ciorna inițială din CMS, distinctă de documentul fiscal
 
 2026-09-30: utilizatorul confirmă că datele lipsă vin din Shopify și cere continuarea fără completarea manuală a comenzii de test. Persistăm mai întâi propunerea CMS incompletă, recitită pe server, separat de ciornele manuale 09.1. O propunere inițială revizuibilă per merchant/store/comandă; nu limitează viitoarele facturi/storno asociate comenzii. Completările fiscale și contractul de emitere rămân în 09.2a.2.2b.

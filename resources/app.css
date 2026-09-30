@@ -24,3 +24,28 @@ button,.button-link{display:inline-flex;align-items:center;justify-content:cente
 .preparation-totals dd {margin:0;font-weight:600;overflow-wrap:anywhere;}
 #invoice-preparation-content {overflow-wrap:anywhere;}
 #invoice-preparation-content li {margin-bottom:.6rem;}
+.sidebar {overflow-y:auto;}
+.sidebar>.brand {margin-bottom:24px;}
+.sidebar .nav-label:not(:first-child) {margin-top:20px;}
+.sidebar .nav-item {padding-block:8px;}
+.workspace-flow {display:flex;gap:12px;flex-wrap:wrap;list-style:none;counter-reset:step;padding:0;margin:24px 0;}
+.workspace-flow li {counter-increment:step;display:flex;align-items:center;gap:8px;background:#eaf1e3;border-radius:8px;padding:10px 14px;color:#285c3f;font-size:14px;}
+.workspace-flow li::before {content:counter(step);font-weight:700;}
+.workspace-columns {display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:20px;}
+.workspace-columns h2 {margin-top:0;font-size:20px;}
+.workspace-register {overflow-x:auto;padding:0;}
+.workspace-register table {border-collapse:collapse;width:100%;min-width:560px;text-align:left;}
+.workspace-register caption {text-align:left;padding:20px;font-size:20px;font-weight:650;}
+.workspace-register th,.workspace-register td {padding:18px 20px;border-top:1px solid var(--line);font-size:14px;}
+.workspace-register td {color:#737e76;}
+#workspace-pages fieldset {border:0;padding:0;margin:0;min-width:0;}
+#workspace-pages legend {margin-bottom:16px;color:#737e76;}
+#workspace-pages input:disabled {background:#f7f9f5;}
+#workspace-pages fieldset:disabled button {opacity:.55;cursor:not-allowed;}
+.workspace-map {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
+.workspace-module {display:flex;flex-wrap:wrap;gap:10px;padding:22px;border:1px solid var(--line);border-radius:12px;text-decoration:none;color:#213a30;}
+.workspace-module:hover {background:#f5f7f1;}
+.workspace-module small {flex-basis:100%;font-size:14px;line-height:1.6;color:#737e76;}
+.workspace-module .integration-badge {margin:0;}
+@media(max-width:950px){.workspace-map {grid-template-columns:repeat(2,minmax(0,1fr));}.workspace-columns {grid-template-columns:1fr;}}
+@media(max-width:700px){.workspace-map {grid-template-columns:1fr;}.workspace-flow {gap:8px;}.workspace-flow li {font-size:12px;padding:8px 10px;}.sidebar {overflow:visible;}.sidebar .nav-item {font-size:12px;}}

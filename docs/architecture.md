@@ -728,3 +728,11 @@ flowchart TD
 Diagramă de orchestrare: alegerea „Nimic” sare emiterea facturii; acțiunile independente factură/AWB nu forțează ambele ramuri. Nu există o tranzacție distribuită între MySQL, CMS, curier și facturare.
 
 Experiența urmărită: **Install → Connect Carrier → Connect Invoicing → Configure Returns Widget → Start Working**. Core-ul rămâne independent de platformă, iar fiecare efect extern rămâne verificabil și reluabil.
+
+## Schelet executabil al interfeței și contextelor — D25, 2026-09-30
+
+La cererea explicită a utilizatorului, resources/workspace.js devine registrul comun al ecranelor viitoare: rute, roluri de vizibilitate, etape, filtre, coloane, câmpuri și legături. Componentele generează același shell pentru Shipping/Returns/Exchanges/Refunds/Portal; resources/app.js gestionează autentificarea/contextul, rutarea și focusul. PHP servește noul asset prin Application, fără API-uri false de operații comerciale. Ecranele active deja existente continuă să folosească API-urile lor reale.
+
+src/Shipping, src/Returns, src/Exchanges, src/Refunds și src/Portal au fiecare Domain/Application/Infrastructure/Presentation pregătite, cu limite documentate în README. Nu există servicii goale care pretind succes. Contractele neutre Core pentru curieri/commerce/documente există; viitorii application handlers vor coordona repository-urile și Operations. Nu începem o copie a modelului backend în JavaScript. Registrele și câmpurile ecranelor sunt structura propusă de operare; stările și comenzile definitive se validează când este conectat modulul respectiv.
+
+Acțiunile/câmpurile neimplementate sunt dezactivate; paginile nu creează AWB-uri, cazuri, plăți, sesiuni publice, documente sau scrieri de stoc. Configurarea portalului merchant nu este portalul public. UI nu înlocuiește autorizarea server-side viitoare. Planul păstrează restanțele funcționale și un singur modul activ, fără a bloca structura transversală autorizată pe finalizarea fiecărei integrări.

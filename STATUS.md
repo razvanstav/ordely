@@ -1,5 +1,14 @@
 # Starea curentă — Ordely
 
+## Scheletul întregii aplicații — 09-S livrat
+
+2026-09-30: la cererea explicită a utilizatorului, prioritatea este structura întregii aplicații (D25), înaintea aprofundării facturării. Livrate 9 ecrane noi și navigare: expediții, tracking, retururi, refuzuri, schimburi, retrimiteri, rambursări, administrare portal și setări. Registru/componente comune, filtre, pași, câmpuri și legături între fluxuri; Acasă arată harta aplicației. Contextul magazinelor vine din sesiunea existentă; acțiunile viitoare rămân dezactivate, fără date fabricate sau salvări simulate. Folderele Shipping/Returns/Exchanges/Refunds/Portal sunt pregătite pe patru straturi; contractele Core sunt păstrate.
+
+Verificat: sintaxe workspace.js/app.js/invoicing.js, HTTP 6 probe și o singură regresie existentă PASS (246 teste, 238 lint, PHPStan 8). Niciun test nou pentru ecranele de structură. Chrome owner: toate cele 9 rute, reload, legătură Schimburi → Retururi și Back, desktop/mobil 390×844 fără overflow, câmpuri/acțiuni dezactivate și consola fără erori. Afișarea hărții Acasă a fost corectată după proba inițială; verificarea finală confirmă numai ecranul activ. Screenshot local ignorat. Probe provider și autorizarea vizuală a altor roluri NOT_RUN în acest lot.
+
+Reluare: structura transversală este gata; conectăm fluxurile reale în loturi coerente, fără o conversație/commit pentru fiecare detaliu de UI. Facturarea existentă rămâne disponibilă; restanțele 09.2a/c/09.3 se păstrează. 09 rămâne singurul IN_PROGRESS; 10–21 PLANNED pentru implementarea funcțiilor, cu structura pregătită. Nu se consideră modulele terminate din existența ecranelor. Stoc management rămâne separat/amânat. Publicarea se verifică la finalul lotului.
+
+
 Publicare 09.2a.2.2a: cod `4350a86` trimis pe `codex/modul-01-arhitectura`; push, fetch și HEAD/origin identice verificate, checkout curat. [CI Windows/Linux 36707834906 PASS](https://github.com/razvanstav/ordely/actions/runs/36707834906), `gh run watch 36707834906 --exit-status --interval 15` exit 0: PHP/MySQL pe ambele sisteme, migrare/restart Windows și HTTP Linux. Regresie locală 246 teste, 238 lint, PHPStan 8, două sintaxe JS și 6 HTTP PASS. Linkuri/diff/staged scanner pentru secrete/date fiscale PASS. Captura nativă finală `var/ui-order-draft-20260930.jpg` este locală și ignorată. Această predare ulterioară modifică numai documentația; emitere/storno/PDF rămân NOT_RUN.
 
 

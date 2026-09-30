@@ -41,6 +41,7 @@ final readonly class Application
         $routes->add('script', new Route('/app.js', methods: ['GET']));
         $routes->add('style', new Route('/app.css', methods: ['GET']));
         $routes->add('draft_script',new Route('/invoicing.js',methods:['GET']));
+        $routes->add('workspace_script',new Route('/workspace.js',methods:['GET']));
         $routes->add('invoice_configuration',new Route('/api/invoice-configuration',methods:['POST']));
         $routes->add('invoice_profile',new Route('/api/invoice-profile',methods:['GET','POST']));
         $routes->add('invoice_preparation',new Route('/api/invoice-preparation/{id}',requirements:['id'=>'[a-f0-9]{32}'],methods:['GET']));
@@ -92,6 +93,7 @@ final readonly class Application
                 'invoice_profile'=>(new \Ordely\Invoicing\Presentation\InvoiceProfileApi(new Sql(($this->connect)()),$this->invoiceRegistry))->handle($request),
                 'draft_list','draft_get','draft_create','draft_update','draft_archive','draft_preview'=>(new \Ordely\Invoicing\Presentation\DraftApi(new Sql(($this->connect)())))->handle($name,$request,isset($route['id'])?(string)$route['id']:null),
                 'draft_script'=>$this->asset('invoicing.js','text/javascript'),
+                'workspace_script'=>$this->asset('workspace.js','text/javascript'),
                 'commerce_start','commerce_list','commerce_order','commerce_privacy'=>(new \Ordely\Commerce\Presentation\CommerceApi(new Sql(($this->connect)())))->handle($name,$request,isset($route['id'])?(string)$route['id']:null),
                 'health' => new JsonResponse(['status' => 'ok']),
                 'ready' => $this->readiness(),

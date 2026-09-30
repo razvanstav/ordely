@@ -11,6 +11,7 @@ let operationItems = [];
 let selectedConnectionProvider = null;
 const $ = selector => document.querySelector(selector);
 const pages = {
+  ...OrdelyWorkspace.pages,
   overview: {name:'Acasă', title:'Totul la locul lui.', description:'Un loc pentru activitățile de zi cu zi și configurarea magazinului.', eyebrow:'SPAȚIUL TĂU DE LUCRU'},
   commerce: {name:'Comenzi și catalog', title:'Comenzile și produsele tale.', description:'Consultă datele importate și sincronizează magazinul când ai nevoie.', eyebrow:'ACTIVITATE ZILNICĂ'},
   invoicing: {name:'Facturare', title:'Facturare, pas cu pas.', description:'Pregătește ciornele și revino la ele atunci când ai nevoie.', eyebrow:'ACTIVITATE ZILNICĂ'},
@@ -20,6 +21,8 @@ const pages = {
 };
 function pageAllowed(name) {
   if (!currentUser || !Object.hasOwn(pages, name)) return false;
+  if (pages[name].roles && !pages[name].roles.includes(currentUser.role)) return false;
+  if (pages[name].allStores && !currentUser.allStores) return false;
   if (name === 'invoicing') return currentUser.role !== 'viewer';
   if (name === 'activity') return ['owner', 'admin'].includes(currentUser.role);
   if (name === 'integrations') return ['owner', 'admin'].includes(currentUser.role) && currentUser.allStores;
