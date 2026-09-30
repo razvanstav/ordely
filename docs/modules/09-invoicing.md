@@ -1,5 +1,8 @@
 # Modul 09 — Facturare
 
+Publicare schelet D25: cod `27f544a` sincronizat pe `codex/modul-01-arhitectura`; push/fetch PASS, HEAD/origin identice și checkout curat verificate. Verificările locale ale lotului au trecut; CI este declanșat automat la push și nu este declarat PASS fără rezultat. Nu s-au adăugat teste noi pentru ecranele de structură. Această predare modifică numai documentația.
+
+
 ## Direcție nouă — schelet transversal al aplicației (09-S)
 
 2026-09-30: utilizatorul cere explicit scheletul întregii aplicații, nu rafinarea unui exemplu de facturare. Extindere autorizată de structură/prezentare în modulul activ: meniul și ecranele tuturor fluxurilor, componente comune, puncte de integrare și folderele contextelor viitoare. Nu închidem 09 și nu implementăm în paralel logica modulelor 10–21; stările lor rămân PLANNED. Verificările sunt proporționale: nu adăugăm teste pentru fiecare ecran gol; păstrăm verificările existente de securitate/bani și rulăm o singură regresie la finalul lotului.
