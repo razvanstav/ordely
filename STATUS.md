@@ -8,7 +8,9 @@ Oblio are trei pași: verifică accesul, alege firma/citește datele, alege expl
 
 PASS: 231 teste (112 unit/768 assertions, 119 integration/750), 226 lint, PHPStan 8, două sintaxe JS și 6 HTTP. Două procese reale pentru CAS/retry, rollback al profilului și auditului, izolare/roluri, criptare și erori provider testate. Proba reală prin Chrome: singura firmă/serie din conexiunea existentă salvate local, rezumat păstrat după reload; desktop/mobil 390×844 fără overflow, Back/focus PASS, fără erori de aplicație în consolă. O configurație în inventarul cheilor, fără date reale în Git/predare. [Raport](docs/testing/09-invoicing.md).
 
-Reluare exactă: [Facturare](http://127.0.0.1:8080/#invoicing) este deschisă și arată profilul salvat; nu cere din nou cheia și nu recrea conexiunea. Continuă 09.2a.2: date complete ale emitentului/destinatarului, adresă structurată și linii/TVA explicit, apoi lista lipsurilor unei facturi. Profilul actual conține numai firmă/serie; nu este snapshot fiscal complet. D01/D08 pentru emitere și 09.2c/09.3 rămân restante; nu s-a emis nimic. Rezultatul Git/CI se consemnează după publicare.
+Reluare exactă: [Facturare](http://127.0.0.1:8080/#invoicing) este deschisă și arată profilul salvat; nu cere din nou cheia și nu recrea conexiunea. Continuă 09.2a.2: date complete ale emitentului/destinatarului, adresă structurată și linii/TVA explicit, apoi lista lipsurilor unei facturi. Profilul actual conține numai firmă/serie; nu este snapshot fiscal complet. D01/D08 pentru emitere și 09.2c/09.3 rămân restante; nu s-a emis nimic.
+
+Cod `45ac9ba`, corecție de test `1fcf8e4`, publicate pe branch-ul proiectului; hash local/origin identic și checkout curat verificate. [CI Windows/Linux 36687850355 PASS](https://github.com/razvanstav/ordely/actions/runs/36687850355), urmărit până la exit 0. Prima rulare Linux a refuzat triggerul privilegiat din test; proba de rollback a fost corectată fără schimbarea permisiunilor DB. Scanarea staged exclude și datele fiscale ale profilului, linkuri/diff check PASS. Predarea ulterioară consemnează numai rezultatul CI.
 
 ## Integrări organizate pe activitate
 

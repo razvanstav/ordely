@@ -24,6 +24,8 @@ Proba live salvează numai configurația Ordely după citiri în Oblio; transpor
 
 CI inițial `45ac9ba`, [36687100758](https://github.com/razvanstav/ordely/actions/runs/36687100758): Windows PASS; Linux FAIL exclusiv la crearea triggerului din testul de rollback (SUPER cerut cu binary logging activ), HTTP Linux NOT_RUN. Nu s-au schimbat permisiunile DB. Corecție: testul provoacă eșecul tranzacției după salvare și verifică rollback-ul profilului și auditului, fără trigger/DDL privilegiat. Testele concurente și inventarul rămân reale. PHPStan a semnalat o instrucțiune inaccesibilă în prima variantă a corecției; aceasta a fost eliminată. `php var/tools/composer.phar check` final PASS: 231 teste, 226 lint, PHPStan 8, 119 integration/750 assertions; testele noi concurență/rollback/inventar au 18 assertions. CI nou se consemnează după finalizare.
 
+CI final pentru corecția `1fcf8e4`: [36687850355](https://github.com/razvanstav/ordely/actions/runs/36687850355) **PASS Windows PHP/MySQL nativ și Linux PHP/MySQL/HTTP**, `gh run watch ... --exit-status --interval 30` exit 0. Nu s-a cerut SUPER și nu s-au schimbat permisiuni. `git push origin codex/modul-01-arhitectura` PASS, HEAD/origin identice și checkout curat verificate după publicarea codului/corecției. Scanare staged fără secrete, emailuri sau date fiscale reale; captura/helper-ele sunt ignorate. Linkuri relative și `git diff --check` PASS. Ultima predare modifică numai documentația; nu pretinde o nouă execuție runtime.
+
 2026-09-28. Windows, PHP 8.4.24, MySQL 8.4.11 nativ pe loopback:33060; DB de test separată. Date exclusiv sintetice. Migrația 007 aplicată în DB aplicației și în DB test. Nu s-a apelat Shopify/Oblio și nu s-a emis nicio factură.
 
 ## Probe și rezultate
