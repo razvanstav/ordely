@@ -1,6 +1,14 @@
 # Starea curentă — Ordely
 
-2026-09-29. Registrul: [plan.md](plan.md). **01–08 DONE. 09 IN_PROGRESS, unicul activ. Interfața existentă este reorganizată la cererea utilizatorului; 09.2b Oblio rămâne implementat local, cu proba reală NOT_RUN.** 09.1 este păstrat; 10–21 neîncepute.
+2026-09-30. Registrul: [plan.md](plan.md). **01–08 DONE. 09 IN_PROGRESS, unicul activ. Interfața existentă este reorganizată la cererea utilizatorului; 09.2b Oblio rămâne implementat local, cu proba reală NOT_RUN.** 09.1 este păstrat; 10–21 neîncepute.
+
+## Acces local disponibil
+
+2026-09-30: la cererea explicită a utilizatorului, contul său local a fost creat ca owner în spațiul de dezvoltare existent. Parola este stocată numai ca hash; emailul și parola sunt omise din predare/Git. Login real în Chrome PASS, magazinul și conexiunea Shopify păstrate; formularul Integrări → Oblio este deschis, cu câmpurile de cont goale. Se completează emailul și cheia API Oblio direct acolo, apoi asociere magazin și citirea firmelor/seriilor/TVA. Parola Ordely nu este cheia API Oblio.
+
+Setarea administrativă a parolei alese este o excepție punctuală de dezvoltare (D20); validatorul standard de minimum 12 bytes nu este modificat. Înainte de deployment este necesară o parolă conformă. Nu s-a configurat hosting sau o publicare online nouă; Git privat nu este hosting și nu transferă DB, conturi sau secrete. [Probe](docs/testing/09-invoicing.md).
+
+Utilizatorul a ales explicit continuarea locală; nu are hosting de configurat acum. Următorul pas rămâne salvarea datelor API Oblio în formularul deschis.
 
 ## Interfață simplificată
 
@@ -24,7 +32,7 @@ Utilizatorul confirmă contul Oblio și autorizează pregătirea locală. 09.2b 
 
 Adaptorul `11dddf4` este publicat, cu [CI Windows/Linux 36551856411 PASS](https://github.com/razvanstav/ordely/actions/runs/36551856411). Reorganizarea UI `b1709f0` este publicată, hash local/remote identic verificat și [CI Windows/Linux 36575021341 PASS](https://github.com/razvanstav/ordely/actions/runs/36575021341). Predarea ulterioară consemnează numai verificările, fără alt cod runtime.
 
-Reluare exactă: pornește din Acasă pentru feedbackul utilizatorului asupra grupării. Pentru continuarea 09.2b, deschide Integrări → Oblio; după salvarea directă a conexiunii, asociaz-o magazinului local și verifică numai citirea firmelor/seriilor/TVA, fără date reale în raport. Apoi 09.2a: datele complete/profilul de emitere și politica D01. Firma/seria de teste și setările stoc/email/SPV nu sunt stabilite; D08 rămâne deschis pentru emitere. Nu se cer chei în chat.
+Reluare exactă: contul personal Ordely este autentificat pe acest PC, iar Integrări → Oblio este deschis. Verifică dacă utilizatorul a salvat conexiunea; după salvarea directă, asociaz-o magazinului local și verifică numai citirea firmelor/seriilor/TVA, fără date reale în raport. Apoi 09.2a: datele complete/profilul de emitere și politica D01. Firma/seria de teste și setările stoc/email/SPV nu sunt stabilite; D08 rămâne deschis pentru emitere. Nu se cer chei în chat.
 
 09.1 este implementat și publicat: ciorne independente de CMS, calcul exact, creare/editare/arhivare, revizii criptate, tenant/store și audit; cod `f622aab`, [CI PASS](https://github.com/razvanstav/ordely/actions/runs/36480973254). 09.2a/c și 09.3 rămân neimplementate: date complete de emitere, maparea facturii, emitere/storno/PDF. La reluare continuă numai 09; citește [fișa 09](docs/modules/09-invoicing.md), D01/D08/D16/D18. Nu începe 10.
 

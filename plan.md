@@ -1,8 +1,12 @@
 # Plan Ordely
 
-Actualizat: 2026-09-29. Registrul oficial al stărilor modulelor.
+Actualizat: 2026-09-30. Registrul oficial al stărilor modulelor.
 
 **01–08 DONE. 09 IN_PROGRESS, unicul activ: 09.2b implementat local — conexiune criptată și citire Oblio, cu proba de cont încă NOT_RUN. 09.1 rămâne închis.**
+
+Operare 2026-09-30: cont local personal creat la cerere în spațiul existent; hash și login real în Chrome PASS. Formularul Integrări → Oblio este pregătit pentru emailul/cheia API introduse direct; proba contului rămâne NOT_RUN. D20 consemnează excepția punctuală de parolă locală și separarea deployment-ului de Git. Nu există hosting nou; fără schimbări runtime sau module noi.
+
+Utilizatorul a confirmat continuarea locală, fără hosting în acest pas.
 
 Pas UI cerut de utilizator, 2026-09-29, finalizat local: suprafețele existente grupate în șase pagini, Acasă cu date reale și pași de configurare, formulare la cerere și diagnostic separat. Desktop/mobil, navigare, calcul ciornă, 220 teste, lint/PHPStan/JS/HTTP PASS; [raport](docs/testing/09-invoicing.md). D19 consemnează extinderea în 09; 20 rămâne PLANNED. Reluare: feedback pe Acasă, apoi conexiunea din Integrări → Oblio. Nu s-au apelat furnizorii în această probă UI.
 

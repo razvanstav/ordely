@@ -1,6 +1,6 @@
 # Registru de decizii
 
-Actualizat: 2026-09-29. `CERINȚĂ` provine din brief/utilizator; `PROPUS` nu înseamnă aprobat. Pentru acceptare se notează data și decizia utilizatorului, fără a presupune aprobarea din lipsa unui răspuns.
+Actualizat: 2026-09-30. `CERINȚĂ` provine din brief/utilizator; `PROPUS` nu înseamnă aprobat. Pentru acceptare se notează data și decizia utilizatorului, fără a presupune aprobarea din lipsa unui răspuns.
 
 ## Stabilite prin cerințe
 
@@ -163,3 +163,11 @@ D01 rămâne deschis; D08 este confirmat numai pentru existența contului și pr
 2026-09-29, cerere explicită de simplificare și design: utilizatorul nu se poate orienta în panoul care afișează toate funcțiile simultan. Reorganizăm interfețele deja implementate în același modul 09, înainte de proba Oblio. Meniul separă activitățile zilnice, configurarea și diagnosticul; Acasă arată numai numărători disponibile și pași bazați pe configurația locală. Formularele și detaliile tehnice se deschid la cerere. Conexiunile salvate sunt distincte de accesul verificat.
 
 Implementarea rămâne HTML/CSS/JavaScript nativ, cu navigare prin fragment URL, controale semantice, focus și aranjare adaptivă. API-urile, drepturile și contractele Core sunt păstrate; nu adăugăm funcții comerciale, onboarding complet sau agregări noi din modulul 20. Acesta rămâne PLANNED, iar 09 unicul IN_PROGRESS. Probele UI folosesc datele sintetice locale și nu emit documente sau sincronizări noi. [Rezultate](testing/09-invoicing.md).
+
+## D20 — Acces personal în mediul local de dezvoltare
+
+2026-09-30: utilizatorul a ales explicit emailul/parola pentru Ordely local, clarificând că nu sunt credentiale Oblio. Contul este creat administrativ în merchant-ul local existent, ca owner cu acces la magazinele sale; contul sintetic și integrările sunt păstrate. Parola aleasă sub limita provisionării standard este acceptată punctual pentru acest cont de dezvoltare, ca hash bcrypt. Validatorul general, expirarea sesiunilor, rate limiting și CSRF nu sunt schimbate. Nu se introduce un login fără parolă sau un endpoint de provisionare public.
+
+Înainte de orice deployment nou se înlocuiește această parolă cu una conformă politicii standard și se revizuiesc conturile de dezvoltare. O DB de dezvoltare locală nu garantează izolarea rețelei dacă există un tunel de preview; nu declarăm un deployment privat din faptul că GitHub este privat. Hosting-ul PHP/MySQL și accesul său se stabilesc separat; nicio publicare nouă nu a fost executată în acest pas. Datele de acces rămân în afara Git și a documentelor de predare.
+
+Clarificare finală: utilizatorul nu are hosting și a ales explicit continuarea locală. Nu pregătim un deployment nou în acest pas.

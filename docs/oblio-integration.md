@@ -50,7 +50,7 @@ Pagina publică nu explică durata/domeniul cheii idempotente sau reconcilierea 
 
 ## Operarea locală disponibilă — 09.2b
 
-1. În Ordely, Conexiuni și integrări → Adaugă o conexiune → Oblio. Introdu denumirea, emailul contului și cheia API din Date cont Oblio. Nu este necesară regenerarea cheii.
+1. Autentifică-te cu contul Ordely, apoi deschide Integrări → Oblio. Introdu denumirea, emailul contului Oblio și cheia API din Oblio → Setări → Date cont. Parola de login Ordely nu înlocuiește cheia API Oblio. Nu este necesară regenerarea cheii.
 2. Salvează; acest pas criptează datele în provider_connections și validează forma lor, fără să confirme autentificarea. Lista nu întoarce credentialele salvate. Înlocuirea și recriptarea folosesc versiunea conexiunii.
 3. Asociază conexiunea magazinului local. Numai owner/admin cu acces la toate magazinele pot gestiona credentialele comune ale merchant-ului.
 4. Citește firmele, alege explicit firma de verificat și citește seriile/TVA. Rezultatul este o observație la cerere; nu persistă încă un profil fiscal și nu completează automat ciornele.

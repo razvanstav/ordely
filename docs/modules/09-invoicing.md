@@ -1,6 +1,6 @@
 # Modul 09 — Facturare
 
-2026-09-29. **IN_PROGRESS**, unicul modul activ. 09.1 este păstrat; 09.2b implementat local după confirmarea contului Oblio. Citirea contului real așteaptă introducerea credențialelor în UI.
+2026-09-30. **IN_PROGRESS**, unicul modul activ. 09.1 este păstrat; 09.2b implementat local după confirmarea contului Oblio. Contul personal Ordely este creat și autentificat; citirea contului Oblio real așteaptă introducerea credențialelor în UI.
 
 ## Pas 09.1 — ciorne locale
 
@@ -14,6 +14,14 @@
 09.1 finalizat: 207 teste locale PASS, 213 lint, PHPStan 8, JS și HTTP. Codul f622aab este publicat cu hash remote verificat și [CI Windows/Linux PASS](https://github.com/razvanstav/ordely/actions/runs/36480973254). [Operare](../invoicing.md), [raport](../testing/09-invoicing.md). Inspecția vizuală manuală este NOT_RUN; nu se confundă cu probele HTTP.
 
 ## Pas curent — 09.2b, conexiune locală și citire
+
+### Acces local cerut de utilizator, 2026-09-30
+
+Utilizatorul cere acces rapid și confirmă explicit că datele oferite sunt pentru contul local Ordely. Dependență de operare în 09: pregătim contul personal în spațiul de dezvoltare existent, păstrând magazinul și conexiunile. Criterii înainte de execuție: numai DB locală de dezvoltare, parola persistată exclusiv ca hash, context merchant verificat, login prin fluxul HTTP normal și formularul Oblio accesibil; emailul/parola nu intră în Git sau predare. Parola aleasă este sub limita provisionării standard, astfel setarea administrativă punctuală este limitată la contul local cerut, fără schimbarea validatorului general. Publicarea online cere un mediu PHP/MySQL separat și o parolă conformă politicii; Git privat nu constituie hosting privat.
+
+Rezultat PASS: un cont owner cu acces la magazinul existent, hash verificat fără afișare, login real și deschiderea formularului Oblio în Chrome. Contul sintetic anterior și datele sale rămân păstrate. Nu s-a salvat nicio conexiune Oblio și nu s-a apelat providerul. Fără cod runtime nou; scriptul administrativ temporar fără valori de credentiale a fost eliminat după folosire. Următorul pas: datele API Oblio introduse direct în formularul deschis; alegerea hosting-ului și deployment-ul rămân separate. D20, [probe](../testing/09-invoicing.md).
+
+Utilizatorul a ales explicit continuarea locală, fără hosting acum.
 
 ### Pas UI cerut de utilizator, 2026-09-29
 
@@ -51,4 +59,4 @@ Pregătirea 09.2 este documentată în [planul integrării Oblio](../oblio-integ
 
 ## Punct de reluare pe alt PC / în altă conversație
 
-> Verifică Git și STATUS. 01–08 DONE; 09 este unicul IN_PROGRESS. UI este acum grupat în pagini (D19); pornește de la Acasă și feedbackul utilizatorului. 09.2b are 220 teste PASS, dar proba reală este NOT_RUN. Citește docs/oblio-integration.md și D01/D08/D16/D18. Pentru conectare, Integrări → Oblio; verifică dacă utilizatorul a salvat conexiunea, apoi asociază magazinul și citește firme/serii/TVA. Nu transfera valorile mascate din browser și nu cere chei în chat. Apoi fixează politica D01 și implementează 09.2a, păstrând ciornele vechi. Nu presupune sandbox/storno validate și nu emite documente din simpla confirmare a continuării. Nu începe 10 sau 20; actualizează testele, documentele și Git.
+> Verifică Git și STATUS. 01–08 DONE; 09 este unicul IN_PROGRESS. UI este grupat în pagini (D19), contul personal local este creat și login-ul verificat (D20); utilizatorul a ales continuarea locală. 09.2b are 220 teste PASS din sesiunea de implementare, dar proba reală este NOT_RUN. Citește docs/oblio-integration.md și D01/D08/D16/D18. Formularul Integrări → Oblio este deschis pe acest PC; verifică dacă utilizatorul a salvat conexiunea, apoi asociază magazinul și citește firme/serii/TVA. Nu transfera valorile mascate din browser și nu cere chei în chat. Apoi fixează politica D01 și implementează 09.2a, păstrând ciornele vechi. Nu presupune sandbox/storno validate și nu emite documente din simpla confirmare a continuării. Nu începe 10 sau 20; actualizează testele, documentele și Git.

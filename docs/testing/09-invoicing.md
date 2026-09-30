@@ -92,3 +92,19 @@ Mediu: Windows, PHP 8.4.24 din var/tools/php-8.4.24 adăugat în PATH, MySQL 8.4
 Composer a avertizat că nu poate crea directorul global de cache în sandbox și a continuat fără cache; verificările au ieșit cu cod 0. Capturile au fost inspectate în instrumentul de browser; nu există fișiere de captură versionate. Ultima ajustare de cod a fost întoarcerea focusului la butonul Shopify/Oblio corect, verificată în Chrome și prin sintaxa JS; CSS completează coloana pentru rolurile fără ghid de conectare. Nu s-au adăugat teste care doar reproduc markup-ul.
 
 Publicare UI: `b1709f040b58bb403b7de960d21f4833ab8c44a7`, push PASS și `git ls-remote` confirmă hash identic. `git diff --check`, verificarea linkurilor relative din șase documente și scannerul local staged pentru secretele configurate: PASS. [CI 36575021341](https://github.com/razvanstav/ordely/actions/runs/36575021341) PASS: Windows PHP/MySQL și Linux PHP/MySQL/HTTP, urmărit cu `gh run watch 36575021341 --exit-status --interval 15`. Predarea ulterioară este numai documentară, fără cod runtime suplimentar. 09 rămâne IN_PROGRESS, proba reală Oblio NOT_RUN.
+
+## Acces local — 2026-09-30
+
+Cerere explicită de creare a contului personal Ordely pentru a continua integrările, D20. Git curat la început, fetch/pull --ff-only PASS (Already up to date), același branch. Mediu Windows/PHP 8.4.24/MySQL local și Chrome. Schimbările versionate sunt numai documentare; singura mutație operațională este contul/membership-ul din DB locală, fără email/parolă în raport.
+
+| Comandă / scenariu executat | Rezultat |
+| --- | --- |
+| `php var/prepare-local-access.php inspect`, email furnizat prin environment temporar | PASS: cont inexistent, merchant de dezvoltare verificat și un magazin existent |
+| `php var/prepare-local-access.php`, date numai prin environment temporar | PASS: creare atomică user + membership owner în merchant-ul existent, hash bcrypt recitit și verificat; valorile environment eliminate după execuție |
+| Chrome: login cu contul cerut, prin formularul obișnuit | PASS: sesiune owner, spațiul/magazinul și conexiunea Shopify existente vizibile |
+| Integrări → Oblio | PASS: formular deschis cu eticheta locală și câmpurile contului goale; pagina marcată pentru continuare |
+| Citire autenticată Oblio / facturi / hosting nou | NOT_RUN: emailul/cheia API Oblio și o destinație de hosting nu au fost furnizate pentru acest pas |
+| Suita completă PHPUnit/PHPStan | NOT_RUN din nou: fără modificări runtime; rezultatele 220 teste/CI de mai sus aparțin sesiunii anterioare |
+| `git diff --check`, linkuri relative în cele șapte documente, absența helper-ului temporar | PASS |
+
+Helper-ul temporar a folosit numai `APP_ENV=dev`, DB pe loopback și merchant-ul din contextul local existent, cu refuz dacă emailul ar fi aparținut altui context. Nu a conținut valori de credentiale și a fost eliminat după verificare. Parola explicit aleasă pentru contul local este excepția administrativă D20; nu s-a relaxat validatorul general de provisionare. API-ul și autentificarea nu s-au schimbat.
