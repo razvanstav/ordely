@@ -173,3 +173,9 @@ Implementarea rămâne HTML/CSS/JavaScript nativ, cu navigare prin fragment URL,
 Înainte de orice deployment nou se înlocuiește această parolă cu una conformă politicii standard și se revizuiesc conturile de dezvoltare. O DB de dezvoltare locală nu garantează izolarea rețelei dacă există un tunel de preview; nu declarăm un deployment privat din faptul că GitHub este privat. Hosting-ul PHP/MySQL și accesul său se stabilesc separat; nicio publicare nouă nu a fost executată în acest pas. Datele de acces rămân în afara Git și a documentelor de predare.
 
 Clarificare finală: utilizatorul nu are hosting și a ales explicit continuarea locală. Nu pregătim un deployment nou în acest pas.
+
+## D21 — Catalog de integrări separat de configurarea serviciului
+
+2026-09-30, cerere explicită: utilizatorul găsește interfața greu de citit și cere separarea facturării de curieri, cu opțiuni clare la apăsarea pe Oblio. Catalogul grupează serviciile pe activitate; ecranul serviciului selectat arată numai conexiunile și opțiunile sale. Contul existent se deschide pentru gestionare, iar crearea unui cont suplimentar este o acțiune distinctă. Secțiunile, stările și listele de serii/TVA au text lizibil; configurările tehnice sunt închise implicit. Curierii planificați sunt prezentați ca indisponibili, fără implementarea modulelor 10/11. Extinderea de prezentare rămâne în modulul 09; 20 nu este început. Criterii și rezultate în fișa/raportul 09.
+
+D21 implementat și verificat: desktop/mobil, navigare, formulare separate, citire reală Oblio și regresie 220 teste PASS. Simulatoarele nu apar în catalog/formularul real, rămân disponibile numai prin infrastructura de dezvoltare existentă. Starea „cont salvat” nu pretinde acces live la fiecare reload; verificarea accesului este la cerere. Profilul și alegerea fiscală rămân în pasul următor.

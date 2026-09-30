@@ -1,6 +1,12 @@
 # Starea curentă — Ordely
 
-2026-09-30. Registrul: [plan.md](plan.md). **01–08 DONE. 09 IN_PROGRESS, unicul activ. 09.2b finalizat: conexiune Oblio locală și proba reală de citire PASS. Urmează 09.2a, datele complete și profilul de emitere.** 09.1 și interfața reorganizată sunt păstrate; 10–21 neîncepute.
+2026-09-30. Registrul: [plan.md](plan.md). **01–08 DONE. 09 IN_PROGRESS, unicul activ. 09.2b finalizat: conexiune Oblio locală și proba reală de citire PASS. Categoriile de integrări și ecranul lizibil Oblio cerute de utilizator sunt implementate și verificate (D21); urmează 09.2a.** 09.1 și interfața reorganizată sunt păstrate; 10–21 neîncepute.
+
+## Integrări organizate pe activitate
+
+Catalogul separă Facturare (Oblio), Curierat (Sameday/FAN în pregătire) și Magazine online (Shopify). Apăsarea pe Oblio deschide ecranul său la `#integrations/oblio`, cu magazinul asociat, pași de verificare a accesului/alegere a firmei și liste distincte pentru serii/TVA. Text mai mare, formulare spațiate și administrarea închisă implicit. Contul existent se gestionează direct; un cont suplimentar se adaugă numai la cerere. Simulatoarele nu mai apar în formularul Oblio. Modulele 10/11/20 rămân neîncepute.
+
+PASS: browser desktop și 390×844 fără overflow pentru catalog/date/formular de acces, Back/reload/Enter/focus, câmpuri sintetice șterse la închidere, separare Shopify/Oblio, citire reală 1 firmă/1 serie/10 cote, consola fără erori. 220 teste, 222 lint, PHPStan 8, două sintaxe JS și 6 HTTP PASS. Preview-ul PHP/MySQL a fost repornit după refuzul conexiunii locale; Chrome funcționează acum. [Probe și limite](docs/testing/09-invoicing.md). Ecranul [Oblio](http://127.0.0.1:8080/#integrations/oblio) rămâne deschis; nu s-au modificat credentiale sau emis documente.
 
 ## Oblio conectat și verificat
 
@@ -34,11 +40,11 @@ La cererea „Cloneaza ce e pe github si hai sa continuam”, clona existentă d
 
 09.2b a fost realizat înaintea 09.2a: formular email/cheie API, criptare și binding existente, port Core neutru, adaptor cu autentificare și trei citiri, endpoint cu CSRF/roluri/merchant/store și revalidare după rețea. UI separă conexiunea salvată de accesul verificat și arată firme/serii de factură/TVA la cerere. Urmează modelul complet și profilul de emitere; adaptorul actual nu poate emite documente. [Operare și limite](docs/oblio-integration.md).
 
-**220 teste locale PASS la implementare**: 112 unit/768 assertions și 108 integration/664 assertions; 222 lint, PHPStan 8, JavaScript și 6 probe HTTP PASS. Încercarea inițială cu valori mascate nu a creat o conexiune; după furnizarea datelor de către utilizator, proba reală firme/serii/TVA este **PASS, 2026-09-30**. Această etapă schimbă numai configurația locală și documentația, fără cod runtime sau rerularea întregii suite. Detalii în [raport](docs/testing/09-invoicing.md).
+**220 teste locale PASS la implementare**: 112 unit/768 assertions și 108 integration/664 assertions; 222 lint, PHPStan 8, JavaScript și 6 probe HTTP PASS. Încercarea inițială cu valori mascate nu a creat o conexiune; după furnizarea datelor de către utilizator, proba reală firme/serii/TVA este **PASS, 2026-09-30**. Proba inițială de conectare a schimbat numai configurația locală și documentația; modificarea UI ulterioară și regresia rerulată sunt consemnate în secțiunea de sus. Detalii în [raport](docs/testing/09-invoicing.md).
 
 Adaptorul `11dddf4` este publicat, cu [CI Windows/Linux 36551856411 PASS](https://github.com/razvanstav/ordely/actions/runs/36551856411). Reorganizarea UI `b1709f0` este publicată, hash local/remote identic verificat și [CI Windows/Linux 36575021341 PASS](https://github.com/razvanstav/ordely/actions/runs/36575021341). Predarea ulterioară consemnează numai verificările, fără alt cod runtime.
 
-Reluare exactă: verifică existența conexiunii Oblio active și asociate magazinului pe acest PC; nu crea o dublură și nu cere din nou cheia. Continuă 09.2a: datele complete/profilul de emitere și politica D01. Firma/seria de teste și setările stoc/email/SPV nu sunt stabilite; D08 este verificat pentru citirea contului, dar rămâne deschis pentru emitere. Pentru automatizarea Chrome este necesară actualizarea extensiei, dacă instrumentul încă o solicită. Pe alt PC nu presupune că DB/conexiunea au venit prin Git.
+Reluare exactă: verifică existența conexiunii Oblio active și asociate magazinului pe acest PC; nu crea o dublură și nu cere din nou cheia. Ecranul dedicat se deschide din Integrări → Facturare → Oblio și permite citiri la cerere. Continuă 09.2a: datele complete/profilul de emitere și politica D01. Firma/seria de teste și setările stoc/email/SPV nu sunt stabilite; D08 este verificat pentru citirea contului, dar rămâne deschis pentru emitere. Blocajul extensiei din proba precedentă nu s-a repetat în verificarea UI curentă. Pe alt PC nu presupune că DB/conexiunea au venit prin Git.
 
 09.1 este implementat și publicat: ciorne independente de CMS, calcul exact, creare/editare/arhivare, revizii criptate, tenant/store și audit; cod `f622aab`, [CI PASS](https://github.com/razvanstav/ordely/actions/runs/36480973254). 09.2a/c și 09.3 rămân neimplementate: date complete de emitere, maparea facturii, emitere/storno/PDF. La reluare continuă numai 09; citește [fișa 09](docs/modules/09-invoicing.md), D01/D08/D16/D18. Nu începe 10.
 

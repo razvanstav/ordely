@@ -129,3 +129,31 @@ Verificarea locală este exclusiv prin citire, limitată la `APP_ENV=dev`, DB pe
 09.2b finalizat. Aceasta este o probă de cont real, distinctă de transportul simulat. Nu au fost regenerate chei, schimbate setări Oblio sau emise documente. Firma/seria test vs. producție, selecția tratamentului TVA, profilul salvat și D01/D08 pentru emitere rămân restante; 09 rămâne unicul IN_PROGRESS. Valorile reale de cont/firmă/serie și payload-urile nu sunt copiate în Git sau raport.
 
 Predare documentară: `git diff --check` și `git diff --cached --check` PASS; verificarea PowerShell a linkurilor relative din cele șapte documente și a unicului modul activ 09 PASS. `& ./var/tools/php-8.4.24/php.exe var/check-publish-secrets.php` PASS: staged diff fără secretele configurate sau credentialele conexiunilor locale. `git check-ignore var/verify-oblio-local.php` confirmă că helper-ul rămâne local. Nu sunt rezultate CI noi pretinse pentru acest pas fără schimbări runtime.
+
+## Categorii de integrări și opțiuni Oblio — 2026-09-30
+
+Cerere explicită de lizibilitate și separare a facturării de curieri, D21. Criteriile scrise în fișa 09 înainte de cod. Git curat la început, fetch/pull --ff-only PASS, Already up to date. Schimbări HTML/CSS/JavaScript nativ și documentație; fără API-uri, migrații sau credentiale noi. Mediu: Windows, PHP 8.4.24/MySQL 8.4.11, Node 24.19.0 local și Chrome cu sesiunea owner existentă.
+
+| Comandă / scenariu executat | Rezultat |
+| --- | --- |
+| Prima reîncărcare a preview-ului | BLOCKED temporar: conexiunea localhost refuzată; procesele PHP/MySQL erau oprite. Nu este eroare a interfeței |
+| `./scripts/windows-mysql.ps1 -Action Start`, apoi `Start-Process` PHP cu `bin/serve-shopify.php`, fereastră ascunsă | PASS: MySQL loopback:33060 și PHP loopback:8080 repornite, datele locale păstrate și browserul funcțional |
+| `php var/tools/composer.phar check`, PHP local în PATH | PASS: Composer validate, 222 lint, PHPStan 8, 112 unit/768 assertions și 108 integration/664 assertions, total 220 teste |
+| `php bin/http-smoke.php` | PASS: 6 verificări |
+| Node local `--check resources/app.js` și `--check resources/invoicing.js` | PASS; app.js reverificat după ultima ajustare a rutei |
+| Catalog în Chrome | PASS: trei grupe Facturare/Curierat/Magazine online; Oblio/Shopify au număr de conturi salvate, Sameday/FAN sunt „În pregătire” fără buton de conectare; simulatoarele nu apar |
+| Apăsare Oblio / Shopify | PASS: numai conexiunile și istoricul serviciului ales, titlu/URL/focus corecte; contul existent nu deschide formular nou |
+| Reload `#integrations/oblio`, Browser Back, „Toate integrările”, Enter pe Oblio | PASS: ruta dedicată se păstrează după reload, catalogul revine și focusul este pe titlu; alte pagini păstrează titlul lor |
+| „Adaugă alt cont”, închidere formular Oblio/Shopify | PASS: formulare separate; selectorul simulatoarelor ascuns; numai date sintetice completate în formularul Oblio, apoi șterse la închidere, focus pe Adaugă alt cont; fără submit |
+| Verifică accesul → firmă → Vezi seriile și cotele TVA, desktop și mobil | PASS real: 1 firmă, 1 serie, 10 cote; două liste distincte, procente vizibile și valoare implicită etichetată. Două cicluri de citire, fără operații fiscale |
+| Viewport 390×844: catalog, date și formularul de acces | PASS: clientWidth=scrollWidth=375 (restul lățimii este scrollbar), liste pe o coloană; heading 18px și selector 15px în ecranul de date. Override resetat |
+| Date de acces / administrare | PASS: secțiuni închise implicit, formularul de înlocuire are câmpuri goale; credentialele salvate nu sunt afișate |
+| DOM și consola Chrome după ultima reîncărcare | PASS: niciun ID duplicat, numai Oblio vizibil în detaliile sale și zero erori JS capturate |
+| Creare cont nou / schimbare credentiale / revocare / emitere | NOT_RUN în browser în acest pas: configurația existentă este păstrată. Endpoint-urile existente au regresia backend PASS; închiderea după creare este implementată, fără o nouă mutație reală pentru proba vizuală |
+| UI pentru fiecare rol și fiecare merchant | NOT_RUN în browser; condițiile de acces sunt păstrate, izolarea API este verificată prin suita existentă |
+
+Prima încercare a selectorului de test `getByLabel` nu a găsit dropdown-ul firmei; snapshot-ul confirma combobox-ul. Scenariul final a folosit rolul și numele accesibil și a trecut. După inspecție au fost corectate cascadele CSS ale titlurilor și dispunerea cardurilor planificate, apoi browserul a fost reîncărcat și verificat din nou. Nu există eșecuri runtime restante. Capturi locale în `var/ui-integrations-catalog-20260930.jpg` și `var/ui-oblio-options-20260930.jpg`, ignorate de Git; nu se publică payload-uri sau date reale în raport.
+
+09 rămâne unicul IN_PROGRESS; prezentarea curierilor nu implementează modulele 10/11. Blocajul extensiei Chrome din proba anterioară nu s-a repetat. Ultima pagină lăsată deschisă: Oblio, cu formularul nou închis, viewport normal și fără o nouă citire automată la reload. Profilul de emitere rămâne următorul pas. CI nou se raportează numai după publicare/verificare.
+
+Predare UI: `git diff --check` și `git diff --cached --check` PASS; verificarea PowerShell a linkurilor relative din cele șapte documente și a unicului modul activ 09 PASS. Scannerul local `php var/check-publish-secrets.php` PASS pe staged diff: secretele configurate și credentialele conexiunilor decriptate absente. `git check-ignore` confirmă ambele capturi locale ignorate; în Git sunt numai cele trei fișiere frontend și cele șapte documente.

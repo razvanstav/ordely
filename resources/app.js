@@ -15,7 +15,7 @@ const pages = {
   commerce: {name:'Comenzi și catalog', title:'Comenzile și produsele tale.', description:'Consultă datele importate și sincronizează magazinul când ai nevoie.', eyebrow:'ACTIVITATE ZILNICĂ'},
   invoicing: {name:'Facturare', title:'Facturare, pas cu pas.', description:'Pregătește ciornele și revino la ele atunci când ai nevoie.', eyebrow:'ACTIVITATE ZILNICĂ'},
   stores: {name:'Magazine', title:'Magazinele tale.', description:'Aici alegi magazinele pe care le gestionezi în Ordely.', eyebrow:'CONFIGURARE'},
-  integrations: {name:'Integrări', title:'Serviciile tale, conectate.', description:'Gestionează Shopify și Oblio dintr-un singur loc.', eyebrow:'CONFIGURARE'},
+  integrations: {name:'Integrări', title:'Integrările tale.', description:'Alege un serviciu pentru a vedea conexiunea și opțiunile sale.', eyebrow:'CONFIGURARE'},
   activity: {name:'Activitate sistem', title:'Ce se întâmplă în fundal.', description:'Verifică sincronizările și înregistrările care au nevoie de atenție.', eyebrow:'DIAGNOSTIC ȘI SUPORT'}
 };
 function pageAllowed(name) {
@@ -27,6 +27,7 @@ function pageAllowed(name) {
 }
 function showPage(name, focus = false) {
   if (!currentUser) return;
+  name = name.split('/')[0];
   if (!pageAllowed(name)) { name = 'overview'; history.replaceState(null, '', '#overview'); }
   const page = pages[name];
   document.querySelectorAll('[data-page]').forEach(section => {section.hidden = section.dataset.page !== name;});
@@ -37,6 +38,8 @@ function showPage(name, focus = false) {
   $('#page-name').textContent = page.name; $('#page-title').textContent = page.title;
   $('#page-description').textContent = page.description; $('#page-eyebrow').textContent = page.eyebrow;
   document.title = `Ordely · ${page.name}`;
+  if (name === 'integrations') renderIntegrationView();
+  else closeConnectionSetup();
   if (focus) {$('#page-title').focus({preventScroll:true}); window.scrollTo({top:0, behavior:'instant'});}
 }
 function navigate(name) {
@@ -78,10 +81,67 @@ function renderSetupGuide() {
     return row;
   }));
 }
+function integrationProvider() {
+  const [page, provider] = location.hash.slice(1).split('/');
+  return page === 'integrations' && ['oblio', 'shopify'].includes(provider) ? provider : null;
+}
+function closeConnectionSetup() {
+  $('#connection-setup').hidden = true; selectedConnectionProvider = null;
+  clearSecretInputs(); $('#shopify-code-label').hidden = true;
+}
+function openIntegration(provider) {
+  if (!pageAllowed('integrations')) return;
+  closeConnectionSetup();
+  history.pushState(null, '', `#integrations/${provider}`); showPage('integrations', true);
+  if (!currentConnections?.some(connection => connection.provider === provider && connection.status === 'active')) showConnectionSetup(provider);
+}
+function renderIntegrationView() {
+  const provider = integrationProvider();
+  if (selectedConnectionProvider && selectedConnectionProvider !== provider) closeConnectionSetup();
+  $('#integration-catalog').hidden = !!provider; $('#integration-detail').hidden = !provider;
+  if (!provider) return;
+  const isOblio = provider === 'oblio';
+  $('#page-title').textContent = isOblio ? 'Oblio' : 'Shopify';
+  $('#page-description').textContent = isOblio ? 'Firma, seriile și cotele TVA, explicate pas cu pas.' : 'Conectează magazinul și verifică accesul la comenzile tale.';
+  $('#page-eyebrow').textContent = isOblio ? 'INTEGRĂRI · FACTURARE' : 'INTEGRĂRI · MAGAZINE ONLINE';
+  $('#page-name').textContent = `Integrări / ${isOblio ? 'Oblio' : 'Shopify'}`;
+  document.title = `Ordely · ${isOblio ? 'Oblio' : 'Shopify'}`;
+  let active = 0, archived = 0;
+  $('#connections').querySelectorAll('[data-provider]').forEach(card => {card.hidden = card.dataset.provider !== provider; if (!card.hidden) active++;});
+  $('#archived-connections').querySelectorAll('[data-provider]').forEach(card => {card.hidden = card.dataset.provider !== provider; if (!card.hidden) archived++;});
+  $('#connections').hidden = !active; $('#integration-empty').hidden = !!active || currentConnections === null;
+  $('#previous-connections').hidden = !archived; $('#previous-connections-count').textContent = String(archived);
+  $('#integration-add').textContent = active ? 'Adaugă alt cont' : `Conectează ${isOblio ? 'Oblio' : 'Shopify'}`;
+  $('#integration-add').disabled = currentConnections === null;
+  $('#integration-category-label').textContent = isOblio ? 'Cont de facturare' : 'Magazin online';
+  $('#shopify-privacy').hidden = isOblio; $('#shopify-events').hidden = isOblio;
+  $('#provider-roadmap').textContent = isOblio ? 'Disponibil acum: conectarea contului și consultarea firmelor, seriilor și cotelor TVA. Profilul de emitere și emiterea documentelor sunt în pregătire.' : 'Disponibil acum: conectare, verificarea accesului și importul comenzilor, produselor și stocurilor.';
+}
+function renderIntegrationCatalog() {
+  for (const [kind, container] of [['invoice', '#invoice-integrations'], ['carrier', '#carrier-integrations'], ['commerce', '#commerce-integrations']]) {
+    const cards = connectionProviders.filter(provider => provider.kind === kind && !provider.key.startsWith('fake-')).map(provider => {
+      const supported = provider.available || provider.key === 'shopify';
+      const card = document.createElement(supported ? 'button' : 'article'); card.className = `provider-card${supported ? '' : ' provider-planned'}`;
+      const label = ({oblio:'Oblio',shopify:'Shopify',sameday:'Sameday',fan:'FAN Courier'})[provider.key] || provider.label;
+      const logo = commerceText('span', ({oblio:'o',shopify:'S',sameday:'S',fan:'F'})[provider.key] || '↔'); logo.className = `provider-logo ${provider.key}-logo`;
+      const copy = document.createElement('span'); copy.className = 'provider-copy';
+      copy.append(commerceText('strong', label), commerceText('small', ({oblio:'Firmă, serii de factură și cote TVA',shopify:'Comenzi, produse și stocuri',sameday:'Expediere și livrare colete',fan:'Expediere și livrare colete'})[provider.key] || ''));
+      const count = currentConnections?.filter(connection => connection.provider === provider.key && connection.status === 'active').length || 0;
+      const state = commerceText('span', !supported ? 'În pregătire' : count ? `${count} ${count === 1 ? 'cont salvat' : 'conturi salvate'}` : 'Disponibil'); state.className = `integration-badge${count ? ' saved' : ''}`; copy.append(state);
+      card.append(logo, copy); if (supported) {card.type = 'button'; card.setAttribute('aria-label', `Deschide ${label}`); card.dataset.openIntegration = provider.key; card.append(commerceText('span', '→'));}
+      else card.append(commerceText('small', 'Conectarea va fi disponibilă într-un pas următor.'));
+      return card;
+    }); $(container).replaceChildren(...cards);
+  }
+}
+document.addEventListener('click', event => {const button = event.target.closest('[data-open-integration]'); if (button) openIntegration(button.dataset.openIntegration);});
+$('#integration-back').addEventListener('click', () => navigate('integrations'));
+$('#integration-add').addEventListener('click', () => showConnectionSetup(integrationProvider()));
 function showConnectionSetup(provider) {
   if (!pageAllowed('integrations')) return;
   // Update the URL without a later hashchange stealing focus from the setup form.
-  if (location.hash !== '#integrations') history.pushState(null, '', '#integrations');
+  closeConnectionSetup();
+  if (location.hash !== `#integrations/${provider}`) history.pushState(null, '', `#integrations/${provider}`);
   showPage('integrations'); selectedConnectionProvider = provider;
   $('#connection-setup').hidden = false; $('#shopify-setup').hidden = provider !== 'shopify'; $('#connection-form').hidden = provider === 'shopify';
   $('#connection-setup-title').textContent = provider === 'shopify' ? 'Conectează Shopify' : 'Conectează Oblio';
@@ -93,9 +153,7 @@ function showConnectionSetup(provider) {
 }
 document.querySelectorAll('[data-connect]').forEach(button => button.addEventListener('click', () => showConnectionSetup(button.dataset.connect)));
 $('#connection-setup-close').addEventListener('click', () => {
-  const trigger = $(`[data-connect="${selectedConnectionProvider || 'oblio'}"]`);
-  $('#connection-setup').hidden = true; selectedConnectionProvider = null; clearSecretInputs(); $('#shopify-code-label').hidden = true;
-  trigger?.focus();
+  closeConnectionSetup(); $('#integration-add').focus();
 });
 async function api(path, method = 'GET', data, idempotencyKey) {
   const headers = {'Content-Type': 'application/json', 'X-CSRF-Token': csrf};
@@ -147,28 +205,27 @@ async function refreshIntegrations() {
   const {providers, connections} = await api('/api/integrations');
   if (generation !== integrationGeneration) return;
   connectionProviders = providers;
-  currentConnections = connections; renderSetupGuide();
-  $('#provider-roadmap').textContent = `Shopify: conectare și import comenzi/catalog. Alte integrări planificate: ${providers.filter(provider => !provider.available && provider.key !== 'shopify').map(provider => provider.label).join(', ')}.`;
+  currentConnections = connections; renderSetupGuide(); renderIntegrationCatalog();
   const shopifyStores = visibleStores.filter(store => store.platform === 'shopify');
   $('#shopify-store').replaceChildren(...shopifyStores.map(store => {const option = document.createElement('option'); option.value = store.id; option.textContent = store.name; return option;}));
   $('#shopify-intent-form').hidden = !shopifyStores.length;
   $('#shopify-needs-store').hidden = !!shopifyStores.length;
-  const available = providers.filter(provider => provider.available);
+  const available = providers.filter(provider => provider.available && provider.key === 'oblio');
   $('#connection-form').hidden = !available.length || selectedConnectionProvider !== 'oblio';
   const selectedProvider = $('#connection-provider').value;
   $('#connection-provider').replaceChildren(...available.map(provider => { const option = document.createElement('option'); option.value = provider.key; option.textContent = provider.label; option.selected = provider.key === selectedProvider; return option; }));
   $('#connection-provider-label').hidden = available.length <= 1;
   renderConnectionFields();
   const cards = connections.map(connection => {
-    const card = document.createElement('article'); card.className = 'card';
+    const card = document.createElement('article'); card.className = 'card'; card.dataset.provider = connection.provider;
     const heading = document.createElement('div'); heading.className = 'connection-header';
     const logo = commerceText('span', connection.provider === 'shopify' ? 'S' : connection.provider === 'oblio' ? 'o' : '↔'); logo.className = `provider-logo ${connection.provider === 'shopify' ? 'shopify-logo' : 'oblio-logo'}`;
     const headingText = document.createElement('div');
     const title = document.createElement('h3'); title.textContent = connection.label;
-    const status = document.createElement('p'); status.textContent = connection.status === 'active' ? (connection.provider === 'shopify' ? 'Conexiune activă' : connection.provider === 'oblio' ? 'Salvată · verifică accesul mai jos' : 'Conexiune de test') : 'Conexiune dezactivată';
+    const status = document.createElement('p'); status.className = 'integration-badge'; status.textContent = connection.status === 'active' ? (connection.provider === 'shopify' ? 'Conexiune activă' : connection.provider === 'oblio' ? 'Date de acces salvate în siguranță' : 'Conexiune de test') : 'Conexiune dezactivată';
     const key = document.createElement('p'); key.className = 'hint'; key.textContent = `Cheie de criptare: ${connection.keyId} · versiunea ${connection.version}`;
     headingText.append(title, status); heading.append(logo, headingText); card.append(heading);
-    const advanced = disclosure('Setări avansate'); advanced.append(key); card.append(advanced);
+    const advanced = disclosure('Administrare și setări avansate'); advanced.append(key); card.append(advanced);
     const primary = element => card.insertBefore(element, advanced);
     const command = async (name, values = {}) => { await api(`/api/integrations/${connection.id}/${name}`, 'POST', {version: connection.version, ...values}); await refreshIntegrations(); };
     const maintenance = document.createElement('div'); maintenance.className = 'button-row'; advanced.append(maintenance);
@@ -194,18 +251,20 @@ async function refreshIntegrations() {
     const definition = providers.find(provider => provider.key === connection.provider);
     credentialFields(replacement, definition);
     const replace = document.createElement('button'); replace.textContent = 'Actualizează datele de acces'; replacement.append(replace);
-    replacement.addEventListener('submit', event => { event.preventDefault(); const credentials = Object.fromEntries(new FormData(replacement)); replacement.reset(); action(() => command('credentials', {credentials})); }); advanced.append(replacement);
+    replacement.addEventListener('submit', event => { event.preventDefault(); const credentials = Object.fromEntries(new FormData(replacement)); replacement.reset(); action(() => command('credentials', {credentials})); });
+    const access = disclosure('Date de acces · email și cheie API'); access.classList.add('access-settings');
+    access.append(commerceText('p', 'Datele sunt deja salvate criptat. Completează câmpurile doar dacă vrei să înlocuiești accesul la acest cont.'), replacement); primary(access);
     const binding = document.createElement('form'); const storeLabel = document.createElement('label'); storeLabel.textContent = 'Magazin'; const select = document.createElement('select');
     select.replaceChildren(...visibleStores.map(store => { const option = document.createElement('option'); option.value = store.id; option.textContent = store.name; return option; })); storeLabel.append(select);
     const bind = document.createElement('button'); bind.textContent = 'Folosește pentru acest magazin'; bind.disabled = !visibleStores.length; binding.append(storeLabel, bind);
     binding.addEventListener('submit', event => { event.preventDefault(); action(() => command('bind', {storeId: select.value, isDefault: true})); });
-    if (connection.bindings.length) advanced.append(binding); else {primary(commerceText('p', 'Pasul următor: alege magazinul pentru această conexiune.')); primary(binding);}
+    if (connection.bindings.length) advanced.append(binding); else {primary(commerceText('h3', '1. Alege magazinul')); primary(commerceText('p', 'Asociază acest cont magazinului pentru care vrei să pregătești facturile.')); primary(binding);}
     for (const association of connection.bindings) {
       const row = document.createElement('div'); row.className = 'button-row'; const name = visibleStores.find(store => store.id === association.storeId)?.name || 'Magazin indisponibil';
-      const storeName = commerceText('p', `Magazin: ${name}${Number(association.isDefault) ? ' · conexiune principală' : ''}`); storeName.className = 'connection-store'; primary(storeName);
+      const storeName = commerceText('p', `Magazin asociat: ${name}${Number(association.isDefault) ? ' · cont principal' : ''}`); storeName.className = 'connection-store'; card.insertBefore(storeName, access);
       const unbind = document.createElement('button'); unbind.className = 'secondary'; unbind.textContent = 'Dezasociază'; unbind.addEventListener('click', () => action(() => command('unbind', {storeId: association.storeId})));
       const capabilities = document.createElement('button'); capabilities.className = 'secondary'; capabilities.textContent = 'Verifică funcțiile'; capabilities.addEventListener('click', () => action(async () => { const result = await api(`/api/integrations/${connection.id}/capabilities`, 'POST', {storeId: association.storeId, kind: connection.kind}); if (card.isConnected) $('#message').textContent = connection.provider === 'oblio' ? 'Oblio permite momentan citirea firmelor, seriilor și cotelor TVA.' : `Funcții disponibile: ${result.features.join(', ')}.`; })); row.append(unbind, capabilities); advanced.append(commerceText('p', name), row);
-      if (connection.provider === 'oblio') primary(invoiceConfigurationPanel(connection, association.storeId, name));
+      if (connection.provider === 'oblio') card.insertBefore(invoiceConfigurationPanel(connection, association.storeId, name), access);
     }
     return card;
   });
@@ -213,7 +272,7 @@ async function refreshIntegrations() {
   $('#archived-connections').replaceChildren(...cards.filter((card, index) => connections[index].status !== 'active'));
   $('#previous-connections').hidden = !$('#archived-connections').children.length;
   $('#previous-connections-count').textContent = String($('#archived-connections').children.length);
-  if (!$('#connections').children.length) $('#connections').append(emptyState('Conectează primul serviciu', 'Alege Shopify sau Oblio de mai jos. Te ghidăm prin pașii de conectare.'));
+  renderIntegrationView();
   try {const {events} = await api('/api/shopify/events'); if (generation !== integrationGeneration) return; const pending = events.filter(event => event.status === 'needs_review').length; $('#shopify-events').textContent = `Evenimente Shopify recente: ${events.length}. Solicitări de verificat: ${pending}.`; renderPrivacy(events);}
   catch {if (generation === integrationGeneration) $('#shopify-events').textContent = 'Configurează integrarea Shopify pe server pentru conectare.';}
 }
@@ -230,28 +289,39 @@ function renderConnectionFields() {
   $('#connection-help').textContent = provider?.key === 'oblio' ? 'Găsești emailul și cheia API în Oblio → Setări → Date cont. După salvare, alegi magazinul și verifici firma, seriile și cotele TVA.' : 'Simulatoarele nu trimit date furnizorilor. Folosește un token inventat.';
 }
 function invoiceConfigurationPanel(connection, storeId, storeName) {
-  const panel = document.createElement('section'); panel.append(commerceText('h4', `Configurare Oblio · ${storeName}`));
-  const button = commerceText('button', 'Citește firmele Oblio'); button.type = 'button';
-  const result = document.createElement('div'); result.setAttribute('aria-live', 'polite'); panel.append(button, result);
+  const panel = document.createElement('section'); panel.className = 'invoice-configuration';
+  panel.setAttribute('aria-label', `Firmă, serie și TVA pentru ${storeName}`);
+  panel.append(commerceText('h3', 'Firmă, serie și TVA'), commerceText('p', 'Verifică accesul la cont, apoi alege firma pentru care vrei să consulți seriile și cotele TVA.'));
+  const first = document.createElement('div'); first.className = 'configuration-step';
+  first.append(commerceText('span', '1'), commerceText('h4', 'Verifică accesul la cont'));
+  const button = commerceText('button', 'Verifică accesul la Oblio'); button.type = 'button'; first.append(button);
+  const result = document.createElement('div'); result.className = 'configuration-result'; result.setAttribute('aria-live', 'polite'); panel.append(first, result);
   const read = companyId => api('/api/invoice-configuration', 'POST', {connectionId:connection.id, storeId, version:connection.version, ...(companyId ? {companyId} : {})});
   button.addEventListener('click', () => action(async () => {
     result.replaceChildren(); const data = await read(); if (!panel.isConnected) return;
-    result.append(commerceText('p', `Acces verificat acum · ${data.companies.length} firme disponibile.`));
-    if (!data.companies.length) return;
-    const form = document.createElement('form'), label = commerceText('label', 'Firmă de verificat'), select = document.createElement('select'); select.required = true;
+    const success = commerceText('p', `Acces verificat acum · ${data.companies.length} ${data.companies.length === 1 ? 'firmă disponibilă' : 'firme disponibile'}.`); success.className = 'configuration-success'; result.append(success);
+    button.textContent = 'Verifică din nou accesul';
+    if (!data.companies.length) {result.append(commerceText('p', 'În acest cont nu sunt disponibile firme. Verifică setările contului în Oblio.')); return;}
+    const step = document.createElement('div'); step.className = 'configuration-step'; step.append(commerceText('span', '2'), commerceText('h4', 'Alege firma și consultă datele'));
+    const form = document.createElement('form'), label = commerceText('label', 'Firma din contul Oblio'), select = document.createElement('select'); select.required = true;
     const placeholder = document.createElement('option'); placeholder.value = ''; placeholder.textContent = 'Alege firma'; select.append(placeholder);
     for (const company of data.companies) {const option = document.createElement('option'); option.value = company.id; option.textContent = `${company.name} · ${company.id}`; select.append(option);}
-    const show = commerceText('button', 'Citește seriile și TVA'); label.append(select); form.append(label, show);
-    const details = document.createElement('div'); select.addEventListener('change', () => details.replaceChildren());
+    const show = commerceText('button', 'Vezi seriile și cotele TVA'); show.className = 'secondary'; label.append(select); form.append(label, show); step.append(form);
+    const details = document.createElement('div'); details.className = 'configuration-catalog'; select.addEventListener('change', () => details.replaceChildren());
     form.addEventListener('submit', event => {event.preventDefault(); const company = select.value; action(async () => {
       details.replaceChildren(); const catalog = await read(company); if (!panel.isConnected || company !== select.value) return;
-      details.append(commerceText('p', 'Citire reușită. Datele afișate nu sunt încă un profil de emitere salvat.'), commerceText('h4', 'Serii de factură'));
-      for (const series of catalog.series) details.append(commerceText('p', `${series.name}${series.default ? ' · implicită în Oblio' : ''}`));
-      if (!catalog.series.length) details.append(commerceText('p', 'Nu există serii de factură disponibile.'));
-      details.append(commerceText('h4', 'Cote TVA din cont'));
-      for (const rate of catalog.taxRates) details.append(commerceText('p', `${rate.name} · ${rate.percent}%${rate.default ? ' · implicită în Oblio' : ''}`));
-      if (!catalog.taxRates.length) details.append(commerceText('p', 'Nu există cote TVA disponibile.'));
-    });}); result.append(form, details);
+      for (const [title, items, isTax] of [['Serii de factură', catalog.series, false], ['Cote TVA din cont', catalog.taxRates, true]]) {
+        const block = document.createElement('section'); block.className = 'catalog-block'; block.append(commerceText('h4', title));
+        const list = document.createElement('ul'); list.className = 'catalog-list';
+        for (const item of items) {
+          const row = document.createElement('li'); const copy = document.createElement('div'); copy.append(commerceText('strong', item.name));
+          if (item.default) {const badge = commerceText('small', 'Implicită în Oblio'); badge.className = 'catalog-default'; copy.append(badge);}
+          row.append(copy); if (isTax) row.append(commerceText('strong', `${item.percent}%`)); list.append(row);
+        }
+        block.append(items.length ? list : commerceText('p', isTax ? 'Nu există cote TVA disponibile.' : 'Nu există serii de factură disponibile.')); details.append(block);
+      }
+      const note = document.createElement('aside'); note.className = 'configuration-note'; note.append(commerceText('strong', 'Ce urmează?'), commerceText('p', 'Acestea sunt datele disponibile în cont. Profilul de emitere se configurează într-un pas următor; seria și cota TVA pentru facturi vor fi alese explicit.')); details.append(note);
+    });}); result.append(step, details);
   })); return panel;
 }
 async function refreshOperations() {
@@ -310,7 +380,7 @@ $('#activity-filter').addEventListener('change', renderOperations);
 $('#refresh-integrations').addEventListener('click', () => action(refreshIntegrations));
 $('#connection-form').addEventListener('input', () => { connectionId = null; });
 $('#connection-provider').addEventListener('change', renderConnectionFields);
-$('#connection-form').addEventListener('submit', event => { event.preventDefault(); action(async () => { connectionId ??= crypto.randomUUID().replaceAll('-', ''); const data = Object.fromEntries(new FormData(event.target)); const credentials = Object.fromEntries((connectionProviders.find(provider => provider.key === data.provider)?.credentialFields || []).map(field => [field, data[field]])); clearSecretInputs(); await api('/api/integrations', 'POST', {id: connectionId, provider: data.provider, label: data.label, credentials}); connectionId = null; event.target.reset(); await refreshIntegrations(); }); });
+$('#connection-form').addEventListener('submit', event => { event.preventDefault(); action(async () => { connectionId ??= crypto.randomUUID().replaceAll('-', ''); const data = Object.fromEntries(new FormData(event.target)); const credentials = Object.fromEntries((connectionProviders.find(provider => provider.key === data.provider)?.credentialFields || []).map(field => [field, data[field]])); clearSecretInputs(); await api('/api/integrations', 'POST', {id: connectionId, provider: data.provider, label: data.label, credentials}); connectionId = null; event.target.reset(); closeConnectionSetup(); await refreshIntegrations(); $('#message').textContent = 'Contul a fost salvat. Alege magazinul, apoi verifică accesul.'; }); });
 let commerceCursor = null;
 let commerceTimer = null;
 let commerceGeneration = 0;

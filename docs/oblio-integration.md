@@ -51,12 +51,12 @@ Pagina publică nu explică durata/domeniul cheii idempotente sau reconcilierea 
 
 ## Operarea locală disponibilă — 09.2b
 
-Pe PC-ul acestei probe există deja o conexiune Oblio activă și asociată magazinului. Pașii de creare de mai jos sunt pentru un mediu nou; la reluare verifică mai întâi conexiunea existentă, fără să creezi o dublură. Git nu transferă DB sau keyring-ul.
+Pe PC-ul acestei probe există deja o conexiune Oblio activă și asociată magazinului. Integrări grupează separat Facturare, Curierat și Magazine online. Apasă Oblio din Facturare pentru ecranul `#integrations/oblio`: contul salvat, magazinul asociat și pașii pentru consultarea datelor. „Date de acces” și „Administrare și setări avansate” sunt închise implicit. Pașii de creare de mai jos sunt pentru un mediu nou sau acțiunea „Adaugă alt cont”; la reluare verifică mai întâi conexiunea existentă, fără să creezi o dublură. Git nu transferă DB sau keyring-ul.
 
-1. Autentifică-te cu contul Ordely, apoi deschide Integrări → Oblio. Introdu denumirea, emailul contului Oblio și cheia API din Oblio → Setări → Date cont. Parola de login Ordely nu înlocuiește cheia API Oblio. Nu este necesară regenerarea cheii.
+1. Autentifică-te cu contul Ordely, apoi deschide Integrări → Facturare → Oblio. Pentru un cont nou, deschide formularul de conectare și introdu denumirea, emailul contului Oblio și cheia API din Oblio → Setări → Date cont. Parola de login Ordely nu înlocuiește cheia API Oblio. Nu este necesară regenerarea cheii.
 2. Salvează; acest pas criptează datele în provider_connections și validează forma lor, fără să confirme autentificarea. Lista nu întoarce credentialele salvate. Înlocuirea și recriptarea folosesc versiunea conexiunii.
 3. Asociază conexiunea magazinului local. Numai owner/admin cu acces la toate magazinele pot gestiona credentialele comune ale merchant-ului.
-4. Citește firmele, alege explicit firma de verificat și citește seriile/TVA. Rezultatul este o observație la cerere; nu persistă încă un profil fiscal și nu completează automat ciornele.
+4. Apasă „Verifică accesul la Oblio”, alege explicit firma și apasă „Vezi seriile și cotele TVA”. Rezultatul apare în două liste distincte, cu marcaje pentru valorile implicite din Oblio. Este o observație la cerere; nu persistă încă un profil fiscal și nu completează automat ciornele.
 
 POST /api/invoice-configuration primește storeId, connectionId, version și opțional companyId. Verifică sesiunea/CSRF/origin, rolul curent și legătura merchant/store/conexiune, înainte și după rețea. Compania trebuie să existe în lista contului înainte de solicitarea seriilor sale. Auditul păstrează numai versiunea și numărul de rezultate. Datele contului nu sunt scrise în audit sau loguri; răspunsul HTTP are no-store, iar UI șterge rezultatele la schimbarea contextului.
 
