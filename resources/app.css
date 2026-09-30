@@ -20,3 +20,7 @@ button,.button-link{display:inline-flex;align-items:center;justify-content:cente
 #billing-summary {font-size:16px;} #billing-summary h3,.configuration-note h3 {font-size:20px; margin-top:0;}
 .configuration-catalog>.configuration-step {grid-column:1/-1; margin:0;}
 .configuration-step>p {grid-column:2; font-size:15px; margin:0;}
+.preparation-totals {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.5rem 1rem;}
+.preparation-totals dd {margin:0;font-weight:600;overflow-wrap:anywhere;}
+#invoice-preparation-content {overflow-wrap:anywhere;}
+#invoice-preparation-content li {margin-bottom:.6rem;}

@@ -1,5 +1,9 @@
 # Registru de decizii
 
+## D23 — Date CMS înainte de snapshot-ul fiscal (09.2a.2.1)
+
+2026-09-30, continuare autorizată: utilizatorul confirmă preluarea datelor clientului/comenzii din CMS. Separăm proiecția importată de o ciornă fiscală: prima vedere este locală, numai de citire, cu proveniență/versionare și lipsuri, fără InvoiceProvider sau emitere. Prețurile originale/după reduceri, taxele și baza cu/fără taxe rămân fapte distincte; nu deducem unitatea, cota TVA, CUI sau tipul fiscal. Adresa de livrare nu înlocuiește implicit billingAddress. Configurarea firmei/seriei este citită în același merchant/store; modificarea conexiunii cere reverificare. Snapshot-ul fiscal și completările persistate sunt pasul separat 09.2a.2.2, cu protecție la schimbarea comenzii/profilului; raportul actual are canIssue=false permanent. Gestiunea stocului rămâne amânată conform D04.
+
 ## Reguli acceptate — 2026-09-30
 
 D01 — reguli de produs acceptate: diferența de preț la schimb se introduce manual, fără compensare automată. Bifa Transport preia tariful configurat în site și facturează pe datele inițiale ale clientului; AWB se generează automat cu COD egal cu diferența manuală plus transportul selectat. Nimic/total zero la schimb sau retrimitere înseamnă fără factură nouă/COD 0; regula nu elimină factura unei comenzi obișnuite deja plătite.
@@ -41,9 +45,9 @@ Direcția A01–A06 a fost acceptată pentru continuare prin mesajul „CONTINUA
 
 ## D01 — Politică de facturare/storno pentru outbound
 
-Stare: DESCHIS. Termen: înainte de 09/19. Responsabil: proprietarul produsului, cu validarea responsabilului fiscal.
+Stare: REGULI DE PRODUS ACCEPTATE, 2026-09-30, conform secțiunii de sus. Validarea fiscală și probele providerului rămân înainte de operare.
 
-Păstrăm regula de produs din brief: Nimic → fără factură nouă/COD 0; produse și/sau transport → factură și COD calculat. Trebuie stabilit tratamentul liniilor alese cu total zero, al diferenței de preț dintre produsul returnat și înlocuitor, al documentului original emis în afara Ordely și momentul storno. Propunere: BillingPolicy/FiscalPolicy separată, fără compensare automată în V1 până la definirea ei. Acestea sunt reguli de produs propuse, nu concluzii de conformitate fiscală.
+Nimic/total zero la schimb → fără factură nouă/COD 0. Diferență introdusă manual, transport din tariful site-ului pe datele inițiale; suma lor determină factura și COD. Storno automat numai la înregistrarea refuzului de primire, pe original verificat (inclusiv original extern verificat în Oblio); nu la retur obișnuit. Acestea sunt reguli de produs acceptate, nu concluzii de conformitate fiscală.
 
 ## D02 — Executarea rambursării
 
@@ -59,9 +63,9 @@ Brief-ul cere READY_FOR_OUTBOUND la recepție. Confirmăm dacă inspecția este 
 
 ## D04 — Stoc și rezervări
 
-Stare: STABILIT PENTRU 08; DESCHIS pentru rezervări/scrieri înainte de 18.
+Stare: STABILIT PENTRU CITIRE ÎN 08; gestiunea stocului/rezervările/scrierile AMÂNATE explicit la 2026-09-30 pentru o zonă separată.
 
-Propunere: citire per locație, variante fără stoc dezactivate, revalidare la confirmare. Stabilim dacă rezervăm în CMS, când scădem/repunem stocul și ce face operatorul dacă între timp stocul dispare. Snapshot-ul de stoc nu este rezervare. Stocul returnat nu se repune automat fără verdict/policy.
+Citirea per locație și revalidarea disponibilității sunt separate de gestiunea stocului. Nu rezervăm, nu ajustăm și nu reintegrăm produse în fluxul curent; emiterea Oblio trebuie configurată fără scrieri de stoc. Snapshot-ul de stoc nu este rezervare.
 
 Implementare 08: citire per locație, available negativ/null distinct și observedAt; fără nicio scriere de inventar. Revalidarea și selecția înlocuitorului rămân în 18.
 

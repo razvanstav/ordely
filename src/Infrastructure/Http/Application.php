@@ -43,6 +43,7 @@ final readonly class Application
         $routes->add('draft_script',new Route('/invoicing.js',methods:['GET']));
         $routes->add('invoice_configuration',new Route('/api/invoice-configuration',methods:['POST']));
         $routes->add('invoice_profile',new Route('/api/invoice-profile',methods:['GET','POST']));
+        $routes->add('invoice_preparation',new Route('/api/invoice-preparation/{id}',requirements:['id'=>'[a-f0-9]{32}'],methods:['GET']));
         $routes->add('draft_list',new Route('/api/invoice-drafts',methods:['GET']));
         $routes->add('draft_create',new Route('/api/invoice-drafts',methods:['POST']));
         $routes->add('draft_preview',new Route('/api/invoice-drafts/preview',methods:['POST']));
@@ -83,6 +84,7 @@ final readonly class Application
             $name = (string) $route['_route'];
             if($name==='home'&&$request->query->has('shop')){$name='shopify_home';}
             $response = match ($name) {
+                'invoice_preparation'=>(new \Ordely\Invoicing\Presentation\OrderPreparationApi(new Sql(($this->connect)())))->handle($request,(string)$route['id']),
                 'invoice_configuration'=>(new \Ordely\Invoicing\Presentation\InvoiceConfigurationApi(new Sql(($this->connect)()),$this->invoiceRegistry))->handle($request),
                 'invoice_profile'=>(new \Ordely\Invoicing\Presentation\InvoiceProfileApi(new Sql(($this->connect)()),$this->invoiceRegistry))->handle($request),
                 'draft_list','draft_get','draft_create','draft_update','draft_archive','draft_preview'=>(new \Ordely\Invoicing\Presentation\DraftApi(new Sql(($this->connect)())))->handle($name,$request,isset($route['id'])?(string)$route['id']:null),

@@ -4,8 +4,83 @@
   let merchant = null, canWrite = false, draft = null, nextCursor = null, epoch = 0, listSequence = 0, editorSequence = 0;
   const freshId = () => crypto.randomUUID().replaceAll('-', '');
   let creationId = freshId();
+  let preparationSequence = 0, preparationReturnTo = null;
   const fields = ['reference', 'customerName', 'customerAddress', 'customerTaxId', 'currency'];
   const sameContext = token => token === epoch;
+
+  function clearPreparation() {
+    ++preparationSequence;
+    el('invoice-preparation').hidden = true;
+    el('invoice-preparation-content').replaceChildren();
+    preparationReturnTo = null;
+  }
+  const textNode = (tag, value) => {const node = document.createElement(tag); node.textContent = value; return node;};
+  const amountLabel = value => value ? `${value.decimal} ${value.currency}` : 'Lipsește din CMS';
+  function renderPreparation(data) {
+    const content = el('invoice-preparation-content');
+    content.replaceChildren(textNode('p', `${data.source.reference} · versiunea importată ${data.source.version}`));
+    const groups = document.createElement('div'); groups.className = 'form-grid';
+    const customer = document.createElement('section'); customer.append(textNode('h3', 'Datele clientului'));
+    customer.append(textNode('p', data.customer.name || 'Nume lipsă'), textNode('p', `Contact: ${data.customer.contactName || '—'} · ${data.customer.email || '—'}`));
+    customer.append(textNode('p', `Adresă de facturare: ${Object.values(data.customer.address).filter(Boolean).join(', ') || 'Lipsește din CMS'}`));
+    customer.append(textNode('p', 'Tip client și statut TVA: de confirmat'), textNode('p', 'Identificare fiscală: indisponibilă în importul actual'));
+    const seller = document.createElement('section'); seller.append(textNode('h3', 'Emitent și serie'));
+    seller.append(textNode('p', data.seller ? `${data.seller.companyName} · seria ${data.seller.series}` : 'Configurează firma și seria în Oblio.'));
+    seller.append(textNode('p', 'Adresa și profilul fiscal complet urmează să fie pregătite.'));
+    groups.append(customer, seller); content.append(groups);
+    content.append(textNode('h3', 'Sumele din CMS'), textNode('p', `Prețuri: ${data.priceBasis === 'tax_inclusive' ? 'cu taxe incluse' : data.priceBasis === 'tax_exclusive' ? 'fără taxe incluse' : 'bază neprecizată'}`));
+    const labels = {original:'Total inițial', current:'Total curent', discount:'Reduceri curente', tax:'Taxe curente', shipping:'Transportul comenzii', received:'Încasat', refunded:'Rambursat', outstanding:'Rest de încasat'};
+    const totals = document.createElement('dl'); totals.className = 'preparation-totals';
+    for (const [key, label] of Object.entries(labels)) totals.append(textNode('dt', label), textNode('dd', amountLabel(data.totals[key])));
+    content.append(totals, textNode('h3', 'Ce mai trebuie înainte de emitere'));
+    const issues = document.createElement('ul'), grouped = new Map();
+    for (const issue of data.issues) {
+      const match = /^lines\.(\d+)\./.exec(issue.path);
+      if (!match) {issues.append(textNode('li', issue.message)); continue;}
+      const key = `${issue.code}:${issue.message}`;
+      if (!grouped.has(key)) grouped.set(key, {message:issue.message, lines:new Set()});
+      grouped.get(key).lines.add(Number(match[1]) + 1);
+    }
+    for (const group of grouped.values()) issues.append(textNode('li', `${group.message} (${group.lines.size} ${group.lines.size === 1 ? 'linie' : 'linii'})`));
+    content.append(issues);
+    const lineDetails = document.createElement('details'); lineDetails.className = 'disclosure preparation-items';
+    lineDetails.append(textNode('summary', `Produse și taxe importate · ${data.lines.length} linii`));
+    for (const [index, line] of data.lines.entries()) {
+      const card = document.createElement('article'); card.className = 'card';
+      card.append(textNode('h4', `Linia ${index + 1}: ${line.description || 'Descriere lipsă'}${line.variant ? ` · ${line.variant}` : ''}`));
+      card.append(textNode('p', `Cantitate: ${line.quantity} inițial / ${line.currentQuantity} curent · SKU: ${line.sku || '—'}`));
+      card.append(textNode('p', `Preț unitar inițial: ${amountLabel(line.prices.originalUnitPrice)} · Total inițial: ${amountLabel(line.prices.originalTotal)} · Total după reduceri: ${amountLabel(line.prices.lineDiscountedTotal)}`));
+      card.append(textNode('p', `Reduceri alocate: ${line.discounts === null ? 'Lipsesc din CMS' : line.discounts.length ? line.discounts.map(amountLabel).join(' + ') : 'Niciuna'}`));
+      card.append(textNode('p', `Taxe importate: ${line.taxes.length ? line.taxes.map(tax => `${tax.title || 'Taxă'}: ${amountLabel(tax.amount)}`).join(' · ') : 'Nicio taxă în lista importată'}. Tratamentul TVA trebuie ales explicit.`));
+      lineDetails.append(card);
+    }
+    content.append(lineDetails);
+    el('invoice-preparation').hidden = false;
+    el('invoice-preparation-title').focus({preventScroll:true});
+    el('invoice-preparation').scrollIntoView({block:'start'});
+  }
+  document.addEventListener('ordely:prepare-invoice', event => {
+    const {storeId, orderId, returnTo} = event.detail;
+    if (!merchant || el('invoicing-panel').hidden || ![...el('draft-store').options].some(option => option.value === storeId)) return;
+    ++epoch; resetEditor(); clearPreparation(); el('draft-store').value = storeId;
+    preparationReturnTo = returnTo;
+    const token = epoch, sequence = preparationSequence;
+    window.location.hash = 'invoicing';
+    action(async () => {
+      const data = await api(`/api/invoice-preparation/${orderId}?storeId=${storeId}`);
+      if (!sameContext(token) || sequence !== preparationSequence) return;
+      renderPreparation(data); await loadList();
+    });
+  });
+  el('invoice-preparation-close').addEventListener('click', () => {
+    const returnTo = preparationReturnTo; clearPreparation();
+    if (returnTo?.isConnected) {
+      if (window.location.hash !== '#commerce') window.addEventListener('hashchange', () => {if (returnTo.isConnected) returnTo.focus({preventScroll:true});}, {once:true});
+      window.location.hash = 'commerce';
+      returnTo.focus({preventScroll:true});
+    }
+    else el('draft-store').focus();
+  });
 
   function resetEditor() {
     ++editorSequence;
@@ -73,13 +148,14 @@
     const changed = merchant !== me.merchantId; merchant = me.merchantId;
     canWrite = ['owner', 'admin', 'finance'].includes(me.role);
     ++epoch; resetEditor();
+    clearPreparation();
     el('invoicing-panel').hidden = me.role === 'viewer'; el('draft-new').hidden = !canWrite;
     el('draft-store').replaceChildren(...stores.map(store => { const option = document.createElement('option'); option.value = store.id; option.textContent = store.name; return option; }));
     if (!changed && stores.some(store => store.id === previous)) el('draft-store').value = previous;
     if (!el('invoicing-panel').hidden) action(() => loadList());
   });
-  document.addEventListener('ordely:logout', () => { ++epoch; merchant = null; resetEditor(); el('draft-list').replaceChildren(); el('invoicing-panel').hidden = true; });
-  for (const id of ['draft-store', 'draft-status']) el(id).addEventListener('change', () => { ++epoch; nextCursor = null; resetEditor(); action(() => loadList()); });
+  document.addEventListener('ordely:logout', () => { ++epoch; merchant = null; resetEditor(); clearPreparation(); el('draft-list').replaceChildren(); el('invoicing-panel').hidden = true; });
+  for (const id of ['draft-store', 'draft-status']) el(id).addEventListener('change', () => { ++epoch; nextCursor = null; resetEditor(); clearPreparation(); action(() => loadList()); });
   el('draft-refresh').addEventListener('click', () => action(() => loadList()));
   el('draft-next').addEventListener('click', () => action(() => loadList(true)));
   el('draft-new').addEventListener('click', () => { if (!el('draft-store').value) { el('message').textContent = 'Adaugă mai întâi un magazin din secțiunea Magazine.'; return; } resetEditor(); showEditor(null); el('draft-editor').scrollIntoView({block:'start'}); el('draft-reference').focus({preventScroll:true}); });

@@ -1,5 +1,13 @@
 # Starea curentă — Ordely
 
+## Pregătire facturare din CMS — 09.2a.2.1
+
+2026-09-30: subpas implementat, 09 rămâne unicul IN_PROGRESS. Din Comenzi → „Pregătește facturarea” se deschide în Facturare o vedere numai de citire: client/adresă de facturare, firmă/serie locală, sume exacte și toate liniile importate, cu lipsurile explicite. Nu se înlocuiește adresa de facturare cu livrarea, nu se deduce cota TVA sau tipul clientului. Prețurile cu/fără taxe, reducerile, cantitățile originale/curente și taxele rămân distincte. Conexiunea schimbată cere reverificare; API și repository validează merchant/store/rol/granturi. Nicio emitere ori scriere în CMS/stoc; ciornele existente nu se modifică.
+
+Probe: 9 teste noi MySQL/HTTP/unitare PASS, PHPStan 8 și Chrome desktop/mobil 390×844 PASS (30 linii, lipsuri grupate, fără overflow, Enter/închidere/focus, date eliminate la închidere). Regresia finală și publicarea se consemnează în [raport](docs/testing/09-invoicing.md). Capturi și date reale nu se publică. Conexiunea Oblio existentă este păstrată, fără apel extern nou.
+
+Reluare exactă: vederea comenzii este deschisă în Facturare. Urmează 09.2a.2.2 — completările persistate criptat și snapshot-ul fiscal (emitent/destinatar, adresă, unități/tratamente TVA, date document), legate de versiunea comenzii și de profil; apoi 09.2c/09.3. Vederea actuală este întotdeauna INCOMPLETE/canIssue=false, nu o ciornă nouă și nu o validare fiscală. Mediul D08 rămâne de confirmat înainte de emitere. 10–21 rămân PLANNED.
+
 ## Reguli acceptate — 2026-09-30
 
 D01 — reguli de produs acceptate: diferența de preț la schimb se introduce manual, fără compensare automată. Bifa Transport preia tariful configurat în site și facturează pe datele inițiale ale clientului; AWB se generează automat cu COD egal cu diferența manuală plus transportul selectat. Nimic/total zero la schimb sau retrimitere înseamnă fără factură nouă/COD 0; regula nu elimină factura unei comenzi obișnuite deja plătite.

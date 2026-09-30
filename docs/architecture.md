@@ -264,7 +264,7 @@ Operatorul poate factura, expedia sau alege acțiunea combinată. Pentru „Fact
 
 ### Retur pentru bani
 
-Identificare → eligibilitate per linie → motiv + destinație plată dacă este necesară → ReturnCase → aprobare → AWB retur → pickup → tracking → recepție operator → inspecție → pregătire storno, unde politica cere → READY_FOR_REFUND → plată externă/confirmare → REFUNDED → RESOLVED când toate liniile sunt închise.
+Identificare → eligibilitate per linie → motiv + destinație plată dacă este necesară → ReturnCase → aprobare → AWB retur → pickup → tracking → recepție operator → inspecție → READY_FOR_REFUND → plată externă/confirmare → REFUNDED → RESOLVED când toate liniile sunt închise. Conform D01 acceptat la 2026-09-30, returul obișnuit nu declanșează storno; înregistrarea unui refuz de primire îl declanșează automat pe original verificat, fără duplicate și cu reconciliere la rezultat necunoscut.
 
 ReturnPolicy fixează eligibilitatea, motivele, termenul configurat și taxele; nu hardcodăm o afirmație juridică universală. Cererea păstrează versiunea politicii acceptate. Storno și plată sunt pași independenți, corelați.
 

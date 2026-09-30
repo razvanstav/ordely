@@ -185,3 +185,29 @@ Prima încercare a selectorului de test `getByLabel` nu a găsit dropdown-ul fir
 Predare UI: `git diff --check` și `git diff --cached --check` PASS; verificarea PowerShell a linkurilor relative din cele șapte documente și a unicului modul activ 09 PASS. Scannerul local `php var/check-publish-secrets.php` PASS pe staged diff: secretele configurate și credentialele conexiunilor decriptate absente. `git check-ignore` confirmă ambele capturi locale ignorate; în Git sunt numai cele trei fișiere frontend și cele șapte documente.
 
 Publicare: `a357c810305c4818b4449cd27f933d26ec255a98`, push PASS și fetch + comparația HEAD/origin PASS. `gh run watch 36681823310 --exit-status --interval 20` a terminat cu exit 0: [CI 36681823310](https://github.com/razvanstav/ordely/actions/runs/36681823310) PASS Windows PHP/MySQL nativ și Linux PHP/MySQL/HTTP. Logul urmăririi rămâne ignorat local. Predarea ulterioară consemnează numai rezultatul, fără cod runtime nou sau pretinderea unei alte suite locale.
+
+## 09.2a.2.1 — pregătire din CMS, 2026-09-30
+
+Criteriile au fost fixate înainte de cod în fișa 09. Subpas numai de citire: GET /api/invoice-preparation/{orderId}?storeId=..., fără provider extern; client/billingAddress și sume/linii din proiecția CMS, profil local, proveniență/versionare și lipsuri. Nu este o ciornă fiscală, canIssue=false; completările persistate/snapshot-ul fiscal urmează în 09.2a.2.2. Ciornele 09.1 și DB/conexiunile existente sunt păstrate, fără migrație nouă.
+
+Mediu efectiv: Windows, PHP 8.4.24 din var/tools/php-8.4.24/php.exe, MySQL 8.4.11 (app/test), Node 21.0.0 din PATH, Chrome conectat la preview-ul local 127.0.0.1:8080. PHP nu era în PATH-ul acestei sesiuni; pentru Composer s-a adăugat numai runtime-ul existent în PATH-ul procesului. Nu s-au instalat runtime-uri noi.
+
+| Comandă/scenariu executat | Rezultat |
+| --- | --- |
+| `./var/tools/php-8.4.24/php.exe bin/check-db.php` | PASS — MySQL 8.4.11 |
+| `./var/tools/php-8.4.24/php.exe vendor/bin/phpunit --filter OrderPreparation` | PASS — 9 teste/79 assertions (6 unitare, 3 integrare) |
+| `./var/tools/php-8.4.24/php.exe var/tools/composer.phar check` (cu runtime-ul PHP în PATH-ul procesului) | PASS — manifest, 232 lint, PHPStan 8; 118 unit/817 assertions și 122 integration/780 assertions, total 240 teste |
+| `node --check resources/invoicing.js`, `node --check resources/app.js` | PASS — execuție cu acces extins după EPERM la lstat în sandbox; Node 21.0.0 |
+| `./var/tools/php-8.4.24/php.exe bin/http-smoke.php` | PASS — 6 probe HTTP |
+| Chrome: Comenzi → Pregătește facturarea, sursa importată existentă | PASS — 30 linii, total 36.00 RON, profil local prezent; billingAddress lipsă semnalată, fără fallback la livrare; fără apel nou la CMS/Oblio |
+| Desktop 1920, mobil 390×844, sume și linii extensibile | PASS — fără overflow; lipsurile repetitive grupate (10 grupuri în proba existentă), toate cele 30 de linii păstrate |
+| Enter, închidere, revenire focus, filtru ciorne | PASS — deschidere prin tastatură; focus revine la butonul din comenzi; conținut gol după închidere/schimbare filtru |
+| Consola aplicației | PASS — fără erori observate; avertismentele returnate sunt ale extensiei Chrome, nu ale aplicației |
+| UI pe fiecare rol, schimbare efectivă merchant/store, răspuns întârziat injectat | NOT_RUN în browser; izolarea/granturile/rolurile sunt testate la MySQL/HTTP; protecția epoch/sequence și curățarea context/logout sunt inspectate în cod |
+| Emitere, storno, PDF, email/SPV, scrieri stoc | NOT_RUN — neimplementate/neincluse în acest subpas; nicio probă reală de emitere pretinsă |
+
+Testele acoperă: adrese lipsă și fără substituție, firmă fără CUI, tip/statut și tratament TVA neinventate, bani exact până la limită, valori float/overflow respinse, monede/precizii diferite, anulare/rambursare/cantități schimbate, lipsuri ale importului, identități duplicate; sesiune/rol/granturi/tenant/store, profil invalidat și comenzi inactive, no-store, refuzul POST, fără ciorne create și audit fără date personale. Fixture-urile sunt exclusiv sintetice în DB test. Mesajele RuntimeException din regresie apar în testele existente de rollback/erori și nu reprezintă teste eșuate.
+
+Selectorii inițiali pentru summary și filtrul Stare nu au corespuns API-ului browser; s-au folosit elementele documentate din snapshot/sursă și scenariile finale au trecut. Corecția de focus a fost reverificată după reload. Viewport-ul temporar a fost resetat. Vederea finală rămâne deschisă în Facturare; raportul nu include date reale ale profilului.
+
+Verificarea documentelor și publicarea/CI se consemnează după execuție; numai 09 rămâne activ.

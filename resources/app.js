@@ -491,6 +491,12 @@ async function refreshCommerce(after = null) {
         for (const [label, address] of [['Livrare', order.shippingAddress], ['Facturare', order.billingAddress]]) detail.append(commerceText('p', `${label}: ${address ? Object.values(address).filter(Boolean).join(', ') : 'adresă indisponibilă'}`));
         title.focus({preventScroll:true}); detail.scrollIntoView({block:'start'});
       })); if (commerceCanRead) card.append(button);
+      if (commerceCanRead) {
+        const prepare = commerceText('button', 'Pregătește facturarea');
+        prepare.className = 'secondary';
+        prepare.addEventListener('click', () => document.dispatchEvent(new CustomEvent('ordely:prepare-invoice', {detail:{storeId:store, orderId:record.id, returnTo:prepare}})));
+        card.append(prepare);
+      }
     } else if (kind === 'variant') card.append(commerceText('p', `${item.sku || 'Fără SKU'} · ${item.options.map(option => `${option.name}: ${option.value}`).join(', ')} · ${moneyLabel(item.price)}`));
     else if (kind === 'inventory') card.append(commerceText('p', `${item.available === null ? 'Stoc neurmărit' : `${item.available} disponibile`}${!item.locationActive ? ' · Locație inactivă' : ''}`));
     else card.append(commerceText('p', commerceStatus(item.status)));

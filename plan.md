@@ -1,5 +1,9 @@
 # Plan Ordely
 
+## Pas curent — 09.2a.2.1 implementat
+
+2026-09-30: 09 unicul IN_PROGRESS. Pregătirea numai de citire a facturării dintr-o comandă CMS este disponibilă în Facturare: date de facturare, profil, sume/linii exacte și lista lipsurilor. Izolare/roluri/granturi, profil invalidat și audit fără date personale testate; 9 teste noi PASS, PHPStan 8 și Chrome desktop/mobil PASS. [Raport și regresie finală](docs/testing/09-invoicing.md). Nu există emitere, completări salvate sau scrieri de stoc. Urmează 09.2a.2.2, completările persistate și snapshot fiscal legat de versiunea comenzii/profilului. 09.2a.2 nu este încă închis; 10–21 rămân PLANNED.
+
 ## Reguli acceptate — 2026-09-30
 
 D01 — reguli de produs acceptate: diferența de preț la schimb se introduce manual, fără compensare automată. Bifa Transport preia tariful configurat în site și facturează pe datele inițiale ale clientului; AWB se generează automat cu COD egal cu diferența manuală plus transportul selectat. Nimic/total zero la schimb sau retrimitere înseamnă fără factură nouă/COD 0; regula nu elimină factura unei comenzi obișnuite deja plătite.

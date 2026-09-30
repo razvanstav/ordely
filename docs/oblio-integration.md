@@ -1,5 +1,11 @@
 # Pregătirea integrării Oblio — 09.2
 
+## Pregătire din comanda CMS — 09.2a.2.1
+
+Disponibilă 2026-09-30 din Comenzi → Pregătește facturarea. GET /api/invoice-preparation/{orderId}?storeId=... folosește exclusiv datele locale importate și profilul firmei/seriei, cu invoices.read + orders.read și merchant/store/granturi verificate în tranzacție. Raportul păstrează prețurile și taxele exact, fără transformare implicită în net sau cotă TVA; adresa de livrare nu substituie facturarea. issues conține code/path/message, source indică ID/versiune/momentul observării. Profil schimbat, date lipsă, comenzi modificate și monede/precizii incompatibile sunt semnalate. canIssue=false întotdeauna; acest raport nu autorizează emitere și nu modifică o ciornă. UI poate fi consultată și de operator/finance, fără acces la credentiale.
+
+Nu se apelează Oblio, nu se generează factură, nu se scrie stoc. Urmează 09.2a.2.2 pentru completări persistate și snapshot fiscal, apoi maparea 09.2c. Datele CMS actuale nu includ tipul fiscal al clientului/CUI, unitatea și cota TVA explicită; câmpurile se vor completa numai dacă lipsesc, fără reintroducerea datelor existente. [Probe](testing/09-invoicing.md).
+
 ## Reguli acceptate — 2026-09-30
 
 D01 — reguli de produs acceptate: diferența de preț la schimb se introduce manual, fără compensare automată. Bifa Transport preia tariful configurat în site și facturează pe datele inițiale ale clientului; AWB se generează automat cu COD egal cu diferența manuală plus transportul selectat. Nimic/total zero la schimb sau retrimitere înseamnă fără factură nouă/COD 0; regula nu elimină factura unei comenzi obișnuite deja plătite.
@@ -44,7 +50,7 @@ Pagina publică nu explică durata/domeniul cheii idempotente sau reconcilierea 
 
 ## Criterii înainte de închiderea 09.2
 
-- [ ] D01 are o regulă explicită pentru zero la outbound, compensare, momentul storno și originalele externe.
+- [x] D01 are reguli de produs acceptate la 2026-09-30 pentru zero la outbound, diferență manuală, transport, storno la refuz și originalele externe; validarea fiscală rămâne înainte de operare.
 - [ ] Datele complete și erorile de pregătire sunt vizibile; vechile ciorne nu sunt completate cu valori inventate.
 - [ ] Tenant/store/conexiune/profil se verifică la API, persistare și apelul adaptorului; credentialele nu ajung în UI/loguri.
 - [ ] TVA și reducerile au reprezentare exactă; monede incompatibile, cote lipsă, overflow și diferențe de total sunt respinse.
@@ -56,7 +62,7 @@ Pagina publică nu explică durata/domeniul cheii idempotente sau reconcilierea 
 
 ## Deciziile cerute utilizatorului
 
-**D01, propunere neacceptată încă:** numai pentru schimb/retrimitere, selecție cu total zero → fără factură nouă/COD 0; fără compensarea automată a prețului returului cu înlocuitorul; storno numai prin acțiune explicită, pe original verificat. Facturile externe se referă numai după verificarea lor; o referință neverificabilă blochează storno. Regula nu spune că o comandă obișnuită plătită, cu COD 0, nu primește factură. Regula de produs nu închide validarea fiscală din D01.
+**D01, acceptat 2026-09-30:** numai pentru schimb/retrimitere, total zero → fără factură nouă/COD 0; diferență manuală plus transport selectat din tariful site-ului, facturate pe datele inițiale și folosite drept COD. Storno automat numai la înregistrarea refuzului de primire, pe original verificat; nu la retur obișnuit. Facturile externe se referă numai după verificarea în Oblio; o referință neverificabilă blochează storno. O comandă obișnuită plătită, cu COD 0, poate primi factură. Regulile de produs nu închid validarea fiscală din D01.
 
 **D08:** contul este conectat și citirea reală verificată la 2026-09-30, după furnizarea datelor API și confirmarea emailului de către utilizator. Datele sunt salvate criptat în DB locală; nu se cer din nou și nu intră în Git/documente. Nu știm încă dacă firma/seria este pentru teste sau producție; separat trebuie confirmate setările efective de stoc, email și SPV înainte de emitere. Cotele returnate de cont nu sunt o alegere fiscală implicită.
 
