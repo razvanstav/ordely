@@ -4,6 +4,15 @@ namespace Ordely\Tests\Support;
 
 final class PreparationFixtures
 {
+    public static function persist(\Ordely\Infrastructure\Database\Sql $db,\Ordely\Identity\Domain\TenantContext $actor,string $store,\Ordely\Integrations\Infrastructure\SecretCipher $cipher): string
+    {
+        $connection=(new \Ordely\Integrations\Infrastructure\Connections($db,IntegrationFixtures::registry(),$cipher))->create($actor,\Ordely\Shared\Id::new(),'fake-invoice','Synthetic invoice',new \Ordely\Integrations\Domain\Secrets(['apiToken'=>'SYNTHETIC']));
+        $run=\Ordely\Shared\Id::new();$order=\Ordely\Shared\Id::new();
+        $db->run("INSERT INTO commerce_sync_runs(id,merchant_id,store_id,connection_id,provider_key,status) VALUES(?,?,?,?,'synthetic','completed')",array_map(\Ordely\Shared\Id::bytes(...),[$run,$actor->merchantId,$store,$connection]));
+        $envelope=(new \Ordely\Commerce\Infrastructure\OrderCipher($cipher))->seal($actor->merchantId,$store,$order,self::order());
+        $db->run("INSERT INTO commerce_records(id,merchant_id,store_id,provider_key,kind,external_id,document,content_hash,version,last_run_id) VALUES(?,?,?,'synthetic','order',?,?,?,3,?)",[\Ordely\Shared\Id::bytes($order),\Ordely\Shared\Id::bytes($actor->merchantId),\Ordely\Shared\Id::bytes($store),$order,$envelope,hash('sha256','synthetic',true),\Ordely\Shared\Id::bytes($run)]);
+        return $order;
+    }
     /** @return array{minor:string,currency:string,exponent:int} */
     public static function money(string $minor,string $currency='RON'): array { return ['minor'=>$minor,'currency'=>$currency,'exponent'=>2]; }
     /** @return array<string,mixed> */

@@ -1,5 +1,14 @@
 # Registru de decizii
 
+## D24 — Ciorna inițială din CMS, distinctă de documentul fiscal
+
+2026-09-30: utilizatorul confirmă că datele lipsă vin din Shopify și cere continuarea fără completarea manuală a comenzii de test. Persistăm mai întâi propunerea CMS incompletă, recitită pe server, separat de ciornele manuale 09.1. O propunere inițială revizuibilă per merchant/store/comandă; nu limitează viitoarele facturi/storno asociate comenzii. Completările fiscale și contractul de emitere rămân în 09.2a.2.2b.
+
+Snapshot criptat cu AAD pentru merchant/store/comandă și versiunile sursei/profilului/reviziei; audit numai ID-uri/versiuni, CAS și retry identic fără revizii duplicate. Actualizarea din CMS se face explicit, fără suprascriere la sincronizare. Modificarea profilului/conexiunii este semnalată chiar dacă versiunea profilului nu crește. Compararea folosește JSON canonic, pentru a nu confunda ordinea cheilor după decriptare cu schimbarea datelor.
+
+Propunerea ne-fiscală este dependentă de sursa CMS și se elimină prin FK CASCADE la ștergerea sursei pentru privacy. Acest comportament nu decide păstrarea viitoarelor documente fiscale emise. Cheile folosite de chunk-uri intră în inventarul CLI; nu sunt eliminate automat. Rolurile și granturile se verifică la fiecare operațiune; fără emitere, număr fiscal, email/SPV, stoc sau implementarea refuzurilor.
+
+
 ## D23 — Date CMS înainte de snapshot-ul fiscal (09.2a.2.1)
 
 2026-09-30, continuare autorizată: utilizatorul confirmă preluarea datelor clientului/comenzii din CMS. Separăm proiecția importată de o ciornă fiscală: prima vedere este locală, numai de citire, cu proveniență/versionare și lipsuri, fără InvoiceProvider sau emitere. Prețurile originale/după reduceri, taxele și baza cu/fără taxe rămân fapte distincte; nu deducem unitatea, cota TVA, CUI sau tipul fiscal. Adresa de livrare nu înlocuiește implicit billingAddress. Configurarea firmei/seriei este citită în același merchant/store; modificarea conexiunii cere reverificare. Snapshot-ul fiscal și completările persistate sunt pasul separat 09.2a.2.2, cu protecție la schimbarea comenzii/profilului; raportul actual are canIssue=false permanent. Gestiunea stocului rămâne amânată conform D04.

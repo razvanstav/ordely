@@ -4,7 +4,7 @@
   let merchant = null, canWrite = false, draft = null, nextCursor = null, epoch = 0, listSequence = 0, editorSequence = 0;
   const freshId = () => crypto.randomUUID().replaceAll('-', '');
   let creationId = freshId();
-  let preparationSequence = 0, preparationReturnTo = null;
+  let preparationSequence = 0, preparationReturnTo = null, preparation = null, savedVersion = 0, orderCursor = null, orderListSequence = 0;
   const fields = ['reference', 'customerName', 'customerAddress', 'customerTaxId', 'currency'];
   const sameContext = token => token === epoch;
 
@@ -13,6 +13,15 @@
     el('invoice-preparation').hidden = true;
     el('invoice-preparation-content').replaceChildren();
     preparationReturnTo = null;
+    preparation = null; savedVersion = 0;
+    el('invoice-preparation-save').hidden = true;
+    el('invoice-preparation-refresh').hidden = true;
+    el('invoice-preparation-state').textContent = '';
+  }
+  function clearLists() {
+    ++listSequence; ++orderListSequence; nextCursor = null; orderCursor = null;
+    el('draft-list').replaceChildren(); el('order-draft-list').replaceChildren();
+    el('draft-next').hidden = true; el('order-draft-next').hidden = true;
   }
   const textNode = (tag, value) => {const node = document.createElement(tag); node.textContent = value; return node;};
   const amountLabel = value => value ? `${value.decimal} ${value.currency}` : 'Lipsește din CMS';
@@ -69,9 +78,57 @@
     action(async () => {
       const data = await api(`/api/invoice-preparation/${orderId}?storeId=${storeId}`);
       if (!sameContext(token) || sequence !== preparationSequence) return;
-      renderPreparation(data); await loadList();
+      const saved = await api(`/api/invoice-order-drafts/${orderId}?storeId=${storeId}`);
+      if (!sameContext(token) || sequence !== preparationSequence) return;
+      showPreparation(data, saved.draft?.version || 0, false); await loadList();
     });
   });
+  function showPreparation(data, version, frozen, changed = false) {
+    preparation = data; savedVersion = version; renderPreparation(data);
+    el('invoice-preparation-state').textContent = frozen ? `Ciornă salvată · revizia ${version}${changed ? ' · Comanda sau profilul emitentului s-a schimbat. Actualizează explicit din CMS.' : ''}` : 'Date curente din CMS · pot fi salvate chiar dacă sunt incomplete.';
+    el('invoice-preparation-save').hidden = !canWrite || frozen;
+    el('invoice-preparation-save').textContent = version ? 'Salvează actualizarea din CMS' : 'Salvează ciorna din comandă';
+    el('invoice-preparation-refresh').hidden = !canWrite || !frozen;
+  }
+  el('invoice-preparation-refresh').addEventListener('click', () => action(async () => {
+    if (!preparation) return;
+    const token = epoch, sequence = ++preparationSequence, source = preparation.source, version = savedVersion;
+    const data = await api(`/api/invoice-preparation/${source.orderId}?storeId=${source.storeId}`);
+    if (sameContext(token) && sequence === preparationSequence) showPreparation(data, version, false);
+  }));
+  el('invoice-preparation-save').addEventListener('click', () => action(async () => {
+    if (!preparation || !canWrite) return;
+    const token = epoch, sequence = preparationSequence, source = preparation.source;
+    await api(`/api/invoice-order-drafts/${source.orderId}`, 'POST', {storeId:source.storeId, expectedVersion:savedVersion, orderVersion:source.version, profileVersion:preparation.seller?.version || 0});
+    if (!sameContext(token) || sequence !== preparationSequence) return;
+    const result = await api(`/api/invoice-order-drafts/${source.orderId}?storeId=${source.storeId}`);
+    if (!sameContext(token) || sequence !== preparationSequence) return;
+    showPreparation(result.draft.snapshot, result.draft.version, true, result.draft.sourceChanged);
+    await loadOrderList();
+    if (sameContext(token)) el('message').textContent = 'Ciorna din comandă a fost salvată local.';
+  }));
+
+  async function loadOrderList(append = false) {
+    const store = el('draft-store').value, token = epoch, sequence = ++orderListSequence;
+    if (!store) {el('order-draft-list').replaceChildren(); el('order-draft-next').hidden = true; return;}
+    const query = new URLSearchParams({storeId:store}); if (append && orderCursor) query.set('after', orderCursor);
+    const data = await api(`/api/invoice-order-drafts?${query}`);
+    if (!sameContext(token) || sequence !== orderListSequence) return;
+    if (!append) el('order-draft-list').replaceChildren();
+    for (const item of data.drafts) {
+      const card = document.createElement('article'); card.className = 'card';
+      card.append(textNode('h3', item.reference), textNode('p', `${amountLabel(item.total)} · ${item.lineCount} linii · revizia ${item.version}`));
+      const open = textNode('button', 'Deschide ciorna din comandă'); open.type = 'button';
+      open.addEventListener('click', () => action(async () => {
+        const current = epoch; resetEditor(); clearPreparation(); const request = preparationSequence;
+        const result = await api(`/api/invoice-order-drafts/${item.orderId}?storeId=${store}`);
+        if (sameContext(current) && request === preparationSequence && result.draft) showPreparation(result.draft.snapshot, result.draft.version, true, result.draft.sourceChanged);
+      })); card.append(open); el('order-draft-list').append(card);
+    }
+    if (!el('order-draft-list').children.length) el('order-draft-list').append(emptyState('Nicio ciornă din comenzi.', 'Deschide o comandă și alege „Pregătește facturarea”.'));
+    orderCursor = data.nextCursor; el('order-draft-next').hidden = !orderCursor;
+  }
+  el('order-draft-next').addEventListener('click', () => action(() => loadOrderList(true)));
   el('invoice-preparation-close').addEventListener('click', () => {
     const returnTo = preparationReturnTo; clearPreparation();
     if (returnTo?.isConnected) {
@@ -126,7 +183,7 @@
   }
   async function loadList(append = false) {
     const store = el('draft-store').value; const token = epoch, sequence = ++listSequence;
-    if (!store) { el('draft-list').replaceChildren(); el('draft-next').hidden = true; return; }
+    if (!store) { el('draft-list').replaceChildren(); el('draft-next').hidden = true; await loadOrderList(); return; }
     const query = new URLSearchParams({storeId: store, status: el('draft-status').value});
     if (append && nextCursor) query.set('after', nextCursor);
     const data = await api(`/api/invoice-drafts?${query}`); if (!sameContext(token) || sequence !== listSequence) return;
@@ -142,23 +199,24 @@
     }
     if (!el('draft-list').children.length) el('draft-list').append(emptyState(el('draft-status').value === 'ARCHIVED' ? 'Nicio ciornă arhivată.' : 'Prima ta ciornă începe aici.', canWrite ? 'Alege magazinul și apasă „Ciornă nouă” pentru a pregăti o factură.' : 'Ciornele create de echipa ta vor apărea aici.'));
     nextCursor = data.nextCursor; el('draft-next').hidden = !nextCursor;
+    if (!append) await loadOrderList();
   }
   document.addEventListener('ordely:context', event => {
     const {me, stores} = event.detail; const previous = el('draft-store').value;
     const changed = merchant !== me.merchantId; merchant = me.merchantId;
     canWrite = ['owner', 'admin', 'finance'].includes(me.role);
-    ++epoch; resetEditor();
+    ++epoch; resetEditor(); clearLists();
     clearPreparation();
     el('invoicing-panel').hidden = me.role === 'viewer'; el('draft-new').hidden = !canWrite;
     el('draft-store').replaceChildren(...stores.map(store => { const option = document.createElement('option'); option.value = store.id; option.textContent = store.name; return option; }));
     if (!changed && stores.some(store => store.id === previous)) el('draft-store').value = previous;
     if (!el('invoicing-panel').hidden) action(() => loadList());
   });
-  document.addEventListener('ordely:logout', () => { ++epoch; merchant = null; resetEditor(); clearPreparation(); el('draft-list').replaceChildren(); el('invoicing-panel').hidden = true; });
-  for (const id of ['draft-store', 'draft-status']) el(id).addEventListener('change', () => { ++epoch; nextCursor = null; resetEditor(); clearPreparation(); action(() => loadList()); });
+  document.addEventListener('ordely:logout', () => { ++epoch; merchant = null; resetEditor(); clearPreparation(); el('draft-list').replaceChildren(); el('order-draft-list').replaceChildren(); el('invoicing-panel').hidden = true; });
+  for (const id of ['draft-store', 'draft-status']) el(id).addEventListener('change', () => { ++epoch; resetEditor(); clearPreparation(); clearLists(); action(() => loadList()); });
   el('draft-refresh').addEventListener('click', () => action(() => loadList()));
   el('draft-next').addEventListener('click', () => action(() => loadList(true)));
-  el('draft-new').addEventListener('click', () => { if (!el('draft-store').value) { el('message').textContent = 'Adaugă mai întâi un magazin din secțiunea Magazine.'; return; } resetEditor(); showEditor(null); el('draft-editor').scrollIntoView({block:'start'}); el('draft-reference').focus({preventScroll:true}); });
+  el('draft-new').addEventListener('click', () => { if (!el('draft-store').value) { el('message').textContent = 'Adaugă mai întâi un magazin din secțiunea Magazine.'; return; } clearPreparation(); resetEditor(); showEditor(null); el('draft-editor').scrollIntoView({block:'start'}); el('draft-reference').focus({preventScroll:true}); });
   el('draft-close').addEventListener('click', resetEditor);
   el('draft-add-line').addEventListener('click', () => { if (el('draft-lines').children.length < 50) { addLine(); invalidate(); } });
   el('draft-form').addEventListener('input', invalidate);

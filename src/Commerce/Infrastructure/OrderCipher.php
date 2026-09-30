@@ -8,7 +8,7 @@ use Ordely\Integrations\Infrastructure\SecretCipher;
 
 final readonly class OrderCipher
 {
-    public function __construct(private SecretCipher $cipher) {}
+    public function __construct(private SecretCipher $cipher,private string $purpose='order') {}
     /** @param array<string,mixed> $document */
     public function seal(string $merchant,string $store,string $id,array $document): string
     {
@@ -17,7 +17,7 @@ final readonly class OrderCipher
         $pieces=str_split($raw,24000);$chunks=[];
         foreach($pieces as $index=>$piece) {
             $values=[];foreach(str_split(base64_encode($piece),4000) as $part=>$value) { $values['part'.$part]=$value; }
-            $chunks[]=json_decode($this->cipher->encrypt($merchant,$id,'order:'.$store.':'.count($pieces).':'.$index,new Secrets($values)),true,flags:JSON_THROW_ON_ERROR);
+            $chunks[]=json_decode($this->cipher->encrypt($merchant,$id,$this->purpose.':'.$store.':'.count($pieces).':'.$index,new Secrets($values)),true,flags:JSON_THROW_ON_ERROR);
         }
         return json_encode(['chunks'=>$chunks],JSON_THROW_ON_ERROR);
     }
@@ -28,7 +28,7 @@ final readonly class OrderCipher
         if (!is_array($chunks) || !array_is_list($chunks) || count($chunks)<1 || count($chunks)>88) { throw new \RuntimeException('Order unavailable.'); }
         $raw='';
         foreach($chunks as $index=>$chunk) {
-            $values=$this->cipher->decrypt($merchant,$id,'order:'.$store.':'.count($chunks).':'.$index,json_encode($chunk,JSON_THROW_ON_ERROR))->reveal();
+            $values=$this->cipher->decrypt($merchant,$id,$this->purpose.':'.$store.':'.count($chunks).':'.$index,json_encode($chunk,JSON_THROW_ON_ERROR))->reveal();
             $piece=base64_decode(implode('',$values),true);if($piece===false){throw new \RuntimeException('Order unavailable.');}$raw.=$piece;
         }
         $document=json_decode($raw,true,64,JSON_THROW_ON_ERROR);

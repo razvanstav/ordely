@@ -1,5 +1,19 @@
 # Modul 09 — Facturare
 
+## Pas 09.2a.2.2a — ciornă din comandă CMS (implementat)
+
+2026-09-30: utilizatorul confirmă că datele lipsă vor veni din Shopify și cere continuarea, fără a completa manual comanda de test acum. Descompunem persistarea: acest subpas salvează propunerea CMS incompletă ca ciornă locală distinctă de ciornele manuale 09.1; completările fiscale finale și contractul de emitere rămân în pasul următor. Nu presupunem că datele emitentului vin din Shopify; firma/seria rămân din configurarea Oblio.
+
+Criterii înainte de cod: salvare din datele recitite pe server, fără payload de client care poate înlocui sumele/adresa; ID/versiune de comandă și profil obligatorii la salvare, CAS și retry identic fără dubluri/audit duplicat; criptare legată de merchant/store/comandă/versiuni și inventar de chei; listare/deschidere separată de ciornele manuale, snapshot păstrat până la actualizare explicită, avertizare la schimbarea comenzii/profilului/conexiunii; roluri owner/admin/finance pentru salvare, operator citire, viewer refuzat; CSRF/origin/merchant/store/granturi și rollback atomic cu audit. Datele sunt propuneri ne-fiscale: canIssue=false, fără număr, emitere, stoc sau gestiune refuzuri. Snapshot-urile propunerilor se elimină prin FK la ștergerea sursei pentru privacy; auditul păstrează numai ID-uri/versiuni.
+
+Verificări planificate: unitare criptare/context/tamper; MySQL/HTTP CAS/retry/sursă schimbată/roluri/granturi/rollback/privacy; două procese reale; inventar chei; regresie Composer/JS/HTTP și Chrome desktop/mobil. Rezultatele vor fi notate după execuție. 09 rămâne singurul activ.
+
+Rezultat: criteriile subpasului îndeplinite. Migrația 009 în app/test, snapshot criptat cu scop distinct și versiuni, serverul recitește sursa înainte de salvare; un retry identic păstrează revizia și auditul de salvare unic. API și listă distincte de 09.1, deschidere a snapshot-ului păstrat și actualizare explicită, sursă/profil/conexiune schimbate semnalate. Roluri/granturi și CSRF/origin validate, audit atomic fără date fiscale. FK șterge numai propunerea inițială la ștergerea sursei CMS pentru privacy; viitoarele documente fiscale au o politică separată (D24).
+
+PASS: 6 teste noi (1 unit + 5 integration), inclusiv două procese reale, rollback și inventar chei; regresie 246 teste, 238 lint, PHPStan 8, JS/HTTP. Chrome desktop/mobil 390×844: 30 linii/36.00 RON, salvare, reload/redeschidere/Enter, resalvare revizia 1 fără dubluri, filtrare/focus/consolă și fără overflow. [Probe](../testing/09-invoicing.md). Propunerea locală este întotdeauna INCOMPLETE/canIssue=false. Emitere/storno/PDF NOT_RUN.
+
+Reluare exactă: 09.2a.2.2b — completările fiscale persistate și snapshot fiscal neutru (emitent, destinatar, adrese, unități/tratamente TVA/date document), apoi 09.2c/09.3. Facturare arată ciorna comenzii de test salvată local; nu recrea conexiunile și nu cere completarea manuală a fixture-ului acum. Modulul 09 și 09.2a.2 nu sunt încă închise; 10–21 PLANNED. Publicarea se consemnează după verificare.
+
 Publicare 09.2a.2.1: cod `6556a4f` trimis pe branch-ul proiectului, HEAD/origin identice și checkout curat verificate. [CI Windows/Linux 36701852570 PASS](https://github.com/razvanstav/ordely/actions/runs/36701852570), urmărit cu `gh run watch 36701852570 --exit-status --interval 10` până la exit 0. Regresie locală: 240 teste, 232 lint, PHPStan 8, două sintaxe JS și 6 probe HTTP PASS. Linkuri relative, diff/staged check și scanner staged pentru secrete/date fiscale PASS. Această predare ulterioară modifică numai documentația; nu pretinde o nouă probă de emitere.
 
 ## Pas 09.2a.2.1 — pregătirea datelor din CMS (implementat)

@@ -1,5 +1,14 @@
 # Starea curentă — Ordely
 
+## Ciornă din comandă CMS — 09.2a.2.2a implementat
+
+2026-09-30: modulul 09 rămâne unicul IN_PROGRESS. Comenzi → Pregătește facturarea → Salvează ciorna din comandă păstrează local raportul CMS inclusiv incomplet, separat de ciornele manuale. Redeschiderea arată snapshot-ul salvat; schimbările comenzii/profilului/conexiunii sunt semnalate, actualizarea și salvarea sunt explicite. Serverul recitește sursa, verifică versiunile și accesul; criptare/AAD, CAS/retry, audit atomic și inventar chei. Migrația 009 aplicată în app/test. Propunerea inițială se elimină la ștergerea sursei CMS; nu este registrul viitoarelor documente fiscale (D24).
+
+PASS local: 246 teste (119 unit/826 assertions, 127 integration/839), 238 lint, PHPStan 8, două sintaxe JS și 6 HTTP. Două procese concurente, rollback, privacy, profil invalidat, roluri/granturi/CSRF/izolare și criptare testate. Chrome: salvare a comenzii sintetice existente, 30 linii/36.00 RON, reload/redeschidere și resalvare fără dubluri (revizia 1), Enter/focus, filtrare cu ștergerea datelor, desktop/mobil 390×844 fără overflow, consola fără erori. [Probe](docs/testing/09-invoicing.md).
+
+Reluare exactă: Facturare are o ciornă din comanda de test, salvată local. Continuă 09.2a.2.2b: completările fiscale persistate (emitent, destinatar, adrese, unități/tratamente TVA, date document) și snapshot-ul fiscal neutru. Lipsurile comenzii de test nu cer completare manuală acum; datele disponibile vor veni din Shopify. Firma/seria emitentului rămân din profilul Oblio. canIssue=false; emiterea/storno/PDF și mediul D08 sunt NOT_RUN/restante. 10–21 rămân PLANNED. Publicarea Git și CI se consemnează după verificare.
+
+
 Publicare 09.2a.2.1: cod `6556a4f` trimis pe branch-ul proiectului, HEAD/origin identice și checkout curat verificate. [CI Windows/Linux 36701852570 PASS](https://github.com/razvanstav/ordely/actions/runs/36701852570), urmărit cu `gh run watch 36701852570 --exit-status --interval 10` până la exit 0. Regresie locală: 240 teste, 232 lint, PHPStan 8, două sintaxe JS și 6 probe HTTP PASS. Linkuri relative, diff/staged check și scanner staged pentru secrete/date fiscale PASS. Această predare ulterioară modifică numai documentația; nu pretinde o nouă probă de emitere.
 
 ## Pregătire facturare din CMS — 09.2a.2.1

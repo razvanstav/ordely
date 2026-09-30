@@ -1,5 +1,28 @@
 # Verificări 09 — ciorne locale (09.1)
 
+## 09.2a.2.2a — ciornă CMS persistată, 2026-09-30
+
+Windows, PHP 8.4.24, MySQL 8.4.11 nativ 33060; baze app/test separate. Criterii înainte de cod în fișa modulului. Git fetch/pull --ff-only PASS, already up to date. D24; unicul activ 09.
+
+| Comandă/scenariu executat | Rezultat |
+| --- | --- |
+| `php bin/migrate.php`; migrare automată în test | PASS: 009 în app/test |
+| `php vendor/bin/phpunit --filter 'PreparationCipherTest\|OrderDraft'` | Intermediar FAIL: indexul argumentelor refresh în harness, corectat; scenariile incluse ulterior în regresia completă |
+| `php var/tools/composer.phar check` | Final PASS: validate strict, 238 lint, PHPStan 8; 119 unit/826 assertions + 127 integration/839 assertions = 246 teste |
+| `node --check resources/invoicing.js`; `node --check resources/app.js` | PASS după ultimele modificări UI |
+| `php bin/http-smoke.php` | PASS: 6 verificări locale după ultimele modificări UI |
+| `php bin/key-status.php` și subprocess `--test` în suita concurentă | PASS: invoicePreparationKeyUsage; local două chunk-uri, testul verifică cheia sintetică |
+| Chrome owner: salvare locală din comanda sintetică existentă, reload, Enter/deschidere, actualizare explicită/resalvare | PASS: 30 linii/36.00 RON, snapshot persistent, revizia 1 fără dubluri; nicio emitere sau apel provider |
+| Chrome desktop și 390×844, focus/filtrare | PASS: scrollWidth 1905≤1920 desktop, 375≤390 mobil; filtrul șterge snapshot-ul și ascunde editorul, heading focus; consola fără erori |
+| Emitere/storno/PDF/validare fiscală completă/probă de mediu D08 | NOT_RUN: pași viitori ai 09 |
+
+Acoperire: chunk-uri mari/context merchant/store/order/versiuni/tamper, server refuză snapshot furnizat de client, CSRF/origin, roluri curente/grant revocat/tenant/store, sursă schimbată cu CAS, profil prezent/retry și conexiune invalidată, snapshot păstrat, privacy prin FK, audit fără conținut personal, rollback al tranzacției și două procese reale la creare/refresh. Retry produce un singur audit de salvare pentru fiecare revizie; citirile sursei pot avea audit propriu. Nu există outbox de emitere pentru această propunere locală.
+
+Execuții intermediare FAIL: PHPStan a semnalat argumente cu tipuri amestecate și acces nullable în teste; remediate fără ignorări. Testul de criptare compara strict ordinea cheilor cu JSON canonic; am folosit comparație canonică și în repository pentru profil, apoi verificare cu profil prezent/invalidat. Harness-ul refresh avea index greșit, corectat. Suita finală PASS după aceste schimbări. Captura CDP a avut timeout; verificarea vizuală nativă a funcționat. Capturile locale ignorate nu sunt date versionate.
+
+Reluare: 09.2a.2.2b — completări fiscale persistate și snapshot complet. Salvarea propunerii incomplete nu validează factura. Publicarea/CI se consemnează ulterior.
+
+
 ## 09.2a.1 — configurare firmă/serie, 2026-09-30
 
 Windows, PHP 8.4.24, MySQL 8.4.11 nativ 33060; app/test separate. Mock-ul transportului Oblio folosește exclusiv date sintetice, separat de proba reală prin Chrome. Git inițial curat, fetch origin și pull --ff-only: already up to date. Criteriile și D22 au fost scrise înainte de cod.

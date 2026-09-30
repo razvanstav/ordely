@@ -42,3 +42,11 @@ Git sincronizează codul, migrațiile, testele și predarea. Ciornele și contur
 ## Reluare
 
 09.2 va valida datele complete ale emitentului/destinatarului, D01 și conexiunea/adaptorul Oblio. DraftDocument este o pregătire editabilă; nu este încă un Core InvoiceDraft complet pentru provider. 09.3 va gestiona emitere/storno/reconciliere/PDF. [Fișa](modules/09-invoicing.md), [testele](testing/09-invoicing.md), [deciziile](decisions.md).
+
+## Ciornă inițială din comandă CMS — 09.2a.2.2a
+
+Din Comenzi → Pregătește facturarea, „Salvează ciorna din comandă” păstrează raportul curent chiar dacă lipsesc date fiscale. Facturare arată lista separată „Ciorne din comenzi”, cu 25 rezultate/pagină. Deschide snapshot-ul salvat, iar „Actualizează din CMS” încarcă datele actuale; salvarea actualizării este un pas explicit. Schimbarea comenzii/profilului/conexiunii este semnalată la deschidere. Nu primește număr fiscal și canIssue rămâne false.
+
+GET /api/invoice-order-drafts?storeId=…&after=… listează propunerile; GET /api/invoice-order-drafts/{orderId}?storeId=… întoarce draft sau null. POST pe același ID acceptă numai storeId, expectedVersion (0 la creare), orderVersion și profileVersion (0 fără profil). Serverul recitește datele și respinge versiunea sursei/profilului schimbată (409); nu acceptă sume/adrese din browser. Retry identic păstrează revizia, alte actualizări cer versiunea curentă. Owner/admin/finance salvează, operator citește, viewer refuzat; sunt necesare invoices.read, orders.read și la salvare invoices.draft, cu granturile magazinului.
+
+Migrația 009 salvează o singură propunere revizuibilă pentru factura inițială a comenzii, separată de registrul viitoarelor documente. Snapshot-ul este criptat în chunk-uri, cu AAD distinct pentru context și versiuni; `invoicePreparationKeyUsage` inventariază cheile folosite. Persistarea și auditul de salvare sunt atomice, fără apel extern. Sincronizarea nu suprascrie snapshot-ul; ștergerea sursei CMS elimină această propunere ne-fiscală prin FK CASCADE pentru privacy. Nu se aplică automat aceeași politică viitoarelor documente fiscale emise (D24). Completările fiscale persistate urmează în 09.2a.2.2b.

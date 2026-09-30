@@ -4,6 +4,7 @@ namespace Ordely\Operations\Domain;
 enum AuditAction: string
 {
     case InvoiceConfigurationRead='invoice_configuration_read';
+    case InvoicePreparationSaved='invoice_preparation_saved';case InvoicePreparationViewed='invoice_preparation_viewed';
     case InvoiceProfileSaved='invoice_profile_saved';case InvoiceProfileViewed='invoice_profile_viewed';
     case InvoiceDraftCreated='invoice_draft_created';case InvoiceDraftUpdated='invoice_draft_updated';case InvoiceDraftArchived='invoice_draft_archived';case InvoiceDraftViewed='invoice_draft_viewed';
     case ImportStarted='import_started';case ImportCompleted='import_completed';case PrivacyProcessed='privacy_processed';case OrderViewed='order_viewed';
