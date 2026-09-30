@@ -1,5 +1,8 @@
 # Starea curentă — Ordely
 
+Publicare 09.2a.2.2a: cod `4350a86` trimis pe `codex/modul-01-arhitectura`; push, fetch și HEAD/origin identice verificate, checkout curat. [CI Windows/Linux 36707834906 PASS](https://github.com/razvanstav/ordely/actions/runs/36707834906), `gh run watch 36707834906 --exit-status --interval 15` exit 0: PHP/MySQL pe ambele sisteme, migrare/restart Windows și HTTP Linux. Regresie locală 246 teste, 238 lint, PHPStan 8, două sintaxe JS și 6 HTTP PASS. Linkuri/diff/staged scanner pentru secrete/date fiscale PASS. Captura nativă finală `var/ui-order-draft-20260930.jpg` este locală și ignorată. Această predare ulterioară modifică numai documentația; emitere/storno/PDF rămân NOT_RUN.
+
+
 ## Ciornă din comandă CMS — 09.2a.2.2a implementat
 
 2026-09-30: modulul 09 rămâne unicul IN_PROGRESS. Comenzi → Pregătește facturarea → Salvează ciorna din comandă păstrează local raportul CMS inclusiv incomplet, separat de ciornele manuale. Redeschiderea arată snapshot-ul salvat; schimbările comenzii/profilului/conexiunii sunt semnalate, actualizarea și salvarea sunt explicite. Serverul recitește sursa, verifică versiunile și accesul; criptare/AAD, CAS/retry, audit atomic și inventar chei. Migrația 009 aplicată în app/test. Propunerea inițială se elimină la ștergerea sursei CMS; nu este registrul viitoarelor documente fiscale (D24).

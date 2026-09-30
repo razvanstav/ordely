@@ -1,5 +1,8 @@
 # Verificări 09 — ciorne locale (09.1)
 
+Publicare 09.2a.2.2a: cod `4350a86` trimis pe `codex/modul-01-arhitectura`; push, fetch și HEAD/origin identice verificate, checkout curat. [CI Windows/Linux 36707834906 PASS](https://github.com/razvanstav/ordely/actions/runs/36707834906), `gh run watch 36707834906 --exit-status --interval 15` exit 0: PHP/MySQL pe ambele sisteme, migrare/restart Windows și HTTP Linux. Regresie locală 246 teste, 238 lint, PHPStan 8, două sintaxe JS și 6 HTTP PASS. Linkuri/diff/staged scanner pentru secrete/date fiscale PASS. Captura nativă finală `var/ui-order-draft-20260930.jpg` este locală și ignorată. Această predare ulterioară modifică numai documentația; emitere/storno/PDF rămân NOT_RUN.
+
+
 ## 09.2a.2.2a — ciornă CMS persistată, 2026-09-30
 
 Windows, PHP 8.4.24, MySQL 8.4.11 nativ 33060; baze app/test separate. Criterii înainte de cod în fișa modulului. Git fetch/pull --ff-only PASS, already up to date. D24; unicul activ 09.

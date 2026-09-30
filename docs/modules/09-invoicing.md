@@ -1,5 +1,8 @@
 # Modul 09 — Facturare
 
+Publicare 09.2a.2.2a: cod `4350a86` trimis pe `codex/modul-01-arhitectura`; push, fetch și HEAD/origin identice verificate, checkout curat. [CI Windows/Linux 36707834906 PASS](https://github.com/razvanstav/ordely/actions/runs/36707834906), `gh run watch 36707834906 --exit-status --interval 15` exit 0: PHP/MySQL pe ambele sisteme, migrare/restart Windows și HTTP Linux. Regresie locală 246 teste, 238 lint, PHPStan 8, două sintaxe JS și 6 HTTP PASS. Linkuri/diff/staged scanner pentru secrete/date fiscale PASS. Captura nativă finală `var/ui-order-draft-20260930.jpg` este locală și ignorată. Această predare ulterioară modifică numai documentația; emitere/storno/PDF rămân NOT_RUN.
+
+
 ## Pas 09.2a.2.2a — ciornă din comandă CMS (implementat)
 
 2026-09-30: utilizatorul confirmă că datele lipsă vor veni din Shopify și cere continuarea, fără a completa manual comanda de test acum. Descompunem persistarea: acest subpas salvează propunerea CMS incompletă ca ciornă locală distinctă de ciornele manuale 09.1; completările fiscale finale și contractul de emitere rămân în pasul următor. Nu presupunem că datele emitentului vin din Shopify; firma/seria rămân din configurarea Oblio.
