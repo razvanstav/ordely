@@ -2,17 +2,17 @@
 
 Actualizat: 2026-09-30. Registrul oficial al stărilor modulelor.
 
-**01–08 DONE. 09 IN_PROGRESS, unicul activ: 09.2b implementat local — conexiune criptată și citire Oblio, cu proba de cont încă NOT_RUN. 09.1 rămâne închis.**
+**01–08 DONE. 09 IN_PROGRESS, unicul activ: 09.2b finalizat — conexiune criptată și citire reală Oblio PASS. Urmează 09.2a, datele complete și profilul de emitere. 09.1 rămâne închis.**
 
-Operare 2026-09-30: cont local personal creat la cerere în spațiul existent; hash și login real în Chrome PASS. Formularul Integrări → Oblio este pregătit pentru emailul/cheia API introduse direct; proba contului rămâne NOT_RUN. D20 consemnează excepția punctuală de parolă locală și separarea deployment-ului de Git. Nu există hosting nou; fără schimbări runtime sau module noi.
+Operare 2026-09-30: cont local personal creat la cerere în spațiul existent; hash și login real în Chrome PASS. Ulterior, datele API furnizate de utilizator au fost salvate prin UI: o conexiune Oblio criptată, asociată magazinului, versiunea 2. Autentificare și citire reală PASS: 1 firmă, 1 serie de factură, 10 cote TVA; audit sigur și persistare criptată verificate în DB. 09.2b este închis, fără profil fiscal salvat sau documente emise. D18 actualizat; D01 și condițiile de emitere D08 rămân deschise. D20 consemnează accesul local. Nu există hosting nou; fără schimbări runtime sau module noi.
 
 Utilizatorul a confirmat continuarea locală, fără hosting în acest pas.
 
-Pas UI cerut de utilizator, 2026-09-29, finalizat local: suprafețele existente grupate în șase pagini, Acasă cu date reale și pași de configurare, formulare la cerere și diagnostic separat. Desktop/mobil, navigare, calcul ciornă, 220 teste, lint/PHPStan/JS/HTTP PASS; [raport](docs/testing/09-invoicing.md). D19 consemnează extinderea în 09; 20 rămâne PLANNED. Reluare: feedback pe Acasă, apoi conexiunea din Integrări → Oblio. Nu s-au apelat furnizorii în această probă UI.
+Pas UI cerut de utilizator, 2026-09-29, finalizat local: suprafețele existente grupate în șase pagini, Acasă cu date reale și pași de configurare, formulare la cerere și diagnostic separat. Desktop/mobil, navigare, calcul ciornă, 220 teste, lint/PHPStan/JS/HTTP PASS; [raport](docs/testing/09-invoicing.md). D19 consemnează extinderea în 09; 20 rămâne PLANNED. Conectarea Oblio planificată atunci a fost verificată ulterior, la 2026-09-30. Nu s-au apelat furnizorii în proba UI din 2026-09-29.
 
 UI `b1709f0` publicat, HEAD/remote identice și [CI Windows/Linux 36575021341 PASS](https://github.com/razvanstav/ordely/actions/runs/36575021341). Predarea ulterioară este numai documentară.
 
-Pas 09.2b, 2026-09-29: utilizatorul confirmă contul și autorizează integrarea locală; 220 teste, 222 lint, PHPStan 8, JS și HTTP PASS. Formular verificat în Chrome; credențialele sunt mascate pentru citirea automată, astfel introducerea lor direct în UI este următorul pas. Nu există încă o conexiune reală salvată/probă autentificată sau profil de emitere. 09.2a/c și 09.3 rămân de implementat, D01 și mediul de emitere D08 deschise. [Fișa 09](docs/modules/09-invoicing.md), [raport](docs/testing/09-invoicing.md).
+Istoric 09.2b, 2026-09-29: utilizatorul confirmă contul și autorizează integrarea locală; 220 teste, 222 lint, PHPStan 8, JS și HTTP PASS. Formular verificat în Chrome; valorile mascate au împiedicat proba reală la acel moment. Proba restantă este acum PASS conform operării din 2026-09-30. 09.2a/c și 09.3 rămân de implementat, D01 și mediul de emitere D08 deschise. [Fișa 09](docs/modules/09-invoicing.md), [raport](docs/testing/09-invoicing.md).
 
 Codul 09.2b `11dddf4` este publicat, hash remote verificat și [CI Windows/Linux 36551856411 PASS](https://github.com/razvanstav/ordely/actions/runs/36551856411). 09 rămâne IN_PROGRESS.
 

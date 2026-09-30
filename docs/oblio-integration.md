@@ -1,6 +1,6 @@
 # Pregătirea integrării Oblio — 09.2
 
-2026-09-29. Modulul 09 este unicul IN_PROGRESS. 09.1 rămâne funcțional. 09.2b are adaptor de citire și configurare locală; datele complete și operațiile fiscale 09.2a/c–09.3 rămân de implementat. Proba autentificată de cont este încă NOT_RUN.
+2026-09-30. Modulul 09 este unicul IN_PROGRESS. 09.1 rămâne funcțional. 09.2b este finalizat: conexiune locală criptată, asociată magazinului, autentificare și citire reală PASS (1 firmă, 1 serie de factură, 10 cote TVA). Datele complete, profilul și operațiile fiscale 09.2a/c–09.3 rămân de implementat. [Probe](testing/09-invoicing.md).
 
 ## Ce trebuie completat în model
 
@@ -27,7 +27,7 @@ Pagina publică nu explică durata/domeniul cheii idempotente sau reconcilierea 
 ## Pași verificabili
 
 1. **09.2a — model și verificarea pregătirii:** date neutre, validatori, compatibilitate cu ciornele 09.1, UI cu erori precise. Fără emitere externă. D01 se fixează înainte de codul care aplică politica.
-2. **09.2b — conexiune și nomenclatoare:** secrete criptate, autentificare, alegerea companiei/seriei/tratamentelor TVA, validare merchant/store. Primele probe reale sunt numai de citire, după stabilirea contului D08.
+2. **09.2b — conexiune și nomenclatoare, finalizat:** secrete criptate, autentificare, selecția companiei pentru citirea seriilor/TVA, validare merchant/store. Proba reală numai de citire PASS la 2026-09-30. Persistarea profilului/seriei și selecția tratamentelor TVA pentru emitere aparțin pasului următor.
 3. **09.2c — adaptor și mapare:** contract InvoiceProvider, corp de cerere din snapshot validat, răspuns normalizat, fără float; opțiuni externe explicite și capability numai pentru ce este susținut. Testele de transport controlat nu sunt probe live.
 4. **09.3 — execuție durabilă:** emitere, rezultat necunoscut/reconciliere, storno și PDF; probe controlate pe un cont/mediu identificat. Nu combinăm acest pas cu modulul 10.
 
@@ -37,7 +37,8 @@ Pagina publică nu explică durata/domeniul cheii idempotente sau reconcilierea 
 - [ ] Datele complete și erorile de pregătire sunt vizibile; vechile ciorne nu sunt completate cu valori inventate.
 - [ ] Tenant/store/conexiune/profil se verifică la API, persistare și apelul adaptorului; credentialele nu ajung în UI/loguri.
 - [ ] TVA și reducerile au reprezentare exactă; monede incompatibile, cote lipsă, overflow și diferențe de total sunt respinse.
-- [ ] Contul și profilul/seriile D08 sunt identificate; nomenclatoarele reale sunt verificate separat de testele simulate.
+- [x] Contul D08 este autentificat și nomenclatoarele reale sunt verificate separat de testele simulate (2026-09-30).
+- [ ] Profilul, seria și mediul de emitere D08 sunt stabilite; citirea unei serii existente nu înlocuiește această alegere.
 - [ ] Erorile auth/429/5xx/timeout/răspuns invalid au mapare sigură; nu repetăm automat o scriere ambiguă.
 - [ ] Teste unitare, contracte și integrare pe MySQL, HTTP/CSRF/roluri, compatibilitate documente, criptare și concurență PASS; UI verificată proporțional.
 - [ ] Documente, CI și Git actualizate; emiterile reale și limitările rămân raportate separat.
@@ -46,9 +47,11 @@ Pagina publică nu explică durata/domeniul cheii idempotente sau reconcilierea 
 
 **D01, propunere neacceptată încă:** numai pentru schimb/retrimitere, selecție cu total zero → fără factură nouă/COD 0; fără compensarea automată a prețului returului cu înlocuitorul; storno numai prin acțiune explicită, pe original verificat. Facturile externe se referă numai după verificarea lor; o referință neverificabilă blochează storno. Regula nu spune că o comandă obișnuită plătită, cu COD 0, nu primește factură. Regula de produs nu închide validarea fiscală din D01.
 
-**D08:** utilizatorul confirmă contul și pregătirea locală. Nu știm încă dacă firma/seria este pentru teste sau producție; separat trebuie confirmate setările efective de stoc, email și SPV înainte de emitere. Cheile se introduc în formularul local implementat, nu în chat/Git. Citirea automată a câmpurilor contului din Chrome returnează valori mascate; introducerea directă în UI este pasul restant.
+**D08:** contul este conectat și citirea reală verificată la 2026-09-30, după furnizarea datelor API și confirmarea emailului de către utilizator. Datele sunt salvate criptat în DB locală; nu se cer din nou și nu intră în Git/documente. Nu știm încă dacă firma/seria este pentru teste sau producție; separat trebuie confirmate setările efective de stoc, email și SPV înainte de emitere. Cotele returnate de cont nu sunt o alegere fiscală implicită.
 
 ## Operarea locală disponibilă — 09.2b
+
+Pe PC-ul acestei probe există deja o conexiune Oblio activă și asociată magazinului. Pașii de creare de mai jos sunt pentru un mediu nou; la reluare verifică mai întâi conexiunea existentă, fără să creezi o dublură. Git nu transferă DB sau keyring-ul.
 
 1. Autentifică-te cu contul Ordely, apoi deschide Integrări → Oblio. Introdu denumirea, emailul contului Oblio și cheia API din Oblio → Setări → Date cont. Parola de login Ordely nu înlocuiește cheia API Oblio. Nu este necesară regenerarea cheii.
 2. Salvează; acest pas criptează datele în provider_connections și validează forma lor, fără să confirme autentificarea. Lista nu întoarce credentialele salvate. Înlocuirea și recriptarea folosesc versiunea conexiunii.

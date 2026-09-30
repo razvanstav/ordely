@@ -108,3 +108,24 @@ Cerere explicită de creare a contului personal Ordely pentru a continua integr�
 | `git diff --check`, linkuri relative în cele șapte documente, absența helper-ului temporar | PASS |
 
 Helper-ul temporar a folosit numai `APP_ENV=dev`, DB pe loopback și merchant-ul din contextul local existent, cu refuz dacă emailul ar fi aparținut altui context. Nu a conținut valori de credentiale și a fost eliminat după verificare. Parola explicit aleasă pentru contul local este excepția administrativă D20; nu s-a relaxat validatorul general de provisionare. API-ul și autentificarea nu s-au schimbat.
+
+## Proba reală Oblio — 2026-09-30
+
+Ulterior probei de acces local, utilizatorul a furnizat datele API Oblio și a confirmat emailul contului. Se folosesc criteriile 09.2b deja definite: salvare criptată, asociere magazin, autentificare și citire, fără operații fiscale. Git curat la reluare; `git fetch origin` și `git pull --ff-only` PASS, Already up to date. Mediu: Windows, PHP 8.4.24, MySQL 8.4.11 pe loopback:33060, Chrome și sesiune owner Ordely pe http://127.0.0.1:8080. Nicio schimbare runtime sau migrație nouă.
+
+| Comandă / scenariu executat | Rezultat |
+| --- | --- |
+| Chrome, Integrări → Oblio → Salvează conexiunea | PASS: conexiune activă creată prin formularul existent; datele salvate nu sunt returnate în listă |
+| Folosește pentru acest magazin | PASS: conexiunea asociată implicit magazinului existent, versiunea 2 |
+| Citește firmele Oblio | PASS real: autentificare reușită, 1 firmă disponibilă |
+| Selectarea firmei din cont → Citește seriile și TVA | PASS real: mesaj de citire reușită, 1 serie de factură și 10 intrări TVA afișate |
+| `& ./var/tools/php-8.4.24/php.exe var/verify-oblio-local.php` | PASS, exit 0: o singură conexiune activă; versiune 2; credentiale decriptabile și absente în clar din envelope; asociere implicită în magazinul așteptat; audit sigur |
+| Ultima comandă de închidere a formularului gol și marcarea taburilor | BLOCKED: instrumentul solicită actualizarea extensiei ChatGPT din Chrome; executarea acestei comenzi nu este confirmată. Probe reușite înaintea blocajului |
+| Suita completă PHPUnit/PHPStan/HTTP | NOT_RUN din nou: fără cod runtime modificat; cele 220 teste și CI documentate mai sus sunt din implementare |
+| Salvare profil fiscal, emitere/storno/PDF/email/stoc/SPV | NOT_RUN, neimplementate și în afara probei de citire |
+
+Verificarea locală este exclusiv prin citire, limitată la `APP_ENV=dev`, DB pe loopback și merchant/store din contextul local existent. Rezultate sanitizate: `activeOblioConnections=1`, `connectionVersion=2`, `encryptedCredentialsVerified=true`, `defaultBindingForExpectedStore=true`, `safeAuditMetadataVerified=true`. Auditul conține exact `connection_created=1`, `connection_bound=1`, `invoice_configuration_read=2`; citirile au număr de rezultate 1, respectiv 12 (1 firmă + 1 serie + 10 cote). Metadata citirilor conține numai `version` și `count`, fără credentiale sau datele firmei. Helper-ul local ignorat nu conține valori de credentiale și nu apelează API-ul Oblio.
+
+09.2b finalizat. Aceasta este o probă de cont real, distinctă de transportul simulat. Nu au fost regenerate chei, schimbate setări Oblio sau emise documente. Firma/seria test vs. producție, selecția tratamentului TVA, profilul salvat și D01/D08 pentru emitere rămân restante; 09 rămâne unicul IN_PROGRESS. Valorile reale de cont/firmă/serie și payload-urile nu sunt copiate în Git sau raport.
+
+Predare documentară: `git diff --check` și `git diff --cached --check` PASS; verificarea PowerShell a linkurilor relative din cele șapte documente și a unicului modul activ 09 PASS. `& ./var/tools/php-8.4.24/php.exe var/check-publish-secrets.php` PASS: staged diff fără secretele configurate sau credentialele conexiunilor locale. `git check-ignore var/verify-oblio-local.php` confirmă că helper-ul rămâne local. Nu sunt rezultate CI noi pretinse pentru acest pas fără schimbări runtime.

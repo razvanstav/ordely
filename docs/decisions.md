@@ -154,9 +154,11 @@ D01/D08 — pregătire 09.2, 2026-09-29: după „ok”, 09 redevine unicul IN_P
 
 2026-09-29: utilizatorul confirmă contul Oblio și cere pregătirea integrării locale, indicând tabul Chrome autentificat. Prioritizăm 09.2b în același modul 09, independent de D01. Reutilizăm credentialele criptate/binding/versioning din 06 și adăugăm un port neutru pentru configurația de facturare. Adaptorul real declară numai citirea configurației; celelalte metode InvoiceProvider sunt explicit Unsupported. Core nu importă Oblio.
 
-Nu salvăm încă profilul de emitere, nu presupunem sandbox și nu executăm operații asupra documentelor, stocului, emailului sau SPV. Listele sunt citite la cerere, compania este validată în cont înaintea seriilor/TVA, iar rolul și contextul conexiunii se revalidează după rețea. Tokenul temporar nu este persistat; emailul/cheia API rămân în infrastructura de criptare, după salvarea prin UI. Browserul furnizează valori mascate, astfel introducerea directă de către utilizator este necesară pentru proba reală; nu se cer chei în chat.
+Nu salvăm încă profilul de emitere, nu presupunem sandbox și nu executăm operații asupra documentelor, stocului, emailului sau SPV. Listele sunt citite la cerere, compania este validată în cont înaintea seriilor/TVA, iar rolul și contextul conexiunii se revalidează după rețea. Tokenul temporar nu este persistat; emailul/cheia API rămân în infrastructura de criptare, după salvarea prin UI. Încercarea inițială cu valori mascate din browser nu a creat o conexiune; nu se cer chei în chat.
 
-D01 rămâne deschis; D08 este confirmat numai pentru existența contului și pregătirea locală. Firma/seria și condițiile probelor fiscale rămân de stabilit înainte de 09.3. Citirea nomenclatoarelor nu dovedește emitere/idempotency/storno validate.
+D18 — verificare reală, 2026-09-30: utilizatorul a furnizat datele API și a confirmat emailul contului. Salvarea prin UI, asocierea magazinului și citirea reală au reușit: 1 firmă, 1 serie de factură și 10 cote TVA. Persistarea criptată și auditul numai cu versiune/număr de rezultate au fost verificate în DB. 09.2b este finalizat; configurația și secretele rămân locale, fără valori reale în predare/Git. Nu se recreează conexiunea validă la reluarea pe același PC.
+
+D01 rămâne deschis; D08 este acum verificat pentru autentificare și citirea contului. Firma/seria și condițiile probelor fiscale rămân de stabilit înainte de 09.3. Citirea nomenclatoarelor nu salvează un profil fiscal și nu dovedește emitere/idempotency/storno validate.
 
 ## D19 — Gruparea interfeței existente în modulul 09
 
