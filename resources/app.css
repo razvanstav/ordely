@@ -14,3 +14,9 @@ button,.button-link{display:inline-flex;align-items:center;justify-content:cente
 @media(max-width:950px){.configuration-catalog{grid-template-columns:1fr}.integration-detail-toolbar{flex-wrap:wrap}.integration-detail-toolbar>span{display:none}}
 @media(max-width:700px){.category-heading{gap:12px}.category-heading h2{font-size:21px}.category-heading p{font-size:14px}.category-icon{width:40px;height:40px}#integration-catalog .provider-card{padding:22px 18px;gap:13px}.provider-planned>small{margin-left:56px!important}.connection-cards>.card{padding:22px 18px}.connection-header h3{font-size:20px}.connection-store{font-size:14px!important}.configuration-step{padding:18px 14px;gap:10px}.configuration-step>h4{font-size:16px}.configuration-step>button,.configuration-step>form{grid-column:1/-1;width:100%}.configuration-step button{width:100%}.configuration-step select{font-size:15px}.catalog-block>h4{padding:18px;font-size:17px}.catalog-list li{padding:15px 18px}.connection-cards .disclosure{padding:17px 15px}.connection-cards .disclosure summary{font-size:15px}.access-settings form{grid-template-columns:1fr;padding:14px}.access-settings form>button{width:100%}.connect-panel{padding:22px 18px}.integration-detail-toolbar{gap:10px}.integration-detail-toolbar>button{flex:1;font-size:13px;padding:10px}.configuration-note{padding:17px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+[data-page] .billing-summary {display:grid; grid-template-columns:minmax(6rem, 1fr) minmax(0, 3fr); gap:.6rem 1rem; margin:1rem 0;}
+.billing-summary dt {color:#586b60;}
+.billing-summary dd {margin:0; font-weight:600; overflow-wrap:anywhere;}
+#billing-summary {font-size:16px;} #billing-summary h3,.configuration-note h3 {font-size:20px; margin-top:0;}
+.configuration-catalog>.configuration-step {grid-column:1/-1; margin:0;}
+.configuration-step>p {grid-column:2; font-size:15px; margin:0;}

@@ -205,6 +205,8 @@ Capabilitățile depind de furnizor, contractul comerciantului, serviciu și des
 
 InvoiceDraft include seller profile, customer/billing snapshot, linii, cantități, prețuri, taxe, reduceri, monedă, serie configurată și referință business. Providerul rămâne autoritatea pentru numărul și documentul emis. Liniile și totalul calculate de Ordely se compară cu răspunsul real; o diferență blochează generarea AWB până la reconciliere.
 
+Implementare incrementală 09.2a.1 (D22): `invoice_profiles` păstrează o selecție criptată de firmă/serie per merchant/store, cu FK spre magazin/conexiune invoice, CAS și audit fără conținut fiscal. AAD include merchant/store/conexiune/versiuni. Schimbarea versiunii/asocierii conexiunii cere reverificare; salvarea citește nomenclatoarele și revalidează contextul după rețea. Selecția nu este încă seller snapshot complet și nu autorizează emiterea; datele de adresă/destinatar/linii și snapshot-ul imutabil al documentului rămân în restul 09.2a.
+
 Capabilities includ storno parțial, anulare, PDF, trimitere și căutarea unei operațiuni. Stornarea unei facturi inițiale emise în alt sistem necesită o referință verificată; nu inventăm factura originală. Oblio este primul adaptor. Ordely nu ține contabilitate și nu clasifică o regulă de produs ca validare fiscală.
 
 ## 09. Event model

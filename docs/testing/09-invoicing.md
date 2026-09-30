@@ -1,5 +1,27 @@
 # Verificări 09 — ciorne locale (09.1)
 
+## 09.2a.1 — configurare firmă/serie, 2026-09-30
+
+Windows, PHP 8.4.24, MySQL 8.4.11 nativ 33060; app/test separate. Mock-ul transportului Oblio folosește exclusiv date sintetice, separat de proba reală prin Chrome. Git inițial curat, fetch origin și pull --ff-only: already up to date. Criteriile și D22 au fost scrise înainte de cod.
+
+| Comandă / scenariu efectiv | Rezultat |
+| --- | --- |
+| `php bin/migrate.php`; testele aplică automat migrațiile în DB test | PASS: 008 în app/test |
+| `php vendor/bin/phpunit --testsuite Integration --filter InvoiceProfileTest` | PASS: 9 teste/68 assertions |
+| `php vendor/bin/phpunit --testsuite Integration --filter InvoiceProfileConcurrencyTest` | Prima execuție FAIL: index greșit al argumentelor în harness, corectat; PASS ulterior 2 teste/15 assertions, apoi 16 cu verificarea profilului nenul |
+| `php var/tools/composer.phar check` | O execuție intermediară FAIL la PHPStan pentru tratarea profilului nullable în test; corectat. Final PASS: validate strict, 226 lint, PHPStan 8, 112 unit/768 assertions și 119 integration/748 — 231 teste |
+| Node runtime Codex: `--check resources/app.js`, `--check resources/invoicing.js` | PASS după ultimele modificări UI |
+| `php bin/http-smoke.php` | PASS: 6 probe locale |
+| `php bin/key-status.php` | PASS: invoiceProfileKeyUsage include un profil local; testul CLI verifică o cheie sintetică izolată |
+| Chrome: verificare acces, alegere singura firmă/serie disponibile, salvare locală, navigare Facturare, reload | PASS: rezumat persistent, fără schimbarea credentialelor sau emitere |
+| Chrome desktop și viewport 390×844, Back și Tab pe formular | PASS: rezumat și trei pași lizibili, pasul de salvare înaintea listelor; scrollWidth=clientWidth=375 pe mobil |
+| Consola aplicației după probă | PASS: fără erori cu URL-ul aplicației; avertismente ale unei extensii Chrome terțe, distincte de Ordely |
+| Emitere/storno/PDF, validare fiscală completă, D01/D08 | NOT_RUN: în afara acestui subpas, condițiile fiscale restante |
+
+Acoperire nouă: profil absent, verificare firmă/serie pe server, criptare/AAD store/revizie și lipsa datelor fiscale din audit; tenant/store/granturi/roluri curente/CSRF/origin; retry identic fără dubluri; două procese concurente la creare și selecții diferite pentru aceeași revizie; eșec provocat al auditului cu rollback; versiune/asociere/revocare conexiune și modificare rol în timpul rețelei; 429 cu Retry-After și păstrarea profilului precedent. Mesajele RuntimeException din testele de tamper sunt provocate intenționat, cu răspuns HTTP sigur, nu eșecuri ale suitei. Ciornele vechi și contractele Core rămân neschimbate și sunt acoperite de regresie.
+
+Proba live salvează numai configurația Ordely după citiri în Oblio; transportul fiscal de emitere nu există încă. `needsVerification=false` verifică versiunea/asocierea locală, nu absența schimbărilor externe din Oblio. Captura `var/ui-billing-profile-20260930.jpg` este ignorată; numele/CIF-ul/seria reale nu sunt copiate în Git/predare. CI și verificarea publicării se consemnează după push.
+
 2026-09-28. Windows, PHP 8.4.24, MySQL 8.4.11 nativ pe loopback:33060; DB de test separată. Date exclusiv sintetice. Migrația 007 aplicată în DB aplicației și în DB test. Nu s-a apelat Shopify/Oblio și nu s-a emis nicio factură.
 
 ## Probe și rezultate

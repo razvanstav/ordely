@@ -1,6 +1,14 @@
 # Starea curentă — Ordely
 
-2026-09-30. Registrul: [plan.md](plan.md). **01–08 DONE. 09 IN_PROGRESS, unicul activ. 09.2b finalizat: conexiune Oblio locală și proba reală de citire PASS. Categoriile de integrări și ecranul lizibil Oblio cerute de utilizator sunt implementate și verificate (D21); urmează 09.2a.** 09.1 și interfața reorganizată sunt păstrate; 10–21 neîncepute.
+2026-09-30. Registrul: [plan.md](plan.md). **01–08 DONE. 09 IN_PROGRESS, unicul activ. 09.2a.1 finalizat: firma și seria verificate sunt salvate criptat pentru magazin și afișate în Facturare.** 09.1, conexiunea/citirea reală 09.2b și UI D21 sunt păstrate; 10–21 neîncepute.
+
+## Configurare facturare salvată
+
+Oblio are trei pași: verifică accesul, alege firma/citește datele, alege explicit seria și salvează. API-ul reverifică nomenclatoarele și contextul înaintea persistării; un profil per merchant/store, criptare cu AAD, CAS/retry fără dubluri, audit fără date fiscale și inventar de chei. Schimbarea conexiunii cere reverificarea profilului. Owner/admin cu acces la toate magazinele configurează; rolurile care pot citi facturarea văd numai magazinele permise. D22, migrația 008 în app/test.
+
+PASS: 231 teste (112 unit/768 assertions, 119 integration/748), 226 lint, PHPStan 8, două sintaxe JS și 6 HTTP. Două procese reale pentru CAS/retry, rollback la eșecul auditului, izolare/roluri, criptare și erori provider testate. Proba reală prin Chrome: singura firmă/serie din conexiunea existentă salvate local, rezumat păstrat după reload; desktop/mobil 390×844 fără overflow, Back/focus PASS, fără erori de aplicație în consolă. O configurație în inventarul cheilor, fără date reale în Git/predare. [Raport](docs/testing/09-invoicing.md).
+
+Reluare exactă: [Facturare](http://127.0.0.1:8080/#invoicing) este deschisă și arată profilul salvat; nu cere din nou cheia și nu recrea conexiunea. Continuă 09.2a.2: date complete ale emitentului/destinatarului, adresă structurată și linii/TVA explicit, apoi lista lipsurilor unei facturi. Profilul actual conține numai firmă/serie; nu este snapshot fiscal complet. D01/D08 pentru emitere și 09.2c/09.3 rămân restante; nu s-a emis nimic. Rezultatul Git/CI se consemnează după publicare.
 
 ## Integrări organizate pe activitate
 
@@ -14,7 +22,7 @@ Cod UI `a357c81` publicat, push și HEAD/origin identice verificate; [CI Windows
 
 Utilizatorul a furnizat datele API și a confirmat emailul contului. Conexiunea a fost salvată prin UI și asociată ca implicită magazinului existent. Citirea reală în Chrome PASS: 1 firmă, 1 serie de factură și 10 cote TVA. Verificarea DB locală confirmă o singură conexiune activă, versiunea 2, credentiale criptate și două citiri auditate numai cu versiune/număr de rezultate. Datele de cont și ale firmei nu sunt incluse în predare/Git. [Probe](docs/testing/09-invoicing.md).
 
-Rezultatele citite nu constituie un profil fiscal salvat. Nu s-au emis documente; firma/seria pentru probe fiscale, D01 și opțiunile stoc/email/SPV rămân de stabilit. După probele reușite, o ultimă comandă de închidere a formularului gol a fost blocată de solicitarea actualizării extensiei Chrome; aceasta nu invalidează conexiunea verificată.
+La proba inițială de citire nu exista un profil salvat. Acum firma/seria sunt persistate conform 09.2a.1 de mai sus; mediul probelor fiscale, D01 și opțiunile stoc/email/SPV rămân de stabilit. Nu s-au emis documente. Blocajul extensiei din proba inițială nu s-a repetat în verificările UI ulterioare.
 
 ## Acces local disponibil
 
@@ -48,11 +56,11 @@ Adaptorul `11dddf4` este publicat, cu [CI Windows/Linux 36551856411 PASS](https:
 
 Reluare exactă: verifică existența conexiunii Oblio active și asociate magazinului pe acest PC; nu crea o dublură și nu cere din nou cheia. Ecranul dedicat se deschide din Integrări → Facturare → Oblio și permite citiri la cerere. Continuă 09.2a: datele complete/profilul de emitere și politica D01. Firma/seria de teste și setările stoc/email/SPV nu sunt stabilite; D08 este verificat pentru citirea contului, dar rămâne deschis pentru emitere. Blocajul extensiei din proba precedentă nu s-a repetat în verificarea UI curentă. Pe alt PC nu presupune că DB/conexiunea au venit prin Git.
 
-09.1 este implementat și publicat: ciorne independente de CMS, calcul exact, creare/editare/arhivare, revizii criptate, tenant/store și audit; cod `f622aab`, [CI PASS](https://github.com/razvanstav/ordely/actions/runs/36480973254). 09.2a/c și 09.3 rămân neimplementate: date complete de emitere, maparea facturii, emitere/storno/PDF. La reluare continuă numai 09; citește [fișa 09](docs/modules/09-invoicing.md), D01/D08/D16/D18. Nu începe 10.
+09.1 este implementat și publicat: ciorne independente de CMS, calcul exact, creare/editare/arhivare, revizii criptate, tenant/store și audit; cod `f622aab`, [CI PASS](https://github.com/razvanstav/ordely/actions/runs/36480973254). 09.2a.1 este finalizat conform secțiunii de sus. Restul 09.2a, 09.2c și 09.3 rămân: date complete de emitere, maparea facturii, emitere/storno/PDF. Continuă numai 09; citește [fișa 09](docs/modules/09-invoicing.md), D01/D08/D16/D18/D22. Nu începe 10.
 
 ## Mediu și Git
 
-PHP 8.4.24, MySQL 8.4.11 pe 33060, migrații 001–007 aplicate în app/test, Composer 2.10.3, Node 24.19.0 din runtime Codex, Shopify CLI 4.8.2. MySQL și preview-ul PHP/Shopify/tunel rămân pornite; panou [local](http://127.0.0.1:8080/). Workerul a terminat importurile și nu rulează permanent. Nu există scheduler/supervisor de producție. URL-ul tunelului se schimbă la restart.
+PHP 8.4.24, MySQL 8.4.11 pe 33060, migrații 001–008 aplicate în app/test, Composer 2.10.3, Node 24.19.0 din runtime Codex, Shopify CLI 4.8.2. MySQL și preview-ul PHP rămân pornite; panou [local](http://127.0.0.1:8080/). Workerul a terminat importurile și nu rulează permanent. Nu există scheduler/supervisor de producție. URL-ul tunelului se schimbă la restart.
 
 Păstrează `.env`, `var/keys/keyring.json` și DB împreună; nu se transferă prin Git. Contul sintetic este în `var/dev-account.json`; proba HTTP și rezultatele sanitizate în `var/resume-08-*`, ignorate. Secretele/tokenurile nu sunt în documente sau Git. Pe un alt PC verifică legătura sa locală; nu presupune că DB sau conexiunea acestui PC au fost copiate.
 

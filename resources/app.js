@@ -40,6 +40,7 @@ function showPage(name, focus = false) {
   document.title = `Ordely · ${page.name}`;
   if (name === 'integrations') renderIntegrationView();
   else closeConnectionSetup();
+  if (name === 'invoicing') refreshInvoiceProfile();
   if (focus) {$('#page-title').focus({preventScroll:true}); window.scrollTo({top:0, behavior:'instant'});}
 }
 function navigate(name) {
@@ -292,6 +293,15 @@ function invoiceConfigurationPanel(connection, storeId, storeName) {
   const panel = document.createElement('section'); panel.className = 'invoice-configuration';
   panel.setAttribute('aria-label', `Firmă, serie și TVA pentru ${storeName}`);
   panel.append(commerceText('h3', 'Firmă, serie și TVA'), commerceText('p', 'Verifică accesul la cont, apoi alege firma pentru care vrei să consulți seriile și cotele TVA.'));
+  const saved = document.createElement('div'); saved.className = 'configuration-note'; saved.setAttribute('aria-live', 'polite'); panel.append(saved);
+  let expectedVersion = null, savedRequest = 0;
+  const loadSaved = async () => {
+    const request = ++savedRequest;
+    const {profile} = await api(`/api/invoice-profile?storeId=${encodeURIComponent(storeId)}`);
+    if (!panel.isConnected || request !== savedRequest) return;
+    expectedVersion = profile?.version || 0; renderInvoiceProfile(saved, profile, false);
+  };
+  queueMicrotask(() => loadSaved().catch(() => {if (panel.isConnected) saved.textContent = 'Configurația salvată nu a putut fi încărcată. Actualizează pagina înainte de salvare.';}));
   const first = document.createElement('div'); first.className = 'configuration-step';
   first.append(commerceText('span', '1'), commerceText('h4', 'Verifică accesul la cont'));
   const button = commerceText('button', 'Verifică accesul la Oblio'); button.type = 'button'; first.append(button);
@@ -320,10 +330,49 @@ function invoiceConfigurationPanel(connection, storeId, storeName) {
         }
         block.append(items.length ? list : commerceText('p', isTax ? 'Nu există cote TVA disponibile.' : 'Nu există serii de factură disponibile.')); details.append(block);
       }
-      const note = document.createElement('aside'); note.className = 'configuration-note'; note.append(commerceText('strong', 'Ce urmează?'), commerceText('p', 'Acestea sunt datele disponibile în cont. Profilul de emitere se configurează într-un pas următor; seria și cota TVA pentru facturi vor fi alese explicit.')); details.append(note);
+      const setup = document.createElement('section'); setup.className = 'configuration-step'; setup.append(commerceText('span', '3'), commerceText('h4', 'Salvează configurarea facturării'));
+      setup.append(commerceText('p', 'Firma aleasă și seria se vor folosi pentru acest magazin. Alegerea cotei TVA se face separat, la completarea facturii.'));
+      const saveForm = document.createElement('form'), seriesLabel = commerceText('label', 'Seria de factură pentru acest magazin'), seriesSelect = document.createElement('select'); seriesSelect.required = true;
+      const empty = commerceText('option', 'Alege seria'); empty.value = ''; seriesSelect.append(empty);
+      for (const item of catalog.series) {const option = commerceText('option', item.name); option.value = item.name; seriesSelect.append(option);}
+      const saveButton = commerceText('button', 'Salvează firma și seria'); saveButton.type = 'submit'; seriesLabel.append(seriesSelect); saveForm.append(seriesLabel, saveButton); setup.append(saveForm); details.insertBefore(setup, details.firstChild);
+      if (!catalog.series.length) {saveButton.disabled = true; setup.append(commerceText('p', 'Adaugă o serie de factură în Oblio, apoi citește din nou datele.'));}
+      saveForm.addEventListener('submit', event => {event.preventDefault(); const selection = seriesSelect.value; action(async () => {
+        if (expectedVersion === null) {await loadSaved();}
+        if (!panel.isConnected || company !== select.value || expectedVersion === null) return;
+        const result = await api('/api/invoice-profile', 'POST', {storeId, connectionId:connection.id, version:connection.version, expectedVersion, companyId:company, series:selection});
+        if (!panel.isConnected) return;
+        expectedVersion = result.version; await loadSaved(); document.dispatchEvent(new Event('ordely:billing-saved'));
+        $('#message').textContent = 'Firma și seria au fost salvate pentru magazin. Urmează completarea datelor facturii.'; saved.scrollIntoView({block:'center'});
+      });});
+      const note = document.createElement('aside'); note.className = 'configuration-note'; note.append(commerceText('strong', 'Următorul pas'), commerceText('p', 'Completăm datele emitentului și destinatarului, apoi liniile și TVA. Configurația salvată nu emite documente și nu atribuie un număr fiscal.')); details.append(note);
     });}); result.append(step, details);
   })); return panel;
 }
+function renderInvoiceProfile(target, profile, link = true) {
+  target.replaceChildren(commerceText('h3', 'Configurare facturare'));
+  if (!profile) target.append(commerceText('p', 'Alege și salvează firma și seria din contul Oblio pentru acest magazin.'));
+  else {
+    const list = document.createElement('dl'); list.className = 'billing-summary';
+    for (const [label, value] of [['Firmă', profile.companyName], ['Cod fiscal', profile.companyId], ['Serie de factură', profile.series]]) list.append(commerceText('dt', label), commerceText('dd', value));
+    target.append(list, commerceText('p', profile.needsVerification ? 'Conexiunea a fost schimbată sau dezactivată. Reverifică firma și seria și salvează din nou configurația.' : 'Firmă și serie salvate. Datele complete ale facturii se pregătesc în pasul următor.'));
+  }
+  if (link && pageAllowed('integrations')) {const open = commerceText('a', profile ? 'Gestionează configurarea în Oblio →' : 'Configurează facturarea în Oblio →'); open.href = '#integrations/oblio'; target.append(open);}
+}
+let billingGeneration = 0;
+async function refreshInvoiceProfile() {
+  const generation = ++billingGeneration, store = $('#draft-store').value, target = $('#billing-summary');
+  target.replaceChildren(); target.hidden = !store || !currentUser || currentUser.role === 'viewer';
+  if (target.hidden) return;
+  target.textContent = 'Se încarcă configurarea facturării…';
+  try {const {profile} = await api(`/api/invoice-profile?storeId=${encodeURIComponent(store)}`); if (generation === billingGeneration) renderInvoiceProfile(target, profile);}
+  catch (error) {if (generation === billingGeneration) target.textContent = `Configurarea nu a putut fi încărcată: ${error.message}`;}
+}
+document.addEventListener('ordely:context', refreshInvoiceProfile);
+document.addEventListener('ordely:billing-saved', refreshInvoiceProfile);
+$('#draft-store').addEventListener('change', refreshInvoiceProfile);
+$('#draft-refresh').addEventListener('click', refreshInvoiceProfile);
+document.addEventListener('ordely:logout', () => {++billingGeneration; $('#billing-summary').replaceChildren();});
 async function refreshOperations() {
   const merchant = currentUser?.merchantId;
   const data = await api('/api/operations');

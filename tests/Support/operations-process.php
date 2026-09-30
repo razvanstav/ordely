@@ -37,6 +37,12 @@ try{
         if($mode==='invoice-create'){echo $repo->create($actor,$store,$id,$document);}
         else{try{$repo->replace($actor,$store,$id,1,$document);echo 'updated';}catch(\Ordely\Operations\Domain\Conflict){echo 'conflict';}}exit(0);
     }
+    if($mode==='invoice-profile'){
+        $actor=new TenantContext($merchant,$argv[3]??'',$argv[4]??'',Role::Owner,true);
+        $context=new ConnectionContext(new MerchantId($merchant),new StoreId($argv[5]??''),new ConnectionId($argv[6]??''),CorrelationId::new());
+        $profiles=new \Ordely\Invoicing\Infrastructure\InvoiceProfiles($db,\Ordely\Tests\Support\OblioFixtures::profileRegistry(),\Ordely\Tests\Support\IntegrationFixtures::cipher());
+        try{echo $profiles->save($actor,$context,2,(int)($argv[7]??0),'TEST001',$argv[8]??'TEST');}catch(\Ordely\Operations\Domain\Conflict){echo 'conflict';}exit(0);
+    }
     $store=$argv[3] ?? '';$connection=$argv[4] ?? '';
     $context=new ConnectionContext(new MerchantId($merchant),new StoreId($store),new ConnectionId($connection),CorrelationId::new());
     if($mode==='shopify-refresh'){

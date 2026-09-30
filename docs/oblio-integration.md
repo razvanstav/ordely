@@ -1,6 +1,6 @@
 # Pregătirea integrării Oblio — 09.2
 
-2026-09-30. Modulul 09 este unicul IN_PROGRESS. 09.1 rămâne funcțional. 09.2b este finalizat: conexiune locală criptată, asociată magazinului, autentificare și citire reală PASS (1 firmă, 1 serie de factură, 10 cote TVA). Datele complete, profilul și operațiile fiscale 09.2a/c–09.3 rămân de implementat. [Probe](testing/09-invoicing.md).
+2026-09-30. Modulul 09 este unicul IN_PROGRESS. 09.1 și 09.2b sunt păstrate. 09.2a.1 salvează criptat firma/seria verificate pentru fiecare magazin; proba reală de salvare/reload PASS. Datele complete ale emitentului/destinatarului, liniile/TVA și operațiile fiscale din restul 09.2a/c–09.3 rămân de implementat. [Probe](testing/09-invoicing.md).
 
 ## Ce trebuie completat în model
 
@@ -56,7 +56,16 @@ Pe PC-ul acestei probe există deja o conexiune Oblio activă și asociată maga
 1. Autentifică-te cu contul Ordely, apoi deschide Integrări → Facturare → Oblio. Pentru un cont nou, deschide formularul de conectare și introdu denumirea, emailul contului Oblio și cheia API din Oblio → Setări → Date cont. Parola de login Ordely nu înlocuiește cheia API Oblio. Nu este necesară regenerarea cheii.
 2. Salvează; acest pas criptează datele în provider_connections și validează forma lor, fără să confirme autentificarea. Lista nu întoarce credentialele salvate. Înlocuirea și recriptarea folosesc versiunea conexiunii.
 3. Asociază conexiunea magazinului local. Numai owner/admin cu acces la toate magazinele pot gestiona credentialele comune ale merchant-ului.
-4. Apasă „Verifică accesul la Oblio”, alege explicit firma și apasă „Vezi seriile și cotele TVA”. Rezultatul apare în două liste distincte, cu marcaje pentru valorile implicite din Oblio. Este o observație la cerere; nu persistă încă un profil fiscal și nu completează automat ciornele.
+4. Apasă „Verifică accesul la Oblio”, alege explicit firma și apasă „Vezi seriile și cotele TVA”. Rezultatul apare în două liste distincte, cu marcaje pentru valorile implicite din Oblio; nu completează automat ciornele.
+5. În pasul „Salvează configurarea facturării”, alege explicit seria și apasă „Salvează firma și seria”. Serverul reverifică firma/seria și conexiunea; rezumatul salvat apare în Oblio și Facturare. Alegerea implicită din Oblio nu devine automat alegerea magazinului. Conținutul este criptat; configurația nu este încă snapshot-ul complet al emitentului și nu atribuie numere fiscale.
+
+## Configurație locală pe magazin — 09.2a.1
+
+Migrația 008 adaugă `invoice_profiles`, unic pe merchant/store, legat prin FK de magazin/conexiune invoice. `GET /api/invoice-profile?storeId=...` întoarce `profile:null` sau firma/seria, versiunile și `needsVerification`. Citirea nu apelează providerul și respectă `invoices.read`/granturile; conținutul nu intră în audit. `POST /api/invoice-profile` primește storeId, connectionId, version (conexiune), expectedVersion (profil, 0 la prima salvare), companyId și series. Numele firmei vine numai din nomenclatorul verificat pe server. Necesită sesiune, CSRF/origin și administrarea conexiunilor owner/admin cu toate magazinele.
+
+Salvarea reverifică versiunea/asocierea/rolul după rețea și serializează mutația locală pe magazin. CAS refuză o selecție concurentă diferită; repetarea identică a cererii cu aceeași versiune așteptată întoarce revizia deja salvată fără alt audit de salvare (citirea providerului poate fi repetată și auditată). Profilele sunt criptate AES-GCM cu AAD merchant/store/conexiune/versiuni; audit numai ID-uri/versiune. `bin/key-status.php` include `invoiceProfileKeyUsage`. Inventarul trebuie verificat înaintea retragerii oricărei chei. Modificarea/revocarea/dezasocierea conexiunii afișează `needsVerification`; se citește din nou și se salvează explicit. Schimbările făcute direct în Oblio nu sunt detectate automat la reload; nomenclatoarele se reverifică la salvare și vor trebui revalidate înaintea viitoarei emiteri.
+
+Nu există încă profil complet de adresă/emitent, cote TVA selectate pe linii, snapshot legat de ciornă sau operație de emitere. Seria locală aleasă nu stabilește sandbox-ul ori autorizarea probelor fiscale D08. Continuarea este 09.2a.2 și D01 înaintea codului de politică.
 
 POST /api/invoice-configuration primește storeId, connectionId, version și opțional companyId. Verifică sesiunea/CSRF/origin, rolul curent și legătura merchant/store/conexiune, înainte și după rețea. Compania trebuie să existe în lista contului înainte de solicitarea seriilor sale. Auditul păstrează numai versiunea și numărul de rezultate. Datele contului nu sunt scrise în audit sau loguri; răspunsul HTTP are no-store, iar UI șterge rezultatele la schimbarea contextului.
 
