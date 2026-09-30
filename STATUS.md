@@ -8,6 +8,8 @@ Catalogul separă Facturare (Oblio), Curierat (Sameday/FAN în pregătire) și M
 
 PASS: browser desktop și 390×844 fără overflow pentru catalog/date/formular de acces, Back/reload/Enter/focus, câmpuri sintetice șterse la închidere, separare Shopify/Oblio, citire reală 1 firmă/1 serie/10 cote, consola fără erori. 220 teste, 222 lint, PHPStan 8, două sintaxe JS și 6 HTTP PASS. Preview-ul PHP/MySQL a fost repornit după refuzul conexiunii locale; Chrome funcționează acum. [Probe și limite](docs/testing/09-invoicing.md). Ecranul [Oblio](http://127.0.0.1:8080/#integrations/oblio) rămâne deschis; nu s-au modificat credentiale sau emis documente.
 
+Cod UI `a357c81` publicat, push și HEAD/origin identice verificate; [CI Windows/Linux 36681823310 PASS](https://github.com/razvanstav/ordely/actions/runs/36681823310). Predarea ulterioară consemnează numai acest rezultat, fără alt cod runtime.
+
 ## Oblio conectat și verificat
 
 Utilizatorul a furnizat datele API și a confirmat emailul contului. Conexiunea a fost salvată prin UI și asociată ca implicită magazinului existent. Citirea reală în Chrome PASS: 1 firmă, 1 serie de factură și 10 cote TVA. Verificarea DB locală confirmă o singură conexiune activă, versiunea 2, credentiale criptate și două citiri auditate numai cu versiune/număr de rezultate. Datele de cont și ale firmei nu sunt incluse în predare/Git. [Probe](docs/testing/09-invoicing.md).

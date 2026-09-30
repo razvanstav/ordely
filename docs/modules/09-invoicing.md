@@ -8,6 +8,8 @@ Cerere explicită: integrarea de facturare trebuie separată de curieri, iar ap�
 
 Rezultat PASS: toate criteriile de prezentare de mai sus implementate. Catalog cu stări reale, curieri marcați „În pregătire”, `#integrations/oblio` și `#integrations/shopify` cu conexiuni/istoric separate. Formularul unui cont suplimentar este la cerere și se închide după salvare; selectorul tehnic de simulatoare nu apare în fluxul Oblio. Seriile/TVA se citesc în doi pași, cu etichete implicite distincte de alegerea fiscală. Desktop/mobil 390×844, Back/reload/Enter/focus, formular de acces, ștergerea câmpurilor sintetice și citirile reale PASS. 220 teste, 222 lint, PHPStan 8, două sintaxe JS și 6 HTTP PASS; [probe și limite](../testing/09-invoicing.md). Nicio mutație de cont sau document în această probă UI. Preview PHP/MySQL repornit local; extensia Chrome funcționează. Pasul UI este închis, 09 rămâne IN_PROGRESS.
 
+Cod UI `a357c81` publicat; hash local/origin verificat identic și [CI Windows/Linux 36681823310 PASS](https://github.com/razvanstav/ordely/actions/runs/36681823310). Capturile sunt ignorate, staged diff fără secrete și linkuri relative/diff check PASS. Predarea ulterioară actualizează numai documentația.
+
 ## Pas 09.1 — ciorne locale
 
 - [x] Ciornă independentă de CMS/provider: referință, destinatar, adresă/date opționale și 1–50 linii, RON/EUR explicit.

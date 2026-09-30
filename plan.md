@@ -6,6 +6,8 @@ Actualizat: 2026-09-30. Registrul oficial al stărilor modulelor.
 
 UI 2026-09-30 finalizat: catalog Facturare/Curierat/Magazine online, detalii numai pentru serviciul selectat, pași lizibili Oblio și liste serii/TVA, cont nou la cerere, acces/administrare separate. Curierii planificați sunt indisponibili; 10/11/20 nu sunt implementate. Desktop/mobil, navigare și citire reală Oblio PASS; 220 teste, lint/PHPStan/JS/HTTP PASS. [Probe](docs/testing/09-invoicing.md). Urmează profilul și datele complete 09.2a; D01/D08 pentru emitere rămân deschise.
 
+UI `a357c81` publicat, hash local/remote identic și [CI Windows/Linux 36681823310 PASS](https://github.com/razvanstav/ordely/actions/runs/36681823310), urmărit până la final. Predarea ulterioară este numai documentară.
+
 Operare 2026-09-30: cont local personal creat la cerere în spațiul existent; hash și login real în Chrome PASS. Ulterior, datele API furnizate de utilizator au fost salvate prin UI: o conexiune Oblio criptată, asociată magazinului, versiunea 2. Autentificare și citire reală PASS: 1 firmă, 1 serie de factură, 10 cote TVA; audit sigur și persistare criptată verificate în DB. 09.2b este închis, fără profil fiscal salvat sau documente emise. D18 actualizat; D01 și condițiile de emitere D08 rămân deschise. D20 consemnează accesul local. Nu există hosting nou; fără schimbări runtime sau module noi.
 
 Utilizatorul a confirmat continuarea locală, fără hosting în acest pas.
