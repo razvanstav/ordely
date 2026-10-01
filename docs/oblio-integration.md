@@ -1,5 +1,11 @@
 # Pregătirea integrării Oblio — 09.2
 
+## Mapper local — 09.2c.1, 2026-10-01
+
+OblioInvoiceMapper map-ează InvoiceDraft fiscal după reconcilierea InvoiceAssembly, fără transport. Cere companyId/nume/serie identice profilului și o singură cotă din nomenclator cu procentul ales. TVA standard, RON/2 zecimale; scutirile/în afara sferei ori cotele ambigue sunt Unsupported/Validation înainte de efect. Baza importată este păstrată; reducerile valorice sunt imediat după produs, discountAllAbove=0. Clientul provine numai din billing, fără shipping/CNP/IBAN/email ori încasare presupusă; date calendaristice și cheie idempotentă explicite.
+
+Mapperul fixează useStock/sendEmail/spvExtern și save pentru produs/client la 0, autocomplete=0. Nu activează capability de emitere și nu schimbă allowlist-ul de transport. Viitoarea operație durabilă trebuie să revalideze actor/context/conexiune/profil, să recitească nomenclatoarele și să confirme opțiunile D08 înainte de transmitere. Testele offline nu confirmă calculul/efectele contului. [Documentația oficială](https://www.oblio.eu/api) consultată documentar la 2026-10-01; probe reale amânate D26.
+
 ## Pregătire din comanda CMS — 09.2a.2.1
 
 Disponibilă 2026-09-30 din Comenzi → Pregătește facturarea. GET /api/invoice-preparation/{orderId}?storeId=... folosește exclusiv datele locale importate și profilul firmei/seriei, cu invoices.read + orders.read și merchant/store/granturi verificate în tranzacție. Raportul păstrează prețurile și taxele exact, fără transformare implicită în net sau cotă TVA; adresa de livrare nu substituie facturarea. issues conține code/path/message, source indică ID/versiune/momentul observării. Profil schimbat, date lipsă, comenzi modificate și monede/precizii incompatibile sunt semnalate. canIssue=false întotdeauna; acest raport nu autorizează emitere și nu modifică o ciornă. UI poate fi consultată și de operator/finance, fără acces la credentiale.
@@ -39,7 +45,7 @@ Nu colectăm CNP, IBAN sau date de delegat implicit. Profilurile și snapshot-ur
 
 API-ul oficial documentează autentificare cu email/client_secret și token temporar, citirea companiilor/seriilor/cotelor TVA și emitere cu idempotencyKey. Emiterea are opțiuni pentru email, stoc și SPV, iar salvarea prețului unui produs este implicit activă. Vom seta explicit opțiunile potrivite fluxului Ordely; o serie numită TEST nu dovedește izolarea mediului. [Documentație oficială](https://www.oblio.eu/api).
 
-Pagina publică nu explică durata/domeniul cheii idempotente sau reconcilierea după răspuns pierdut. Nu am găsit acolo un endpoint de storno ori un sandbox declarat. Aceste absențe sunt limite ale verificării, nu dovada lipsei funcțiilor. Exemplele PHP oficiale confirmă folosirea cheii la creare; nu dovedesc comportamentul contului utilizatorului. [Exemple Oblio](https://github.com/OblioSoftware/OblioApi).
+Pagina publică nu explică durata/domeniul cheii idempotente sau reconcilierea după răspuns pierdut și nu declară clar un sandbox. La consultarea din 2026-10-01 există un exemplu de storno total prin referenceDocument de tip Factura; refund privește eliminarea încasării asociate, nu transferul de bani către client. Această mapare și verificarea originalului rămân în continuarea 09. Exemplele PHP oficiale confirmă folosirea cheii la creare; nu dovedesc comportamentul contului utilizatorului. [API oficial](https://www.oblio.eu/api), [exemple Oblio](https://github.com/OblioSoftware/OblioApi).
 
 ## Pași verificabili
 

@@ -1,5 +1,13 @@
 # Ciorne de facturi — pasul 09.1
 
+## Verificarea sumelor — 09.2c.1
+
+La deschiderea ciornei CMS, GET întoarce reconciliation cu status INCOMPLETE/MISMATCH/RECONCILED, totals net/tax/discount/gross și issues code/path/message. Calculele se fac pe snapshot-ul salvat; nu apelează furnizori și nu modifică revizia. UI arată net/taxe/total și diferențele alături de lipsurile fiscale. readyForProvider înseamnă că se poate construi contractul neutru, nu că Oblio a fost verificat sau documentul se poate emite; canIssue=false. SourceChanged oprește pregătirea până la refresh.
+
+Prețul unitar × cantitatea se compară cu totalul inițial, reducerile alocate cu subtotalul, TVA-ul importat cu alegerea explicită, apoi totalurile cu suma liniilor. Nu există ajustare de un ban. Baza cu/fără taxe rămâne cea din CMS; nu este fabricat un net unitar rotunjit. Taxele cu componente multiple, transportul fără linie fiscală completă și monedele nesuportate sunt semnalate. Ciornele incomplete rămân salvabile; reconcilierea nu stabilește plata ori rambursarea.
+
+OblioInvoiceMapper pregătește doar corpul cererii, cu nomenclator verificat și unic, TVA standard și reduceri alocate fiecărei linii. Scrierile reale sunt refuzate de provider și transport; nu există endpoint de emitere activ în acest lot. [Contract](core-contracts.md), [limite/probe](testing/09-invoicing.md).
+
 ## Ciornă CMS cu completări fiscale — 09.2a.2.2b
 
 În Facturare, deschide o ciornă din comenzi după salvarea propunerii CMS. Completează datele documentului, câmpurile lipsă ale clientului/adresei, adresa și statutul TVA ale emitentului și unitățile/tratamentul TVA pentru produse. Valorile comune se aplică explicit tuturor produselor fără excepție; excepțiile sunt legate de ID-ul produsului. Unitatea poate fi schimbată separat, dar o excepție TVA are tratament/cotă sau motiv proprii. Cotele se trimit ca text zecimal cu punct, maximum patru zecimale, fără calcule float. Poți salva o completare parțială. Datele importate apar numai de citire.

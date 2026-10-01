@@ -76,10 +76,12 @@ final class OrderDraftHttpTest extends DatabaseTestCase
         $token=(new Sessions($this->db))->login($actor->userId.'@example.test',self::PASSWORD,'127.0.0.1');$body=['storeId'=>$store,'expectedVersion'=>0,'orderVersion'=>3,'profileVersion'=>1];
         foreach(range(1,2) as $_){$r=$this->request($token,$store,$order,$body);self::assertSame(200,$r->getStatusCode(),(string)$r->getContent());self::assertSame('{"version":1}',$r->getContent());}
         $read=json_decode((string)$this->request($token,$store,$order)->getContent(),true,flags:JSON_THROW_ON_ERROR);self::assertFalse($read['draft']['sourceChanged']);
+        $completion=['storeId'=>$store,'expectedVersion'=>1,'details'=>F::fiscalDetails()];self::assertSame('{"version":2}',$this->request($token,$store,$order,$completion,method:'PUT')->getContent());
+        $read=json_decode((string)$this->request($token,$store,$order)->getContent(),true,flags:JSON_THROW_ON_ERROR);self::assertSame('RECONCILED',$read['draft']['reconciliation']['status']);self::assertTrue($read['draft']['reconciliation']['readyForProvider']);self::assertFalse($read['draft']['reconciliation']['canIssue']);
         $this->db->run('UPDATE provider_connections SET version=3 WHERE id=?',[Id::bytes($connection)]);
-        $read=json_decode((string)$this->request($token,$store,$order)->getContent(),true,flags:JSON_THROW_ON_ERROR);self::assertTrue($read['draft']['sourceChanged']);self::assertFalse($read['draft']['snapshot']['seller']['needsVerification']);
-        self::assertSame(409,$this->request($token,$store,$order,$body)->getStatusCode());$body['expectedVersion']=1;
-        self::assertSame('{"version":2}',$this->request($token,$store,$order,$body)->getContent());
+        $read=json_decode((string)$this->request($token,$store,$order)->getContent(),true,flags:JSON_THROW_ON_ERROR);self::assertTrue($read['draft']['sourceChanged']);self::assertFalse($read['draft']['snapshot']['seller']['needsVerification']);self::assertFalse($read['draft']['reconciliation']['readyForProvider']);
+        self::assertSame(409,$this->request($token,$store,$order,$body)->getStatusCode());$body['expectedVersion']=2;
+        self::assertSame('{"version":3}',$this->request($token,$store,$order,$body)->getContent());
         self::assertSame(403,$this->request($token,$this->store($actor),$order)->getStatusCode());
     }
 }

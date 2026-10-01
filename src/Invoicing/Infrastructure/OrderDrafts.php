@@ -9,7 +9,7 @@ use Ordely\Operations\Domain\{Actor,AuditAction,Conflict,SafePayload,Scope};
 use Ordely\Operations\Infrastructure\AuditLog;
 use Ordely\Shared\Id;
 use Ordely\Core\Value\CanonicalJson;
-use Ordely\Invoicing\Domain\FiscalPreparation;
+use Ordely\Invoicing\Domain\{FiscalPreparation,InvoiceAssembly};
 
 /** One revisable preparation for the initial invoice of a CMS order, not the future invoice ledger. */
 final readonly class OrderDrafts
@@ -78,7 +78,8 @@ final readonly class OrderDrafts
             $snapshot=$this->decode($actor,$store,$order,$row);
             $changed=$this->changed($row,$snapshot,$live);
             $this->audit($actor,$store,$order,(int)$row['version'],AuditAction::InvoicePreparationViewed);
-            return ['orderId'=>$order,'storeId'=>$store,'version'=>(int)$row['version'],'snapshot'=>$snapshot,'fiscal'=>FiscalPreparation::build($snapshot,$changed),'sourceChanged'=>$changed,'updatedAt'=>$row['updated_at']];
+            $fiscal=FiscalPreparation::build($snapshot,$changed);
+            return ['orderId'=>$order,'storeId'=>$store,'version'=>(int)$row['version'],'snapshot'=>$snapshot,'fiscal'=>$fiscal,'reconciliation'=>InvoiceAssembly::check($snapshot,$fiscal),'sourceChanged'=>$changed,'updatedAt'=>$row['updated_at']];
         });
     }
     /** @return array{drafts:list<array<string,mixed>>,nextCursor:?string} */

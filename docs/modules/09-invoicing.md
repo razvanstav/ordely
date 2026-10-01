@@ -1,5 +1,13 @@
 # Modul 09 — Facturare
 
+## Lot activ 09.2c — reconciliere și mapare locală
+
+Rezultat 09.2c.1: criteriile lotului local îndeplinite. Core fiscal neutru/compatibil, verificări exacte și GET/UI reconciliation, mapper offline pentru TVA standard cu nomenclator unic. Opțiuni stoc/email/SPV/catalog 0, fără capability ori transport de scriere. PASS: 6 teste noi + HTTP profil invalidat extins, o regresie finală 257 teste/249 lint/PHPStan 8, JS/HTTP și browser desktop/mobil. [Raport](../testing/09-invoicing.md), D27. Transport fiscal incomplet, componente taxe multiple, tratamente speciale, valută și nomenclator ambiguu sunt blocaje explicite, nu mapări simulate. Fără migrare/date fiscale completate în fixture/provider extern.
+
+Reluare exactă: 09.3a — operația durabilă/snapshot/cheie stabilă și revalidare tenant/store/profil; apoi transport și răspuns, rezultat necunoscut, original/storno/PDF. Extinderile fiscale enumerate rămân backlog în 09 înaintea DONE; probe reale la final D26. Text de reluare: „Continuă în 09.3a pornind de la InvoiceAssembly și OblioInvoiceMapper offline; creează fluxul durabil local, fără a activa apeluri fiscale în contul real. Păstrează limitele fiscale restante și probele externe pentru final.” 09 IN_PROGRESS, 10–21 PLANNED.
+
+2026-10-01, continuare cerută de utilizator. Criterii înainte de cod: contract fiscal Core neutru cu destinatar de facturare (fără adresă de livrare inventată), date document și TVA explicit, linii care păstrează baza cu/fără taxe; reconciliere exactă cantitate/preț/reducere/taxă/total, monedă și overflow, fără float sau ajustări ascunse. Ciornele/contractele existente rămân compatibile. Raportul și UI arată diferențele, iar sursa schimbată blochează pregătirea. Mapper Oblio offline cu reduceri alocate pe linie, nomenclator TVA explicit/reverificat în viitoarea emitere și opțiuni stoc/email/SPV/salvare catalog dezactivate; lipsa nomenclatorului ori tratamentul nesuportat blochează maparea, fără a inventa nume de cote. Transportul de scriere și capability de emitere rămân neactivate până la operațiile durabile 09.3; fără apel în cont. Probe proporționale: calcule/overflow, mapper, integrare GET/sursă/rol și compatibilitate, o regresie finală; verificare UI numai pentru afișarea nouă. D26 păstrează probele reale la final.
+
 ## Lot 09.2a — completarea ciornei, probe externe amânate
 
 Publicare: `58b200b` sincronizat pe codex/modul-01-arhitectura, push/fetch și egalitatea HEAD/origin PASS, checkout curat. CI observat IN_PROGRESS, rezultat final neverificat. Predarea ulterioară nu modifică runtime.

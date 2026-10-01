@@ -1,5 +1,11 @@
 # Core: valori și contracte
 
+## Extinderea fiscală din 09.2c.1
+
+InvoiceDraft păstrează constructorul legacy, cu InvoiceDetails opțional. Contractul fiscal cere FiscalCustomer, numai billing, și FiscalLine pentru toate liniile, plus date calendaristice, statut emitent și baza prețului; amestecul ori datele lipsă sunt respinse. Firma/adresa și totalul/seria/referința rămân tipate. Nu se atribuie număr și portul InvoiceProvider nu primește tipuri Oblio/CMS.
+
+FiscalLine păstrează unitPrice/discount în baza originală PriceBasis. Subtotal = preț × cantitate − reducere; totalul este subtotalul pentru baza inclusivă sau subtotal + taxă pentru baza exclusivă. Netul este derivat pe totalul liniei, nu pe prețul unitar. InvoiceTax folosește cotă text până la patru zecimale, scală 1.000.000 pentru 100%, taxe cu rotunjire half-up pe linie și descompunere înaintea înmulțirii. Taxa calculată trebuie să fie identică celei importate. Scutirea/în afara sferei cer motiv și taxă zero; suportul în Core nu implică suport în adaptor. Money și TaxRate existente nu se schimbă. [D27](decisions.md).
+
 `src/Core` conține numai obiecte de valoare, DTO-uri imutabile și porturi. Nu importă Identity HTTP, PDO, Symfony, adaptoare sau SDK-uri. Testul de arhitectură verifică tokenii PHP, inclusiv o probă negativă cu un SDK nou. `src/Adapters/Fake` implementează contractele, iar viitoarele adaptoare reale vor sta în propriile directoare.
 
 ## Bani și snapshots

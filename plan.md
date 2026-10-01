@@ -1,5 +1,11 @@
 # Plan Ordely
 
+## Lot curent — 09.2c.1 livrat, 2026-10-01
+
+Contract fiscal neutru + reconciliere exactă + mapper Oblio offline implementate conform D27. GET/UI ciornă arată net/taxe/total și erori; nu ascunde diferențe de un ban și nu deduce cota/netul unitar. Firma/seria/cota cer nomenclator verificat de viitoarea operație, fără scriere externă acum. canIssue=false; contractul legacy rămâne compatibil. PASS: 257 teste, 249 lint, PHPStan 8, JS/HTTP și browser. [Raport](docs/testing/09-invoicing.md).
+
+Reluare: 09.3a, schema/operația durabilă de emitere, cu revalidare merchant/store/profil și cheie stabilă; apoi apel/răspuns/reconciliere externă, original/storno/PDF. Extinderi restante ale 09: transport fiscal complet, tratamente speciale TVA, valută. Aceste limite rămân explicite și nu țin loc de funcționalitate livrată. Singurul activ 09 IN_PROGRESS; 10–21 PLANNED. Probe reale mutate la final prin D26, fără chei noi cerute acum; stoc separat. Git/push/CI se consemnează la predare.
+
 ## Pas curent — 2026-10-01
 
 Lot `58b200b` publicat; push/fetch și egalitatea HEAD/origin PASS. CI observat IN_PROGRESS, rezultat final neverificat; verificările locale de mai jos sunt PASS. Predarea ulterioară este numai documentară.

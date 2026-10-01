@@ -84,18 +84,22 @@
       showPreparation(data, saved.draft?.version || 0, false); await loadList();
     });
   });
-  function showPreparation(data, version, frozen, changed = false, fiscal = null) {
-    preparation = data; savedVersion = version; renderPreparation(fiscal ? {...data, ...fiscal} : data);
+  function showPreparation(data, version, frozen, changed = false, fiscal = null, reconciliation = null) {
+    preparation = data; savedVersion = version; renderPreparation(fiscal ? {...data, ...fiscal, issues:[...fiscal.issues,...(reconciliation?.issues || [])]} : data);
     el('invoice-preparation-state').textContent = frozen ? `Ciornă salvată · revizia ${version}${changed ? ' · Comanda sau profilul emitentului s-a schimbat. Actualizează explicit din CMS.' : ''}` : 'Date curente din CMS · pot fi salvate chiar dacă sunt incomplete.';
     el('invoice-preparation-save').hidden = !canWrite || frozen;
     el('invoice-preparation-save').textContent = version ? 'Salvează actualizarea din CMS' : 'Salvează ciorna din comandă';
     el('invoice-preparation-refresh').hidden = !canWrite || !frozen;
-    renderFiscal(data, frozen, changed, fiscal);
+    renderFiscal(data, frozen, changed, fiscal, reconciliation);
   }
-  function renderFiscal(data, frozen, changed, fiscal) {
+  function renderFiscal(data, frozen, changed, fiscal, reconciliation) {
     const section = el('invoice-fiscal'); section.replaceChildren();
     if (!frozen) return;
-    section.append(textNode('h3', 'Completează ciorna'), textNode('p', fiscal?.readyForMapping ? 'Datele necesare sunt completate. Urmează verificarea sumelor și pregătirea emiterii.' : 'Poți salva și o completare parțială. Datele importate se completează din CMS; câmpurile lipsă pot fi adăugate aici.'));
+    if (reconciliation) {
+      section.append(textNode('h3', 'Verificarea sumelor'), textNode('p', reconciliation.status === 'RECONCILED' ? 'Sumele și datele documentului sunt reconciliate local. Emiterea va fi conectată separat.' : reconciliation.status === 'MISMATCH' ? 'Există diferențe în sume sau date fiscale incompatibile. Corectează problemele afișate în ciornă.' : 'Datele fiscale sunt încă incomplete. Calculul se verifică din sumele importate.'));
+      if (reconciliation.totals) {const total = reconciliation.totals; section.append(textNode('p', `Produse: net ${amountLabel(total.net)} · taxe ${amountLabel(total.tax)} · total ${amountLabel(total.gross)} · reduceri ${amountLabel(total.discount)}`));}
+    }
+    section.append(textNode('h3', 'Completează ciorna'), textNode('p', fiscal?.readyForMapping ? 'Datele fiscale sunt completate. Rezultatul verificării sumelor este afișat mai sus; emiterea se conectează separat.' : 'Poți salva și o completare parțială. Datele importate se completează din CMS; câmpurile lipsă pot fi adăugate aici.'));
     if (changed) section.append(textNode('p', 'Comanda sau configurarea s-a schimbat. Actualizează din CMS înainte de a modifica completările.'));
     const values = data.fiscalDetails || {}, form = document.createElement('form'), fieldset = document.createElement('fieldset');
     form.id = 'invoice-fiscal-form'; fieldset.disabled = !canWrite || changed; fieldset.className = 'fiscal-fields';
@@ -160,7 +164,7 @@
           if (!sameContext(token) || sequence !== preparationSequence) return;
           const result = await api(`/api/invoice-order-drafts/${source.orderId}?storeId=${source.storeId}`);
           if (!sameContext(token) || sequence !== preparationSequence) return;
-          showPreparation(result.draft.snapshot, result.draft.version, true, result.draft.sourceChanged, result.draft.fiscal);
+          showPreparation(result.draft.snapshot, result.draft.version, true, result.draft.sourceChanged, result.draft.fiscal, result.draft.reconciliation);
           await loadOrderList(); if (sameContext(token)) el('message').textContent = 'Completările au fost salvate în ciorna locală.';
         } finally {if (sameContext(token) && sequence === preparationSequence) fieldset.disabled = !canWrite || changed;}
       });
@@ -179,7 +183,7 @@
     if (!sameContext(token) || sequence !== preparationSequence) return;
     const result = await api(`/api/invoice-order-drafts/${source.orderId}?storeId=${source.storeId}`);
     if (!sameContext(token) || sequence !== preparationSequence) return;
-    showPreparation(result.draft.snapshot, result.draft.version, true, result.draft.sourceChanged, result.draft.fiscal);
+    showPreparation(result.draft.snapshot, result.draft.version, true, result.draft.sourceChanged, result.draft.fiscal, result.draft.reconciliation);
     await loadOrderList();
     if (sameContext(token)) el('message').textContent = 'Ciorna din comandă a fost salvată local.';
   }));
@@ -198,7 +202,7 @@
       open.addEventListener('click', () => action(async () => {
         const current = epoch; resetEditor(); clearPreparation(); const request = preparationSequence;
         const result = await api(`/api/invoice-order-drafts/${item.orderId}?storeId=${store}`);
-        if (sameContext(current) && request === preparationSequence && result.draft) showPreparation(result.draft.snapshot, result.draft.version, true, result.draft.sourceChanged, result.draft.fiscal);
+        if (sameContext(current) && request === preparationSequence && result.draft) showPreparation(result.draft.snapshot, result.draft.version, true, result.draft.sourceChanged, result.draft.fiscal, result.draft.reconciliation);
       })); card.append(open); el('order-draft-list').append(card);
     }
     if (!el('order-draft-list').children.length) el('order-draft-list').append(emptyState('Nicio ciornă din comenzi.', 'Deschide o comandă și alege „Pregătește facturarea”.'));

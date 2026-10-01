@@ -1,5 +1,20 @@
 # Verificări 09 — ciorne locale (09.1)
 
+## 09.2c.1 — reconciliere și mapper offline, 2026-10-01
+
+Windows/PowerShell, PHP 8.4.24, MySQL 8.4.11 pe 33060, app/test separate. 6 teste unitare noi; HTTP existent extins pentru contract reconciliat și profil/conexiune schimbate. Testele nu sunt probe fiscale live.
+
+| Comandă/scenariu executat | Rezultat |
+| --- | --- |
+| php vendor/bin/phpunit --filter 'InvoiceAssemblyTest\|OblioInvoiceMapperTest\|OrderDraftHttpTest' | PASS final: 10 teste, 162 assertions; baza brut/net, fracții/rotunjire/limite, diferențe de un ban, contract legacy, nomenclator/serie/rate ambigue, opțiuni externe și transport de scriere blocat, HTTP/scop/profil |
+| php var/tools/composer.phar check | PASS: composer validate, 249 lint, PHPStan 8, 129 unit/945 assertions, 128 integration/877; total 257 teste/1822 assertions |
+| node --check resources/app.js; node --check resources/invoicing.js; node --check resources/workspace.js | PASS |
+| php bin/http-smoke.php | PASS: 6 probe |
+| Chrome cont existent desktop/mobil 390×844 | PASS: ciornă 30 linii/revizia 2, net 30.30/taxe 5.70/total 36.00 RON, INCOMPLETE păstrat, fără overflow/consolă; fără salvări sau completări fiscale. Viewport resetat |
+| Provider live/emitere/storno/PDF | NOT_RUN, amânat D26; capability/transport de scriere rămân dezactivate |
+
+Prefix CLI efectiv var/tools/php-8.4.24/php.exe și PATH local PHP pentru Composer. Prima probă MySQL FAIL, serviciul era oprit; scripts/windows-mysql.ps1 -Action Start PASS, probe reluate. PHPStan a cerut verificarea explicită a tipului FiscalLine în testul bazei exclusive, remediată înaintea regresiei. O singură regresie finală PASS; mesaje RuntimeException sunt probele existente de tamper. Captură locală ignorată var/ui-invoice-reconciliation-20261001.jpg. Limite: RON/2, o componentă fiscală/linie și TVA standard mapabil unic; transport, tratamente speciale și răspunsul extern rămân în 09. [D27](../decisions.md).
+
 ## 09.2a.2.2b — completări persistate, 2026-10-01
 
 Windows, PowerShell, PHP 8.4.24, MySQL 8.4.11 local 33060; app/test separate. 4 teste unitare și 1 HTTP noi; probele existente cu două procese și rollback extinse, fără teste pentru fiecare câmp UI.

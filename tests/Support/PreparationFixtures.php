@@ -5,6 +5,12 @@ namespace Ordely\Tests\Support;
 final class PreparationFixtures
 {
     /** @return array<string,mixed> */
+    public static function prepared(): array
+    {
+        $snapshot=\Ordely\Invoicing\Domain\OrderPreparation::build(self::order(),['companyId'=>'TEST009','companyName'=>'Synthetic seller','series'=>'TEST','needsVerification'=>false]);
+        $snapshot['source']=['reference'=>'TEST-PREP-09'];$snapshot['fiscalDetails']=\Ordely\Invoicing\Domain\FiscalPreparation::normalize(self::fiscalDetails(),$snapshot);return $snapshot;
+    }
+    /** @return array<string,mixed> */
     public static function fiscalDetails(): array
     {
         return ['document'=>['issuedOn'=>'2026-10-01','dueOn'=>'2026-10-02'],'seller'=>['street'=>'SYNTHETIC-SELLER-STREET','city'=>'Synthetic city','postalCode'=>'000000','country'=>'RO','vatStatus'=>'registered'],'customer'=>['type'=>'company','taxId'=>'SYNTHETIC-TAX-ID','vatStatus'=>'registered'],'lineDefaults'=>['unit'=>'buc','treatment'=>'standard','rate'=>'21.0000'],'lines'=>[]];
