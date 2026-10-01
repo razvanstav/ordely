@@ -2,9 +2,11 @@
 
 ## 09.3a — intenție durabilă livrată local, 2026-10-01
 
+Publicare: `09fd659` sincronizat pe codex/modul-01-arhitectura; push/fetch, HEAD/origin identice și checkout curat PASS. Linkuri/diff/scanner staged PASS. CI nou neconfirmat; predarea ulterioară este numai documentară.
+
 Registru separat de propunerea CMS: snapshot fiscal fixat/criptat, o intenție pentru factura inițială/comandă, retry fără dubluri. API pregătire/citire cu acces și audit; port intern de execuție reutilizează Operations cu cheie stabilă, revalidare și UNKNOWN fără reapel. Rezultatul rămâne consultabil după ștergerea sursei. Migrația 010 aplicată în app/test, inventar chei extins. [D28](docs/decisions.md).
 
-PASS: 264 teste/1904 assertions, 255 lint, PHPStan 8 și 6 HTTP; concurență/crash/criptare/acces verificate. UI și credentialele existente păstrate; fără provider/job/rută de execuție activate. [Probe](docs/testing/09-invoicing.md). Publicarea Git se verifică la predare; CI nou neconfirmat.
+PASS: 264 teste/1904 assertions, 255 lint, PHPStan 8 și 6 HTTP; concurență/crash/criptare/acces verificate. UI și credentialele existente păstrate; fără provider/job/rută de execuție activate. [Probe](docs/testing/09-invoicing.md). Publicarea verificată este consemnată mai sus; CI nou neconfirmat.
 
 Reluare exactă 09.3b: anulare/replanificare explicită a intenției încă netrimise cu protecție față de rezervarea concurentă, apoi validarea/persistarea documentului și transport/răspuns local în adaptor; original/storno/PDF și extinderile fiscale D27 rămân în 09. Nu suprascrie snapshot folosit sau UNKNOWN. Probe reale la final D26; stoc separat. 09 unic IN_PROGRESS, 10–21 PLANNED.
 

@@ -17,7 +17,7 @@ Mediu: Windows/PowerShell, PHP 8.4.24, MySQL local 8.4.11/port 33060; teste cu t
 
 Scenarii PASS: pregătire/retry local și rollback; snapshot criptat și AAD pe fiecare componentă de identitate/versionare; apel în afara tranzacției, cheie/rezultat confirmat stabile la instanță nouă; eșec cert temporar, UNKNOWN fără replay și reconciliere; sursă/ciornă/profil/conexiune/binding/grant invalidat înainte de provider. Două procese simultane la pregătire și execuție produc un singur ID/attempt; crash la callback + lease expirat produce UNKNOWN fără reapel. API: roluri/tenant/store/CSRF/origin, input strict, ciornă incompletă/modificată, metadate fără conținut fiscal, fără rută de execuție/job. Ștergerea proiecției CMS păstrează rezultatul confirmat. Cele două RuntimeException din regresie sunt probele existente de envelope invalid și nu indică eșecul suitei.
 
-NOT_RUN: provider real, document/număr fiscal/PDF/storno și browser (UI nu s-a modificat); probe externe amânate D26. Rămân implementări: răspuns/document fiscal și anulare/replanificare explicită pentru intenția netrimisă, înainte de activarea UI/execuției, plus backlog fiscal D27. Git/push/CI se consemnează după verificare.
+NOT_RUN: provider real, document/număr fiscal/PDF/storno și browser (UI nu s-a modificat); probe externe amânate D26. Rămân implementări: răspuns/document fiscal și anulare/replanificare explicită pentru intenția netrimisă, înainte de activarea UI/execuției, plus backlog fiscal D27. Publicare 09fd659: linkuri/diff/scanner staged, push/fetch, egalitatea HEAD/origin și checkout curat PASS; CI nou neconfirmat.
 
 ## 09.2c.1 — reconciliere și mapper offline, 2026-10-01
 

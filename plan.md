@@ -2,7 +2,9 @@
 
 ## Lot curent — 09.3a livrat local, 2026-10-01
 
-Intenție imutabilă inițială, snapshot criptat, API pregătire/citire și port intern de execuție prin Operations implementate D28. Retry/concurență/crash/UNKNOWN/reconciliere, izolarea și revalidarea locale PASS; migrația 010 în app/test și inventarul cheilor. Regresie PASS 264 teste, 255 lint, PHPStan 8 și 6 HTTP. Fără schimbare UI sau apel/provider/job activat. [Probe](docs/testing/09-invoicing.md). Publicarea Git se verifică la predare.
+Publicare `09fd659`: push/fetch și HEAD/origin identice PASS, checkout curat; CI nou neconfirmat. Predarea ulterioară este numai documentară.
+
+Intenție imutabilă inițială, snapshot criptat, API pregătire/citire și port intern de execuție prin Operations implementate D28. Retry/concurență/crash/UNKNOWN/reconciliere, izolarea și revalidarea locale PASS; migrația 010 în app/test și inventarul cheilor. Regresie PASS 264 teste, 255 lint, PHPStan 8 și 6 HTTP. Fără schimbare UI sau apel/provider/job activat. [Probe](docs/testing/09-invoicing.md). Publicarea verificată este consemnată mai sus.
 
 Următorul lot 09.3b: anulare/replanificare explicită a intenției netrimise, răspuns/document fiscal persistat și transport local în adaptor; apoi original/storno/PDF și extinderile fiscale D27. Snapshot folosit/UNKNOWN nu se suprascrie. 09 IN_PROGRESS, 10–21 PLANNED; probe API reale la final D26, stoc separat.
 

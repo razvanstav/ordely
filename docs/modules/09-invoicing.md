@@ -2,6 +2,8 @@
 
 ## Lot activ 09.3a — intenție durabilă de emitere
 
+Publicare `09fd659` pe codex/modul-01-arhitectura: push/fetch, egalitatea HEAD/origin și checkout curat PASS. CI nou neconfirmat. Predarea ulterioară modifică numai documentația.
+
 Rezultat local: criteriile 09.3a îndeplinite. Migrația 010, IssueCipher/IssueIntents și API pregătire/citire, audit/permisiune invoices.issue și inventar chei; nu există rută/job/provider fiscal activ. Reutilizat D11 pentru retry/UNKNOWN/reconciliere fără modificarea coordonatorului. 7 teste noi/82 assertions și regresie PASS 264 teste/255 lint/PHPStan 8/6 HTTP. UI nemodificat, conturi/sursa reală neatinse. [Probe](../testing/09-invoicing.md), D28.
 
 Reluare exactă 09.3b: anulare/replanificare explicită numai pentru intenție netrimisă, protejată față de rezervarea concurentă; apoi răspuns/document fiscal și transportul local în adaptor, înainte de activarea UI. Original/storno/PDF și extinderile fiscale D27 rămân în 09; probe reale la final D26. Text de reluare: „Continuă 09.3b de la IssueIntents și D28. Completează anularea sigură a intenției netrimise și integrarea locală a rezultatului fiscal, fără apel în contul real; nu înlocui snapshot folosit/UNKNOWN.” 09 unic IN_PROGRESS, 10–21 PLANNED.
