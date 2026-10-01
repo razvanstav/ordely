@@ -2,6 +2,8 @@
 
 ## Pas curent — 2026-10-01
 
+Lot `58b200b` publicat; push/fetch și egalitatea HEAD/origin PASS. CI observat IN_PROGRESS, rezultat final neverificat; verificările locale de mai jos sunt PASS. Predarea ulterioară este numai documentară.
+
 Continuare secvențială autorizată prin D26: dezvoltare și verificări locale pe modul, probe reale de API/provider mutate în [registrul final](docs/testing/final-integrations.md). 09 rămâne IN_PROGRESS pentru funcțiile sale restante; 10–21 PLANNED. Probe externe amânate nu vor împiedica trecerea când implementarea și verificările locale sunt încheiate; nu certificăm providerul din teste simulate.
 
 09.2a.2.2b implementat: completări fiscale explicite persistate în snapshot-ul criptat, versiuni/retry, protecție la sursa schimbată, refresh păstrează completările aplicabile și acordă prioritate datelor CMS. Formular cu valori comune/excepții pe produse și stări READY_FOR_MAPPING/canIssue=false. Firma/seria și sumele rămân server-side. PASS: 251 teste, 240 lint, PHPStan 8, 3 JS, 6 HTTP și Chrome desktop/mobil. [Probe](docs/testing/09-invoicing.md).

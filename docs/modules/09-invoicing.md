@@ -2,6 +2,8 @@
 
 ## Lot 09.2a — completarea ciornei, probe externe amânate
 
+Publicare: `58b200b` sincronizat pe codex/modul-01-arhitectura, push/fetch și egalitatea HEAD/origin PASS, checkout curat. CI observat IN_PROGRESS, rezultat final neverificat. Predarea ulterioară nu modifică runtime.
+
 Rezultat 09.2a.2.2b (2026-10-01): implementat și verificat local. PUT /api/invoice-order-drafts/{id} salvează doar completări normalizate, criptate în snapshot cu revizie și audit atomic; rol/grant/store/CSRF și sourceChanged verificate, retry identic fără revizie nouă. Refresh păstrează completările aplicabile și excepțiile produselor încă prezente. Formular cu date calendaristice, lipsuri client, emitent și unități/TVA comune plus excepții. Faptele CMS nu pot fi suprascrise; cota rămâne text, fără deducere din taxă. READY_FOR_MAPPING/canIssue=false, fără migrare sau apel extern. PASS: 5 teste noi, două procese/rollback extinse, o regresie finală 251 teste/240 lint/PHPStan 8, JS/HTTP și browser desktop/mobil. [Probe](../testing/09-invoicing.md).
 
 Reluare exactă: 09.2c — extinderea contractului fiscal neutru și reconcilierea sumelor înainte de mapare; apoi 09.3, operații durabile locale. Nu relua completarea manuală a comenzii sintetice și nu recrea conturile/conexiunile. Probele reale se execută la final conform D26 și [registrului](../testing/final-integrations.md); 09 încă IN_PROGRESS pentru cod restant, 10–21 PLANNED. Text de reluare: „Continuă Ordely în 09.2c de la ciorna CMS cu completări persistate; dezvoltare locală, providerii reali se verifică la final conform D26.”

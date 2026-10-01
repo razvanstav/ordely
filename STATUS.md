@@ -2,6 +2,8 @@
 
 ## Reluare pe module — 2026-10-01
 
+Publicare: cod/documentație `58b200b`, push/fetch PASS pe branch-ul existent, HEAD/origin identice și checkout curat verificate. [CI 36822302581](https://github.com/razvanstav/ordely/actions/runs/36822302581) era IN_PROGRESS la citirea unică; nu este declarat PASS. Predarea următoare este numai documentară.
+
 09 este singurul IN_PROGRESS; 10–21 PLANNED. [D26](docs/decisions.md) mută probele reale cu API/cont la [verificarea finală](docs/testing/final-integrations.md); păstrăm integrarea/configurarea existente și verificăm local fiecare lot. Nu blocăm modulele viitoare doar pe probe externe amânate, dar nu declarăm implementate funcțiile restante.
 
 09.2a.2.2b livrat: formular complet de ciornă din CMS, cu date document, lipsuri client/adresă, statut TVA/adresă emitent și valori comune/excepții pe produse. Salvare criptată/versionată, retry fără dubluri, sourceChanged blochează completarea până la refresh, completările aplicabile se păstrează și faptele CMS au prioritate. Datele complete se disting prin READY_FOR_MAPPING, canIssue=false. Firma/seria și banii nu pot fi înlocuite de payload. Fără migrare, provider, emitere sau stoc.
