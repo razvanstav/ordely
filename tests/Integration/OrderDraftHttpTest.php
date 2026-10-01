@@ -13,10 +13,32 @@ final class OrderDraftHttpTest extends DatabaseTestCase
     protected function setUp(): void {parent::setUp();$this->file=dirname(__DIR__,2).'/var/preparation-key-'.Id::new().'.json';file_put_contents($this->file,json_encode(['active'=>'test','keys'=>['test'=>base64_encode(random_bytes(32))]],JSON_THROW_ON_ERROR));$this->previous=$_ENV['ORDELY_KEYRING_FILE']??null;$_ENV['ORDELY_KEYRING_FILE']=$this->file;$this->cipher=new SecretCipher(KeyRing::fromEnvironment());}
     protected function tearDown(): void {if($this->previous===null){unset($_ENV['ORDELY_KEYRING_FILE']);}else{$_ENV['ORDELY_KEYRING_FILE']=$this->previous;}unlink($this->file);parent::tearDown();}
     /** @param array<string,mixed>|null $body */
-    private function request(string $token,string $store,?string $order,?array $body=null,bool $csrf=true,string $origin='https://localhost'): Response
+    private function request(string $token,string $store,?string $order,?array $body=null,bool $csrf=true,string $origin='https://localhost',?string $method=null): Response
     {
         $path='/api/invoice-order-drafts'.($order===null?'':'/'.$order).'?storeId='.$store;
-        return (new Application(fn():\PDO=>$this->db->pdo))->handle(Request::create('https://localhost'.$path,$body===null?'GET':'POST',[],['ordely_session'=>$token],[],['CONTENT_TYPE'=>'application/json','HTTP_ORIGIN'=>$origin,'HTTP_X_CSRF_TOKEN'=>$csrf?Sessions::csrf($token):''], $body===null?null:json_encode($body,JSON_THROW_ON_ERROR)));
+        return (new Application(fn():\PDO=>$this->db->pdo))->handle(Request::create('https://localhost'.$path,$method??($body===null?'GET':'POST'),[],['ordely_session'=>$token],[],['CONTENT_TYPE'=>'application/json','HTTP_ORIGIN'=>$origin,'HTTP_X_CSRF_TOKEN'=>$csrf?Sessions::csrf($token):''], $body===null?null:json_encode($body,JSON_THROW_ON_ERROR)));
+    }
+    public function testCompletionIsEncryptedVersionedProtectedAndPreservedOnRefresh(): void
+    {
+        $actor=$this->tenant();$store=$this->store($actor);$order=F::persist($this->db,$actor,$store,$this->cipher);$token=(new Sessions($this->db))->login($actor->userId.'@example.test',self::PASSWORD,'127.0.0.1');
+        $create=['storeId'=>$store,'expectedVersion'=>0,'orderVersion'=>3,'profileVersion'=>0];$body=['storeId'=>$store,'expectedVersion'=>1,'details'=>F::fiscalDetails()];
+        self::assertSame(409,$this->request($token,$store,$order,$body,method:'PUT')->getStatusCode());self::assertSame(200,$this->request($token,$store,$order,$create)->getStatusCode());
+        self::assertSame(403,$this->request($token,$store,$order,$body,false,method:'PUT')->getStatusCode());self::assertSame(403,$this->request($token,$store,$order,$body,true,'https://foreign.test','PUT')->getStatusCode());
+        foreach(['operator','viewer'] as $role){$this->db->run('UPDATE memberships SET role=? WHERE id=?',[$role,Id::bytes($actor->membershipId)]);self::assertSame(403,$this->request($token,$store,$order,$body,method:'PUT')->getStatusCode());}
+        $this->db->run("UPDATE memberships SET role='finance' WHERE id=?",[Id::bytes($actor->membershipId)]);
+        foreach(range(1,2) as $_){$response=$this->request($token,$store,$order,$body,method:'PUT');self::assertSame(200,$response->getStatusCode(),(string)$response->getContent());self::assertSame('{"version":2}',$response->getContent());}
+        $read=json_decode((string)$this->request($token,$store,$order)->getContent(),true,flags:JSON_THROW_ON_ERROR);self::assertFalse($read['draft']['sourceChanged']);self::assertFalse($read['draft']['fiscal']['canIssue']);self::assertSame('21.0000',$read['draft']['fiscal']['lines'][0]['taxRate']);
+        self::assertStringNotContainsString('SYNTHETIC-TAX-ID',(string)$this->db->run('SELECT snapshot_envelope FROM invoice_order_drafts WHERE order_id=?',[Id::bytes($order)])->fetchColumn());
+        $different=$body;$different['details']['lineDefaults']['unit']='kg';self::assertSame(409,$this->request($token,$store,$order,$different,method:'PUT')->getStatusCode());
+        $invalid=$body;$invalid['expectedVersion']=2;$invalid['details']['customer']['street']='OTHER';self::assertSame(400,$this->request($token,$store,$order,$invalid,method:'PUT')->getStatusCode());
+        $this->db->run('UPDATE commerce_records SET version=4 WHERE id=?',[Id::bytes($order)]);self::assertSame(409,$this->request($token,$store,$order,$body,method:'PUT')->getStatusCode());
+        $create['expectedVersion']=2;$create['orderVersion']=4;self::assertSame('{"version":3}',$this->request($token,$store,$order,$create)->getContent());
+        $read=json_decode((string)$this->request($token,$store,$order)->getContent(),true,flags:JSON_THROW_ON_ERROR);self::assertSame('SYNTHETIC-TAX-ID',$read['draft']['fiscal']['customer']['taxId']);self::assertFalse($read['draft']['sourceChanged']);
+        $wrongStore=$body;$wrongStore['storeId']=$this->store($actor);self::assertSame(403,$this->request($token,$wrongStore['storeId'],$order,$wrongStore,method:'PUT')->getStatusCode());
+        $foreign=$this->tenant();$foreignToken=(new Sessions($this->db))->login($foreign->userId.'@example.test',self::PASSWORD,'127.0.0.1');self::assertSame(403,$this->request($foreignToken,$store,$order,$body,method:'PUT')->getStatusCode());
+        $this->db->run('UPDATE memberships SET all_stores=0 WHERE id=?',[Id::bytes($actor->membershipId)]);self::assertSame(403,$this->request($token,$store,$order,$body,method:'PUT')->getStatusCode());
+        self::assertSame(3,(int)$this->db->run("SELECT COUNT(*) FROM audit_logs WHERE merchant_id=? AND action='invoice_preparation_saved'",[Id::bytes($actor->merchantId)])->fetchColumn());
+        self::assertSame(0,(int)$this->db->run('SELECT COUNT(*) FROM outbox_events WHERE merchant_id=?',[Id::bytes($actor->merchantId)])->fetchColumn());
     }
     public function testSaveFreezeRefreshRetryEncryptionAndPrivacyDeletion(): void
     {

@@ -12,6 +12,7 @@
     ++preparationSequence;
     el('invoice-preparation').hidden = true;
     el('invoice-preparation-content').replaceChildren();
+    el('invoice-fiscal').replaceChildren();
     preparationReturnTo = null;
     preparation = null; savedVersion = 0;
     el('invoice-preparation-save').hidden = true;
@@ -32,16 +33,16 @@
     const customer = document.createElement('section'); customer.append(textNode('h3', 'Datele clientului'));
     customer.append(textNode('p', data.customer.name || 'Nume lipsă'), textNode('p', `Contact: ${data.customer.contactName || '—'} · ${data.customer.email || '—'}`));
     customer.append(textNode('p', `Adresă de facturare: ${Object.values(data.customer.address).filter(Boolean).join(', ') || 'Lipsește din CMS'}`));
-    customer.append(textNode('p', 'Tip client și statut TVA: de confirmat'), textNode('p', 'Identificare fiscală: indisponibilă în importul actual'));
+    customer.append(textNode('p', `Tip client: ${{individual:'Persoană fizică', company:'Persoană juridică'}[data.customer.type] || 'de confirmat'} · Identificare fiscală: ${data.customer.taxId || '—'}`));
     const seller = document.createElement('section'); seller.append(textNode('h3', 'Emitent și serie'));
     seller.append(textNode('p', data.seller ? `${data.seller.companyName} · seria ${data.seller.series}` : 'Configurează firma și seria în Oblio.'));
-    seller.append(textNode('p', 'Adresa și profilul fiscal complet urmează să fie pregătite.'));
+    seller.append(textNode('p', data.seller?.address ? `Adresă: ${Object.values(data.seller.address).filter(Boolean).join(', ') || 'de completat'}` : 'Completează adresa și statutul TVA în ciornă.'));
     groups.append(customer, seller); content.append(groups);
     content.append(textNode('h3', 'Sumele din CMS'), textNode('p', `Prețuri: ${data.priceBasis === 'tax_inclusive' ? 'cu taxe incluse' : data.priceBasis === 'tax_exclusive' ? 'fără taxe incluse' : 'bază neprecizată'}`));
     const labels = {original:'Total inițial', current:'Total curent', discount:'Reduceri curente', tax:'Taxe curente', shipping:'Transportul comenzii', received:'Încasat', refunded:'Rambursat', outstanding:'Rest de încasat'};
     const totals = document.createElement('dl'); totals.className = 'preparation-totals';
     for (const [key, label] of Object.entries(labels)) totals.append(textNode('dt', label), textNode('dd', amountLabel(data.totals[key])));
-    content.append(totals, textNode('h3', 'Ce mai trebuie înainte de emitere'));
+    content.append(totals, textNode('h3', 'Ce mai trebuie în ciornă'));
     const issues = document.createElement('ul'), grouped = new Map();
     for (const issue of data.issues) {
       const match = /^lines\.(\d+)\./.exec(issue.path);
@@ -60,7 +61,7 @@
       card.append(textNode('p', `Cantitate: ${line.quantity} inițial / ${line.currentQuantity} curent · SKU: ${line.sku || '—'}`));
       card.append(textNode('p', `Preț unitar inițial: ${amountLabel(line.prices.originalUnitPrice)} · Total inițial: ${amountLabel(line.prices.originalTotal)} · Total după reduceri: ${amountLabel(line.prices.lineDiscountedTotal)}`));
       card.append(textNode('p', `Reduceri alocate: ${line.discounts === null ? 'Lipsesc din CMS' : line.discounts.length ? line.discounts.map(amountLabel).join(' + ') : 'Niciuna'}`));
-      card.append(textNode('p', `Taxe importate: ${line.taxes.length ? line.taxes.map(tax => `${tax.title || 'Taxă'}: ${amountLabel(tax.amount)}`).join(' · ') : 'Nicio taxă în lista importată'}. Tratamentul TVA trebuie ales explicit.`));
+      card.append(textNode('p', `Taxe importate: ${line.taxes.length ? line.taxes.map(tax => `${tax.title || 'Taxă'}: ${amountLabel(tax.amount)}`).join(' · ') : 'Nicio taxă în lista importată'}. Unitate: ${line.unit || '—'} · TVA: ${line.taxTreatment || 'de ales'}${line.taxRate ? ` (${line.taxRate}%)` : ''}${line.taxReason ? ` · ${line.taxReason}` : ''}`));
       lineDetails.append(card);
     }
     content.append(lineDetails);
@@ -83,12 +84,87 @@
       showPreparation(data, saved.draft?.version || 0, false); await loadList();
     });
   });
-  function showPreparation(data, version, frozen, changed = false) {
-    preparation = data; savedVersion = version; renderPreparation(data);
+  function showPreparation(data, version, frozen, changed = false, fiscal = null) {
+    preparation = data; savedVersion = version; renderPreparation(fiscal ? {...data, ...fiscal} : data);
     el('invoice-preparation-state').textContent = frozen ? `Ciornă salvată · revizia ${version}${changed ? ' · Comanda sau profilul emitentului s-a schimbat. Actualizează explicit din CMS.' : ''}` : 'Date curente din CMS · pot fi salvate chiar dacă sunt incomplete.';
     el('invoice-preparation-save').hidden = !canWrite || frozen;
     el('invoice-preparation-save').textContent = version ? 'Salvează actualizarea din CMS' : 'Salvează ciorna din comandă';
     el('invoice-preparation-refresh').hidden = !canWrite || !frozen;
+    renderFiscal(data, frozen, changed, fiscal);
+  }
+  function renderFiscal(data, frozen, changed, fiscal) {
+    const section = el('invoice-fiscal'); section.replaceChildren();
+    if (!frozen) return;
+    section.append(textNode('h3', 'Completează ciorna'), textNode('p', fiscal?.readyForMapping ? 'Datele necesare sunt completate. Urmează verificarea sumelor și pregătirea emiterii.' : 'Poți salva și o completare parțială. Datele importate se completează din CMS; câmpurile lipsă pot fi adăugate aici.'));
+    if (changed) section.append(textNode('p', 'Comanda sau configurarea s-a schimbat. Actualizează din CMS înainte de a modifica completările.'));
+    const values = data.fiscalDetails || {}, form = document.createElement('form'), fieldset = document.createElement('fieldset');
+    form.id = 'invoice-fiscal-form'; fieldset.disabled = !canWrite || changed; fieldset.className = 'fiscal-fields';
+    const vat = {'':'Alege', registered:'Înregistrat TVA', not_registered:'Neînregistrat TVA', not_applicable:'Nu se aplică'};
+    const treatments = {'':'Alege', standard:'Cotă TVA', exempt:'Scutit', outside_scope:'În afara sferei TVA'};
+    const controls = {};
+    function input(parent, group, key, labelText, options = {}) {
+      const label = textNode('label', labelText), control = document.createElement(options.choices ? 'select' : 'input');
+      if (options.choices) for (const [value, title] of Object.entries(options.choices)) {const option = textNode('option', title); option.value = value; control.append(option);}
+      else {control.type = options.type || 'text'; control.maxLength = 255;}
+      control.name = `${group}.${key}`; control.value = options.imported || options.value || values[group]?.[key] || '';
+      if (options.imported) {control.readOnly = true; control.title = 'Date importate din CMS';}
+      if (key === 'country') {control.maxLength = 2; control.pattern = '[A-Z]{2}'; control.placeholder = 'RO';}
+      if (key === 'rate') {control.inputMode = 'decimal'; control.pattern = '(0|[1-9][0-9]?|100)([.][0-9]{1,4})?'; control.placeholder = 'Cotă procentuală';}
+      controls[control.name] = {control, imported:!!options.imported}; label.append(control); parent.append(label);
+    }
+    function group(title) {const box = document.createElement('section'); box.append(textNode('h4', title)); const grid = document.createElement('div'); grid.className = 'form-grid'; box.append(grid); fieldset.append(box); return grid;}
+    const dates = group('Date document'); input(dates, 'document', 'issuedOn', 'Data emiterii', {type:'date'}); input(dates, 'document', 'dueOn', 'Scadența', {type:'date'});
+    const labels = {street:'Stradă', streetExtra:'Adresă suplimentară', city:'Localitate', region:'Județ / regiune', postalCode:'Cod poștal', country:'Țară (cod)'};
+    for (const part of ['customer','seller']) {
+      const grid = group(part === 'customer' ? 'Client · adresa de facturare' : 'Emitent · firma și seria din configurare');
+      if (part === 'customer') {
+        input(grid, part, 'name', 'Nume', {imported:data.customer.name});
+        input(grid, part, 'type', 'Tip client', {choices:{'':'Alege', individual:'Persoană fizică', company:'Persoană juridică'}});
+        input(grid, part, 'taxId', 'Identificare fiscală (firmă)');
+      }
+      for (const [key, label] of Object.entries(labels)) input(grid, part, key, label, {imported:part === 'customer' ? data.customer.address[key] : null});
+      input(grid, part, 'vatStatus', 'Statut TVA', {choices:part === 'seller' ? {'':'Alege', registered:vat.registered, not_registered:vat.not_registered} : vat});
+    }
+    function taxInputs(grid, key, value = null) {
+      input(grid, key, 'unit', 'Unitate de măsură', {value:value?.unit});
+      input(grid, key, 'treatment', 'Tratament TVA', {choices:treatments, value:value?.treatment});
+      input(grid, key, 'rate', 'Cotă TVA (%)', {value:value?.rate});
+      input(grid, key, 'reason', 'Motiv scutire / în afara sferei', {value:value?.reason});
+    }
+    const common = group('Valori comune pentru produse'); taxInputs(common, 'lineDefaults');
+    fieldset.append(textNode('p', 'Valorile comune se aplică liniilor fără excepții. Pentru o excepție TVA, completează tratamentul și cota sau motivul împreună.'));
+    const overrides = document.createElement('details'); overrides.className = 'disclosure'; overrides.append(textNode('summary', 'Excepții pe produse'));
+    for (const [index, line] of data.lines.entries()) {
+      const box = document.createElement('section'), grid = document.createElement('div'); grid.className = 'form-grid';
+      box.append(textNode('h4', `${index + 1}. ${line.description || 'Produs'}`), grid);
+      taxInputs(grid, `line:${line.id}`, values.lines?.find(item => item.id === line.id)); overrides.append(box);
+    }
+    fieldset.append(overrides);
+    const save = textNode('button', 'Salvează completările'); save.type = 'submit'; if (canWrite && !changed) fieldset.append(save);
+    form.append(fieldset); section.append(form);
+    form.addEventListener('submit', event => {
+      event.preventDefault(); if (!canWrite || changed || !form.reportValidity()) return;
+      const details = {document:{}, seller:{}, customer:{}, lineDefaults:{}, lines:[]};
+      for (const [name, {control, imported}] of Object.entries(controls)) {
+        const [part, key] = name.split('.'); if (part.startsWith('line:')) continue;
+        details[part][key] = imported ? '' : control.value.trim();
+      }
+      for (const line of data.lines) {
+        const item = {id:line.id}; for (const key of ['unit','treatment','rate','reason']) item[key] = controls[`line:${line.id}.${key}`].control.value.trim();
+        if (['unit','treatment','rate','reason'].some(key => item[key])) details.lines.push(item);
+      }
+      const token = epoch, sequence = ++preparationSequence, version = savedVersion, source = data.source; fieldset.disabled = true;
+      action(async () => {
+        try {
+          await api(`/api/invoice-order-drafts/${source.orderId}`, 'PUT', {storeId:source.storeId, expectedVersion:version, details});
+          if (!sameContext(token) || sequence !== preparationSequence) return;
+          const result = await api(`/api/invoice-order-drafts/${source.orderId}?storeId=${source.storeId}`);
+          if (!sameContext(token) || sequence !== preparationSequence) return;
+          showPreparation(result.draft.snapshot, result.draft.version, true, result.draft.sourceChanged, result.draft.fiscal);
+          await loadOrderList(); if (sameContext(token)) el('message').textContent = 'Completările au fost salvate în ciorna locală.';
+        } finally {if (sameContext(token) && sequence === preparationSequence) fieldset.disabled = !canWrite || changed;}
+      });
+    });
   }
   el('invoice-preparation-refresh').addEventListener('click', () => action(async () => {
     if (!preparation) return;
@@ -103,7 +179,7 @@
     if (!sameContext(token) || sequence !== preparationSequence) return;
     const result = await api(`/api/invoice-order-drafts/${source.orderId}?storeId=${source.storeId}`);
     if (!sameContext(token) || sequence !== preparationSequence) return;
-    showPreparation(result.draft.snapshot, result.draft.version, true, result.draft.sourceChanged);
+    showPreparation(result.draft.snapshot, result.draft.version, true, result.draft.sourceChanged, result.draft.fiscal);
     await loadOrderList();
     if (sameContext(token)) el('message').textContent = 'Ciorna din comandă a fost salvată local.';
   }));
@@ -122,7 +198,7 @@
       open.addEventListener('click', () => action(async () => {
         const current = epoch; resetEditor(); clearPreparation(); const request = preparationSequence;
         const result = await api(`/api/invoice-order-drafts/${item.orderId}?storeId=${store}`);
-        if (sameContext(current) && request === preparationSequence && result.draft) showPreparation(result.draft.snapshot, result.draft.version, true, result.draft.sourceChanged);
+        if (sameContext(current) && request === preparationSequence && result.draft) showPreparation(result.draft.snapshot, result.draft.version, true, result.draft.sourceChanged, result.draft.fiscal);
       })); card.append(open); el('order-draft-list').append(card);
     }
     if (!el('order-draft-list').children.length) el('order-draft-list').append(emptyState('Nicio ciornă din comenzi.', 'Deschide o comandă și alege „Pregătește facturarea”.'));

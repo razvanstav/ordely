@@ -1,5 +1,13 @@
 # Registru de decizii
 
+## D26 — Continuare pe module, probele reale ale integrărilor la final
+
+2026-10-01: utilizatorul cere reluarea secvențială, treptată, a modulelor și puncte de integrare clare, inclusiv credentialele, dar verificarea cu furnizorii reali la final. Implementarea și verificările locale obligatorii rămân în modulul activ; probele cu cont/API extern sunt mutate explicit în [registrul final de integrare](testing/final-integrations.md). Această amânare autorizată înlocuiește cerința istorică de a executa fiecare probă reală înaintea trecerii la modulul următor. Restanțele funcționale țin modulul activ; după închiderea lor și a verificărilor locale, probele externe amânate nu blochează dezvoltarea secvențială. DONE pentru un modul nu certifică un provider sau lansarea, iar probele finale nu sunt marcate PASS din mock-uri.
+
+Configurarea existentă se păstrează: Shopify are flux OAuth separat, Oblio are email/clientId și API KEY/clientSecret criptate. Curierii vor avea schema exactă în modulele lor; nu cerem chei și nu construim formulare care salvează credentiale fără adaptor. Nu apelăm providerii în lotul curent. Emiterea, email/SPV și orice efect fiscal extern cer ulterior mediul/opțiunile D08 stabilite; stocul rămâne amânat conform D04.
+
+09.2a.2.2b păstrează completările în același snapshot criptat al propunerii CMS. Firma/seria și sumele sunt date server-side; clientul poate completa numai lipsurile și alegerile fiscale explicite. Date calendaristice, statut TVA, unități și cote zecimale text, fără valori deduse. Valorile comune au excepții legate de ID-ul stabil al liniei; o excepție TVA nu împrumută cota altui tratament. Refresh păstrează completările aplicabile, elimină doar excepțiile produselor dispărute, iar datele noi CMS au prioritate. READY_FOR_MAPPING indică date pregătite pentru mapare, nu concordanță contabilă verificată; canIssue=false. Operația locală are versiune/CAS, retry identic, acces și audit atomic fără conținut fiscal.
+
 ## D25 — Scheletul întregii aplicații înaintea aprofundării facturării
 
 2026-09-30: utilizatorul respinge ritmul de subpași mici/exemple și clarifică explicit „Scheletul întregii aplicații”. Prioritatea este structura comună: navigare, ecrane, legături între fluxuri, componente și contexte PHP pregătite. Aceasta este o extindere transversală autorizată a lotului curent, fără a declara implementate funcțiile viitoare și fără a marca 09 DONE. Logica modulelor 10–21 rămâne PLANNED și se conectează secvențial după schelet; lipsurile comenzii sintetice nu blochează construirea structurii.

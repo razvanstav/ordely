@@ -1,5 +1,15 @@
 # Starea curentă — Ordely
 
+## Reluare pe module — 2026-10-01
+
+09 este singurul IN_PROGRESS; 10–21 PLANNED. [D26](docs/decisions.md) mută probele reale cu API/cont la [verificarea finală](docs/testing/final-integrations.md); păstrăm integrarea/configurarea existente și verificăm local fiecare lot. Nu blocăm modulele viitoare doar pe probe externe amânate, dar nu declarăm implementate funcțiile restante.
+
+09.2a.2.2b livrat: formular complet de ciornă din CMS, cu date document, lipsuri client/adresă, statut TVA/adresă emitent și valori comune/excepții pe produse. Salvare criptată/versionată, retry fără dubluri, sourceChanged blochează completarea până la refresh, completările aplicabile se păstrează și faptele CMS au prioritate. Datele complete se disting prin READY_FOR_MAPPING, canIssue=false. Firma/seria și banii nu pot fi înlocuite de payload. Fără migrare, provider, emitere sau stoc.
+
+PASS local: 251 teste (123 unit/845 assertions, 128 integration/872), 240 lint, PHPStan 8, 3 sintaxe JS și 6 probe HTTP. Chrome desktop/mobil 390×844: formular/excepții, salvare incompletă fără date fiscale introduse, retry revizia 2 și reload/redeschidere, fără overflow sau erori de aplicație. Captura rămâne ignorată în var. [Raport](docs/testing/09-invoicing.md).
+
+Punct exact: continuă 09.2c, contractul fiscal neutru și reconcilierea sumelor/maparea, apoi 09.3, execuția durabilă locală pentru emitere/storno/PDF. Testele cu provider real sunt NOT_RUN/amânate; nu cere cheile existente din nou și nu completa arbitrar fixture-ul. Preview PHP/MySQL repornit local. Git/push se verifică la închiderea lotului; CI nou nu este declarat PASS fără rezultat.
+
 Publicare schelet D25: cod `27f544a` sincronizat pe `codex/modul-01-arhitectura`; push/fetch PASS, HEAD/origin identice și checkout curat verificate. Verificările locale ale lotului au trecut; CI este declanșat automat la push și nu este declarat PASS fără rezultat. Nu s-au adăugat teste noi pentru ecranele de structură. Această predare modifică numai documentația.
 
 

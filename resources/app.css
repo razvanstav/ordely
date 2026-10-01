@@ -49,3 +49,8 @@ button,.button-link{display:inline-flex;align-items:center;justify-content:cente
 .workspace-module .integration-badge {margin:0;}
 @media(max-width:950px){.workspace-map {grid-template-columns:repeat(2,minmax(0,1fr));}.workspace-columns {grid-template-columns:1fr;}}
 @media(max-width:700px){.workspace-map {grid-template-columns:1fr;}.workspace-flow {gap:8px;}.workspace-flow li {font-size:12px;padding:8px 10px;}.sidebar {overflow:visible;}.sidebar .nav-item {font-size:12px;}}
+
+.fiscal-fields { border: 0; padding: 0; min-width: 0; }
+.fiscal-fields > section { margin-block: 1.5rem; }
+.fiscal-fields input[readonly] { background: var(--surface, #f3f5f7); }
+.fiscal-fields .disclosure section { margin-block: 1rem; }

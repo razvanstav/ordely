@@ -46,7 +46,7 @@ final readonly class Application
         $routes->add('invoice_profile',new Route('/api/invoice-profile',methods:['GET','POST']));
         $routes->add('invoice_preparation',new Route('/api/invoice-preparation/{id}',requirements:['id'=>'[a-f0-9]{32}'],methods:['GET']));
         $routes->add('order_draft_list',new Route('/api/invoice-order-drafts',methods:['GET']));
-        $routes->add('order_draft',new Route('/api/invoice-order-drafts/{id}',requirements:['id'=>'[a-f0-9]{32}'],methods:['GET','POST']));
+        $routes->add('order_draft',new Route('/api/invoice-order-drafts/{id}',requirements:['id'=>'[a-f0-9]{32}'],methods:['GET','POST','PUT']));
         $routes->add('draft_list',new Route('/api/invoice-drafts',methods:['GET']));
         $routes->add('draft_create',new Route('/api/invoice-drafts',methods:['POST']));
         $routes->add('draft_preview',new Route('/api/invoice-drafts/preview',methods:['POST']));

@@ -9,6 +9,7 @@ use Ordely\Operations\Domain\{Actor,AuditAction,Conflict,SafePayload,Scope};
 use Ordely\Operations\Infrastructure\AuditLog;
 use Ordely\Shared\Id;
 use Ordely\Core\Value\CanonicalJson;
+use Ordely\Invoicing\Domain\FiscalPreparation;
 
 /** One revisable preparation for the initial invoice of a CMS order, not the future invoice ledger. */
 final readonly class OrderDrafts
@@ -32,11 +33,40 @@ final readonly class OrderDrafts
                 if(CanonicalJson::encode($old['seller'])===CanonicalJson::encode($snapshot['seller'])){return $current;}
             }
             if($current!==$expectedVersion){throw new Conflict('preparation_version_changed');}
+            if($row!==null){
+                $old=$this->decode($actor,$store,$order,$row);
+                if(isset($old['fiscalDetails'])){
+                    $snapshot['fiscalDetails']=$old['fiscalDetails'];
+                    // Overrides remain bound to stable CMS identities; removed products cannot be invoiced.
+                    $ids=array_column($snapshot['lines'],'id');
+                    $snapshot['fiscalDetails']['lines']=array_values(array_filter($old['fiscalDetails']['lines'],static fn(array $line):bool=>in_array($line['id'],$ids,true)));
+                }
+            }
             $version=$current+1;
             $envelope=$this->cipher->seal($actor->merchantId,$store,$order,$orderVersion,$profileVersion,$version,$snapshot);
             $this->db->run('INSERT INTO invoice_order_drafts(merchant_id,store_id,order_id,version,order_version,profile_version,snapshot_envelope) VALUES(?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE version=VALUES(version),order_version=VALUES(order_version),profile_version=VALUES(profile_version),snapshot_envelope=VALUES(snapshot_envelope)',[...$this->scope($actor,$store,$order),$version,$orderVersion,$profileVersion,$envelope]);
             $this->audit($actor,$store,$order,$version,AuditAction::InvoicePreparationSaved);
             return $version;
+        });
+    }
+    /** @param array<string,mixed> $details */
+    public function complete(TenantContext $actor,string $store,string $order,int $expectedVersion,#[\SensitiveParameter] array $details): int
+    {
+        if($expectedVersion<1||$expectedVersion>=4294967295){throw new \InvalidArgumentException('Invalid preparation version.');}
+        return $this->db->transaction(function()use($actor,$store,$order,$expectedVersion,$details):int{
+            (new AccessPolicy($this->db))->require($actor,'invoices.draft',$store);
+            $this->db->one('SELECT id FROM stores WHERE merchant_id=? AND id=? FOR UPDATE',[Id::bytes($actor->merchantId),Id::bytes($store)]);
+            $live=$this->source->get($actor,$store,$order);$row=$this->row($actor,$store,$order,' FOR UPDATE');
+            if($row===null){throw new Conflict('preparation_not_saved');}
+            $snapshot=$this->decode($actor,$store,$order,$row);$current=(int)$row['version'];
+            if($this->changed($row,$snapshot,$live)){throw new Conflict('preparation_source_changed');}
+            $normalized=FiscalPreparation::normalize($details,$snapshot);
+            if(($current===$expectedVersion||$current===$expectedVersion+1)&&isset($snapshot['fiscalDetails'])&&CanonicalJson::encode($normalized)===CanonicalJson::encode($snapshot['fiscalDetails'])){return $current;}
+            if($current!==$expectedVersion){throw new Conflict('preparation_version_changed');}
+            $version=$current+1;$snapshot['fiscalDetails']=$normalized;
+            $envelope=$this->cipher->seal($actor->merchantId,$store,$order,(int)$row['order_version'],(int)$row['profile_version'],$version,$snapshot);
+            $this->db->run('UPDATE invoice_order_drafts SET version=?,snapshot_envelope=? WHERE merchant_id=? AND store_id=? AND order_id=?',[$version,$envelope,...$this->scope($actor,$store,$order)]);
+            $this->audit($actor,$store,$order,$version,AuditAction::InvoicePreparationSaved);return $version;
         });
     }
     /** @return array<string,mixed>|null */
@@ -46,9 +76,9 @@ final readonly class OrderDrafts
             $live=$this->source->get($actor,$store,$order);$row=$this->row($actor,$store,$order,' FOR SHARE');
             if($row===null){return null;}
             $snapshot=$this->decode($actor,$store,$order,$row);
-            $changed=(int)$row['order_version']!==$live['source']['version']||(int)$row['profile_version']!==($live['seller']['version']??0)||CanonicalJson::encode($snapshot['seller'])!==CanonicalJson::encode($live['seller']);
+            $changed=$this->changed($row,$snapshot,$live);
             $this->audit($actor,$store,$order,(int)$row['version'],AuditAction::InvoicePreparationViewed);
-            return ['orderId'=>$order,'storeId'=>$store,'version'=>(int)$row['version'],'snapshot'=>$snapshot,'sourceChanged'=>$changed,'updatedAt'=>$row['updated_at']];
+            return ['orderId'=>$order,'storeId'=>$store,'version'=>(int)$row['version'],'snapshot'=>$snapshot,'fiscal'=>FiscalPreparation::build($snapshot,$changed),'sourceChanged'=>$changed,'updatedAt'=>$row['updated_at']];
         });
     }
     /** @return array{drafts:list<array<string,mixed>>,nextCursor:?string} */
@@ -70,5 +100,9 @@ final readonly class OrderDrafts
     /** @param array<string,mixed> $row
      * @return array<string,mixed> */
     private function decode(TenantContext $actor,string $store,string $order,array $row): array { return $this->cipher->open($actor->merchantId,$store,$order,(int)$row['order_version'],(int)$row['profile_version'],(int)$row['version'],(string)$row['snapshot_envelope']); }
+    /** @param array<string,mixed> $row
+     * @param array<string,mixed> $snapshot
+     * @param array<string,mixed> $live */
+    private function changed(array $row,array $snapshot,array $live): bool { return (int)$row['order_version']!==$live['source']['version']||(int)$row['profile_version']!==($live['seller']['version']??0)||CanonicalJson::encode($snapshot['seller'])!==CanonicalJson::encode($live['seller']); }
     private function audit(TenantContext $actor,string $store,string $order,int $version,AuditAction $action): void { (new AuditLog($this->db))->append(new Scope($actor->merchantId,$store),Actor::user($actor->userId),$action,$order,new SafePayload(['order_id'=>$order,'version'=>$version])); }
 }

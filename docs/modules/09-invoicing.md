@@ -1,5 +1,13 @@
 # Modul 09 — Facturare
 
+## Lot 09.2a — completarea ciornei, probe externe amânate
+
+Rezultat 09.2a.2.2b (2026-10-01): implementat și verificat local. PUT /api/invoice-order-drafts/{id} salvează doar completări normalizate, criptate în snapshot cu revizie și audit atomic; rol/grant/store/CSRF și sourceChanged verificate, retry identic fără revizie nouă. Refresh păstrează completările aplicabile și excepțiile produselor încă prezente. Formular cu date calendaristice, lipsuri client, emitent și unități/TVA comune plus excepții. Faptele CMS nu pot fi suprascrise; cota rămâne text, fără deducere din taxă. READY_FOR_MAPPING/canIssue=false, fără migrare sau apel extern. PASS: 5 teste noi, două procese/rollback extinse, o regresie finală 251 teste/240 lint/PHPStan 8, JS/HTTP și browser desktop/mobil. [Probe](../testing/09-invoicing.md).
+
+Reluare exactă: 09.2c — extinderea contractului fiscal neutru și reconcilierea sumelor înainte de mapare; apoi 09.3, operații durabile locale. Nu relua completarea manuală a comenzii sintetice și nu recrea conturile/conexiunile. Probele reale se execută la final conform D26 și [registrului](../testing/final-integrations.md); 09 încă IN_PROGRESS pentru cod restant, 10–21 PLANNED. Text de reluare: „Continuă Ordely în 09.2c de la ciorna CMS cu completări persistate; dezvoltare locală, providerii reali se verifică la final conform D26.”
+
+2026-10-01: utilizatorul cere reluarea secvențială a modulelor și păstrarea integrărilor/API KEY clare, cu verificare reală la final (D26). Lotul curent completează pregătirea locală a facturării, fără apel provider. Criterii înainte de cod: client/adresă preluate din CMS și completări explicite unde lipsesc; date document, adresă/statut emitent, tip/date fiscale client, unitate și tratament TVA cu valori zecimale text; completări persistate în snapshot-ul criptat existent, CAS/retry/audit și context merchant/store/rol/grant; banii și firma/seria nu pot fi înlocuite de payload-ul de completări. Actualizarea CMS păstrează completările și cere revalidare; sursă schimbată blochează salvarea completărilor până la refresh. UI poate salva incomplet, oferă valori comune explicite pentru linii și nu emite nimic. Stare distinctă pentru pregătirea mapării versus emitere; canIssue rămâne false. Verificări proporționale: validare domain, HTTP/CAS/criptare/roluri, o regresie finală și browser. Nu închidem 09 cu maparea/execuția durabilă încă restante.
+
 Publicare schelet D25: cod `27f544a` sincronizat pe `codex/modul-01-arhitectura`; push/fetch PASS, HEAD/origin identice și checkout curat verificate. Verificările locale ale lotului au trecut; CI este declanșat automat la push și nu este declarat PASS fără rezultat. Nu s-au adăugat teste noi pentru ecranele de structură. Această predare modifică numai documentația.
 
 
@@ -126,7 +134,7 @@ Cod `11dddf4` publicat, hash remote identic; [CI Windows/Linux 36551856411 PASS]
 
 ## Pașii următori ai modulului, încă neimplementați
 
-Pregătirea 09.2 este documentată în [planul integrării Oblio](../oblio-integration.md). Regulile de produs D01 sunt acum acceptate la 2026-09-30, firma/seria sunt salvate, iar vederea din CMS 09.2a.2.1 este implementată. Completările persistate/snapshot-ul fiscal 09.2a.2.2, maparea 09.2c și emiterea 09.3 rămân; mediul de emitere D08 și validarea fiscală/provider nu sunt închise.
+Pregătirea 09.2 este documentată în [planul integrării Oblio](../oblio-integration.md). Regulile D01 sunt acceptate, firma/seria, vederea CMS și completările persistate 09.2a.2.2b sunt implementate. Contractul fiscal final/reconcilierea sumelor și maparea 09.2c, apoi execuția durabilă 09.3 rămân; mediul D08 și probele provider sunt mutate la final prin D26 și nu sunt declarate verificate.
 
 09.2a.1 a salvat firma/seria. 09.2a.2: validarea datelor complete, snapshot emitent/destinatar, adrese și linii/TVA explicit; D01 înaintea codului de politică. 09.2c: maparea documentelor în adaptor. Conexiunea și citirea contului din 09.2b sunt verificate. 09.3: emitere/storno/reconciliere/PDF prin operații durabile și proba controlată. Mediul și opțiunile D08 se stabilesc înainte de probe fiscale externe; selecția locală nu dovedește izolarea fiscală.
 

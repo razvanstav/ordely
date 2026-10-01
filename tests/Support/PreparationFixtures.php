@@ -4,6 +4,11 @@ namespace Ordely\Tests\Support;
 
 final class PreparationFixtures
 {
+    /** @return array<string,mixed> */
+    public static function fiscalDetails(): array
+    {
+        return ['document'=>['issuedOn'=>'2026-10-01','dueOn'=>'2026-10-02'],'seller'=>['street'=>'SYNTHETIC-SELLER-STREET','city'=>'Synthetic city','postalCode'=>'000000','country'=>'RO','vatStatus'=>'registered'],'customer'=>['type'=>'company','taxId'=>'SYNTHETIC-TAX-ID','vatStatus'=>'registered'],'lineDefaults'=>['unit'=>'buc','treatment'=>'standard','rate'=>'21.0000'],'lines'=>[]];
+    }
     public static function persist(\Ordely\Infrastructure\Database\Sql $db,\Ordely\Identity\Domain\TenantContext $actor,string $store,\Ordely\Integrations\Infrastructure\SecretCipher $cipher): string
     {
         $connection=(new \Ordely\Integrations\Infrastructure\Connections($db,IntegrationFixtures::registry(),$cipher))->create($actor,\Ordely\Shared\Id::new(),'fake-invoice','Synthetic invoice',new \Ordely\Integrations\Domain\Secrets(['apiToken'=>'SYNTHETIC']));

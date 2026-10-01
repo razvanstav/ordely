@@ -1,5 +1,20 @@
 # Verificări 09 — ciorne locale (09.1)
 
+## 09.2a.2.2b — completări persistate, 2026-10-01
+
+Windows, PowerShell, PHP 8.4.24, MySQL 8.4.11 local 33060; app/test separate. 4 teste unitare și 1 HTTP noi; probele existente cu două procese și rollback extinse, fără teste pentru fiecare câmp UI.
+
+| Comandă / scenariu executat | Rezultat |
+| --- | --- |
+| php vendor/bin/phpunit --filter 'FiscalPreparationTest\|OrderDraftHttpTest\|OrderDraftConcurrencyTest' | PASS final: 10 teste, 111 assertions; date explicite, sume păstrate, input invalid, excepții fără rată împrumutată, criptare/CSRF/rol/grant/izolare/CAS/retry/refresh, procese reale/rollback/inventar |
+| php var/tools/composer.phar check | PASS: composer validate, 240 lint, PHPStan 8, 123 unit/845 assertions și 128 integration/872; total 251 teste, 1717 assertions |
+| node --check resources/app.js; node --check resources/invoicing.js; node --check resources/workspace.js | PASS |
+| php bin/http-smoke.php | PASS: 6 probe HTTP pe preview local |
+| Chrome owner desktop și viewport 390×844 | PASS: formular, salvare incompletă fără date fiscale introduse, retry păstrează revizia 2, reload/redeschidere, excepții extensibile, fără overflow; viewport resetat |
+| Provider real / emitere / storno / PDF / email / SPV | NOT_RUN, amânate explicit la final prin D26; nu există efect extern în acest lot |
+
+Prefix CLI efectiv: var/tools/php-8.4.24/php.exe, cu directorul PHP în PATH pentru Composer. Prima probă integration FAIL deoarece MySQL era oprit; scripts/windows-mysql.ps1 -Action Start PASS și probele au fost reluate. Corecții locale ale decodării JSON/fixture-ului și PHPStan făcute înaintea rezultatului final. Mesajele RuntimeException din regresie sunt probele existente de tamper. Avertismentele Chrome provin de la extensia browserului, fără erori ale aplicației. Captură locală ignorată var/ui-fiscal-completion-20261001.jpg. READY_FOR_MAPPING nu validează încă concordanța contabilă ori providerul; contractul fiscal/reconcilierea/maparea și operațiile durabile rămân următorul lot. [Registru final](final-integrations.md).
+
 Publicare schelet D25: cod `27f544a` sincronizat pe `codex/modul-01-arhitectura`; push/fetch PASS, HEAD/origin identice și checkout curat verificate. Verificările locale ale lotului au trecut; CI este declanșat automat la push și nu este declarat PASS fără rezultat. Nu s-au adăugat teste noi pentru ecranele de structură. Această predare modifică numai documentația.
 
 

@@ -1,5 +1,13 @@
 # Plan Ordely
 
+## Pas curent — 2026-10-01
+
+Continuare secvențială autorizată prin D26: dezvoltare și verificări locale pe modul, probe reale de API/provider mutate în [registrul final](docs/testing/final-integrations.md). 09 rămâne IN_PROGRESS pentru funcțiile sale restante; 10–21 PLANNED. Probe externe amânate nu vor împiedica trecerea când implementarea și verificările locale sunt încheiate; nu certificăm providerul din teste simulate.
+
+09.2a.2.2b implementat: completări fiscale explicite persistate în snapshot-ul criptat, versiuni/retry, protecție la sursa schimbată, refresh păstrează completările aplicabile și acordă prioritate datelor CMS. Formular cu valori comune/excepții pe produse și stări READY_FOR_MAPPING/canIssue=false. Firma/seria și sumele rămân server-side. PASS: 251 teste, 240 lint, PHPStan 8, 3 JS, 6 HTTP și Chrome desktop/mobil. [Probe](docs/testing/09-invoicing.md).
+
+Următorul lot: 09.2c — contract fiscal neutru complet, reconciliere exactă preț/reducere/taxă/total și mapare pentru adaptor; apoi 09.3 — operații durabile. Mediul D08 și probele externe de emitere/storno/PDF rămân NOT_RUN pentru final. Stoc management separat/amânat. [Predare](STATUS.md).
+
 Publicare schelet D25: cod `27f544a` sincronizat pe `codex/modul-01-arhitectura`; push/fetch PASS, HEAD/origin identice și checkout curat verificate. Verificările locale ale lotului au trecut; CI este declanșat automat la push și nu este declarat PASS fără rezultat. Nu s-au adăugat teste noi pentru ecranele de structură. Această predare modifică numai documentația.
 
 

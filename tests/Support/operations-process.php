@@ -37,11 +37,11 @@ try{
         if($mode==='invoice-create'){echo $repo->create($actor,$store,$id,$document);}
         else{try{$repo->replace($actor,$store,$id,1,$document);echo 'updated';}catch(\Ordely\Operations\Domain\Conflict){echo 'conflict';}}exit(0);
     }
-    if($mode==='invoice-order-save'){
+    if(in_array($mode,['invoice-order-save','invoice-order-complete'],true)){
         $actor=new TenantContext($merchant,$argv[3]??'',$argv[4]??'',Role::Owner,true);$cipher=\Ordely\Tests\Support\IntegrationFixtures::cipher();
         $source=new \Ordely\Invoicing\Infrastructure\OrderPreparations($db,new \Ordely\Commerce\Infrastructure\OrderCipher($cipher),new \Ordely\Invoicing\Infrastructure\InvoiceProfiles($db,new \Ordely\Integrations\Application\ProviderRegistry(),$cipher));
         $repo=new \Ordely\Invoicing\Infrastructure\OrderDrafts($db,$source,new \Ordely\Invoicing\Infrastructure\PreparationCipher($cipher));
-        try{echo $repo->save($actor,$argv[5]??'',$argv[6]??'',(int)($argv[7]??0),(int)($argv[8]??3),0);}catch(\Ordely\Operations\Domain\Conflict){echo 'conflict';}exit(0);
+        try{echo $mode==='invoice-order-complete'?$repo->complete($actor,$argv[5]??'',$argv[6]??'',(int)($argv[7]??0),\Ordely\Tests\Support\PreparationFixtures::fiscalDetails()):$repo->save($actor,$argv[5]??'',$argv[6]??'',(int)($argv[7]??0),(int)($argv[8]??3),0);}catch(\Ordely\Operations\Domain\Conflict){echo 'conflict';}exit(0);
     }
     if($mode==='invoice-profile'){
         $actor=new TenantContext($merchant,$argv[3]??'',$argv[4]??'',Role::Owner,true);

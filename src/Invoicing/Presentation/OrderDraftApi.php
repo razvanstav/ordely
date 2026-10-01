@@ -24,6 +24,11 @@ final readonly class OrderDraftApi
             return new JsonResponse($route==='order_draft_list'?$drafts->list($actor,$store,$request->query->has('after')?$request->query->getString('after'):null):['draft'=>$drafts->get($actor,$store,$order??'')]);
         }
         $body=IdentityApi::body($request);
+        if($request->isMethod('PUT')){
+            if(array_diff(array_keys($body),['storeId','expectedVersion','details'])!==[]||!is_int($body['expectedVersion']??null)||!($body['details']??null) instanceof \stdClass){throw new Problem(400,'invalid_input');}
+            $details=json_decode(json_encode($body['details'],JSON_THROW_ON_ERROR),true,32,JSON_THROW_ON_ERROR);
+            return new JsonResponse(['version'=>$drafts->complete($actor,IdentityApi::field($body,'storeId',32),$order??'',$body['expectedVersion'],$details)]);
+        }
         if(array_diff(array_keys($body),['storeId','expectedVersion','orderVersion','profileVersion'])!==[]){throw new Problem(400,'invalid_input');}
         foreach(['expectedVersion','orderVersion','profileVersion'] as $name){if(!is_int($body[$name]??null)){throw new Problem(400,'invalid_version');}}
         $version=$drafts->save($actor,IdentityApi::field($body,'storeId',32),$order??'',$body['expectedVersion'],$body['orderVersion'],$body['profileVersion']);

@@ -1,5 +1,15 @@
 # Ciorne de facturi — pasul 09.1
 
+## Ciornă CMS cu completări fiscale — 09.2a.2.2b
+
+În Facturare, deschide o ciornă din comenzi după salvarea propunerii CMS. Completează datele documentului, câmpurile lipsă ale clientului/adresei, adresa și statutul TVA ale emitentului și unitățile/tratamentul TVA pentru produse. Valorile comune se aplică explicit tuturor produselor fără excepție; excepțiile sunt legate de ID-ul produsului. Unitatea poate fi schimbată separat, dar o excepție TVA are tratament/cotă sau motiv proprii. Cotele se trimit ca text zecimal cu punct, maximum patru zecimale, fără calcule float. Poți salva o completare parțială. Datele importate apar numai de citire.
+
+PUT /api/invoice-order-drafts/{id}: storeId, expectedVersion integer, details obiect. Grupuri: document (issuedOn/dueOn YYYY-MM-DD), seller (adresă structurată, vatStatus), customer (lipsuri nume/adresă, type, taxId pentru firmă, vatStatus), lineDefaults (unit/treatment/rate/reason), lines (listă de excepții cu ID și aceleași câmpuri). Tipuri: individual/company; TVA registered/not_registered/not_applicable unde se aplică; tratament standard/exempt/outside_scope. Cheile necunoscute, sume/firma/seria ori înlocuirea datelor importate sunt respinse. Limita HTTP este 16 KiB; pentru multe excepții cu texte lungi se reduce corpul cererii.
+
+GET al ciornei adaugă fiscal cu document/client/emitent/linii/issues și readyForMapping. READY_FOR_MAPPING înseamnă câmpuri pregătite pentru pasul de reconciliere/mapare; canIssue=false. Nu este o factură validată sau emisă. Ciorna și completările sunt criptate împreună; aceeași salvare repetată nu dublează revizia. SourceChanged blochează completarea până la actualizarea explicită și salvarea din CMS. Refresh păstrează completările aplicabile, elimină excepțiile produselor dispărute și acordă prioritate noilor date importate.
+
+Owner/admin/finance salvează, operator citește, viewer este refuzat; context/granturi/CSRF se verifică pe server. Niciun apel extern sau efect fiscal. [D26 și probele finale](testing/final-integrations.md).
+
 Ciornele se pregătesc în Ordely pentru orice magazin, inclusiv „Manual / test”. Nu cer conexiune Shopify sau Oblio. Acest pas nu emite documente fiscale, nu atribuie serii/numere, nu trimite emailuri și nu modifică plăți ori stocuri.
 
 ## Utilizare
