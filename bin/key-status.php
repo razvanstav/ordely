@@ -11,5 +11,6 @@ try{
     $drafts=$db->run("SELECT JSON_UNQUOTE(JSON_EXTRACT(document_envelope,'$.key')) key_id,COUNT(*) revisions FROM invoice_draft_revisions GROUP BY key_id ORDER BY key_id")->fetchAll(PDO::FETCH_ASSOC);
     $profiles=$db->run("SELECT JSON_UNQUOTE(JSON_EXTRACT(profile_envelope,'$.key')) key_id,COUNT(*) profiles FROM invoice_profiles GROUP BY key_id ORDER BY key_id")->fetchAll(PDO::FETCH_ASSOC);
     $preparations=$db->run("SELECT parts.key_id,COUNT(*) chunks FROM invoice_order_drafts d JOIN JSON_TABLE(d.snapshot_envelope,'$.chunks[*]' COLUMNS(key_id VARCHAR(64) PATH '$.key')) parts GROUP BY parts.key_id ORDER BY parts.key_id")->fetchAll(PDO::FETCH_ASSOC);
-    echo json_encode(['keyUsage'=>$rows,'webhookKeyUsage'=>$webhooks,'orderKeyUsage'=>$orders,'invoiceDraftKeyUsage'=>$drafts,'invoiceProfileKeyUsage'=>$profiles,'invoicePreparationKeyUsage'=>$preparations],JSON_THROW_ON_ERROR|JSON_PRETTY_PRINT).PHP_EOL;
+    $issues=$db->run("SELECT parts.key_id,COUNT(*) chunks FROM invoice_issue_intents d JOIN JSON_TABLE(d.snapshot_envelope,'$.chunks[*]' COLUMNS(key_id VARCHAR(64) PATH '$.key')) parts GROUP BY parts.key_id ORDER BY parts.key_id")->fetchAll(PDO::FETCH_ASSOC);
+    echo json_encode(['keyUsage'=>$rows,'webhookKeyUsage'=>$webhooks,'orderKeyUsage'=>$orders,'invoiceDraftKeyUsage'=>$drafts,'invoiceProfileKeyUsage'=>$profiles,'invoicePreparationKeyUsage'=>$preparations,'invoiceIssueKeyUsage'=>$issues],JSON_THROW_ON_ERROR|JSON_PRETTY_PRINT).PHP_EOL;
 }catch(Throwable $error){fwrite(STDERR,'Key usage unavailable: '.$error::class.PHP_EOL);exit(1);}

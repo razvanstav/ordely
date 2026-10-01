@@ -1,5 +1,13 @@
 # Starea curentă — Ordely
 
+## 09.3a — intenție durabilă livrată local, 2026-10-01
+
+Registru separat de propunerea CMS: snapshot fiscal fixat/criptat, o intenție pentru factura inițială/comandă, retry fără dubluri. API pregătire/citire cu acces și audit; port intern de execuție reutilizează Operations cu cheie stabilă, revalidare și UNKNOWN fără reapel. Rezultatul rămâne consultabil după ștergerea sursei. Migrația 010 aplicată în app/test, inventar chei extins. [D28](docs/decisions.md).
+
+PASS: 264 teste/1904 assertions, 255 lint, PHPStan 8 și 6 HTTP; concurență/crash/criptare/acces verificate. UI și credentialele existente păstrate; fără provider/job/rută de execuție activate. [Probe](docs/testing/09-invoicing.md). Publicarea Git se verifică la predare; CI nou neconfirmat.
+
+Reluare exactă 09.3b: anulare/replanificare explicită a intenției încă netrimise cu protecție față de rezervarea concurentă, apoi validarea/persistarea documentului și transport/răspuns local în adaptor; original/storno/PDF și extinderile fiscale D27 rămân în 09. Nu suprascrie snapshot folosit sau UNKNOWN. Probe reale la final D26; stoc separat. 09 unic IN_PROGRESS, 10–21 PLANNED.
+
 ## 09.2c.1 — reconciliere și mapare locală, 2026-10-01
 
 Publicare: cod/documentație `a762d50`, push/fetch PASS pe branch-ul existent, HEAD/origin identice și checkout curat verificate. Linkuri relative/diff/scanner staged PASS. CI nou neconfirmat; această predare este numai documentară.

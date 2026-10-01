@@ -1,5 +1,15 @@
 # Modul 09 — Facturare
 
+## Lot activ 09.3a — intenție durabilă de emitere
+
+Rezultat local: criteriile 09.3a îndeplinite. Migrația 010, IssueCipher/IssueIntents și API pregătire/citire, audit/permisiune invoices.issue și inventar chei; nu există rută/job/provider fiscal activ. Reutilizat D11 pentru retry/UNKNOWN/reconciliere fără modificarea coordonatorului. 7 teste noi/82 assertions și regresie PASS 264 teste/255 lint/PHPStan 8/6 HTTP. UI nemodificat, conturi/sursa reală neatinse. [Probe](../testing/09-invoicing.md), D28.
+
+Reluare exactă 09.3b: anulare/replanificare explicită numai pentru intenție netrimisă, protejată față de rezervarea concurentă; apoi răspuns/document fiscal și transportul local în adaptor, înainte de activarea UI. Original/storno/PDF și extinderile fiscale D27 rămân în 09; probe reale la final D26. Text de reluare: „Continuă 09.3b de la IssueIntents și D28. Completează anularea sigură a intenției netrimise și integrarea locală a rezultatului fiscal, fără apel în contul real; nu înlocui snapshot folosit/UNKNOWN.” 09 unic IN_PROGRESS, 10–21 PLANNED.
+
+2026-10-01, continuare autorizată. Criterii înainte de cod: o singură intenție pentru factura inițială a unei comenzi, snapshot fiscal înghețat și criptat, revizia ciornei/profilului/conexiunii fixată, retry fără intenție nouă. Pregătirea locală și citirea prin API verifică sesiunea, CSRF/rol/granturi/tenant/store; nu acceptă snapshot/sume/chei de la browser. Coordonatorul intern reutilizează ExternalOperations (D11), reconstruiește contractul din snapshot, revalidează sursa/profilul/conexiunea înaintea apelului și păstrează cheia providerului la retry. UNKNOWN/crash nu permit replay automat; referința confirmată nu se emite iar. Nu activăm ruta de execuție, jobul sau capability/providerul real în acest lot. Registrul este separat de propunerea CMS și supraviețuiește ștergerii ei; retenția fiscală/privacy definitivă rămâne în 09/21, fără a inventa o obligație legală.
+
+Verificare proporțională: retry și rollback, izolarea/criptarea/AAD, sursa/ciorna/profilul/conexiunea invalidată, retry temporar și rezultat necunoscut/reconciliat, concurență pe intenție și API/rol/CSRF. Migrare în app/test și inventar chei, o regresie finală. Fără schimbări UI sau probe externe. 09 unic IN_PROGRESS; celelalte module păstrează stările.
+
 ## Lot activ 09.2c — reconciliere și mapare locală
 
 Publicare 09.2c.1: `a762d50` sincronizat pe codex/modul-01-arhitectura; push/fetch, HEAD/origin identice și checkout curat PASS. CI nou neconfirmat. Predarea ulterioară este numai documentară.
@@ -146,7 +156,7 @@ Cod `11dddf4` publicat, hash remote identic; [CI Windows/Linux 36551856411 PASS]
 
 ## Pașii următori ai modulului, încă neimplementați
 
-Pregătirea 09.2 este documentată în [planul integrării Oblio](../oblio-integration.md). Regulile D01 sunt acceptate, firma/seria, vederea CMS și completările persistate 09.2a.2.2b sunt implementate. Contractul fiscal final/reconcilierea sumelor și maparea 09.2c, apoi execuția durabilă 09.3 rămân; mediul D08 și probele provider sunt mutate la final prin D26 și nu sunt declarate verificate.
+Pregătirea este documentată în [planul integrării Oblio](../oblio-integration.md). Regulile D01 sunt acceptate; firma/seria, vederea CMS, completările persistate, contractul fiscal/reconcilierea și mapperul local, plus intenția durabilă 09.3a sunt implementate. Rămân 09.3b, original/storno/PDF și extinderile fiscale D27; mediul D08 și probele provider sunt mutate la final prin D26 și nu sunt declarate verificate.
 
 09.2a.1 a salvat firma/seria. 09.2a.2: validarea datelor complete, snapshot emitent/destinatar, adrese și linii/TVA explicit; D01 înaintea codului de politică. 09.2c: maparea documentelor în adaptor. Conexiunea și citirea contului din 09.2b sunt verificate. 09.3: emitere/storno/reconciliere/PDF prin operații durabile și proba controlată. Mediul și opțiunile D08 se stabilesc înainte de probe fiscale externe; selecția locală nu dovedește izolarea fiscală.
 
@@ -154,4 +164,4 @@ Pregătirea 09.2 este documentată în [planul integrării Oblio](../oblio-integ
 
 ## Punct de reluare pe alt PC / în altă conversație
 
-> Verifică Git și STATUS. 01–08 DONE; numai 09 IN_PROGRESS. 09.2a.2.1 disponibil din Comenzi → Pregătește facturarea: vedere locală client/adresă de facturare, profil, sume/linii exacte și lipsuri; canIssue=false. Urmează 09.2a.2.2: completări persistate criptat și snapshot fiscal legat de versiunea comenzii/profilului, cu compatibilitate 09.1. Citește docs/oblio-integration.md și D01/D04/D08/D22/D23. Diferență manuală + transport, zero fără factură/COD, storno numai automat la refuz pe original verificat; gestiunea stocului amânată, email/SPV fără trimitere la teste. Profilul și conexiunile existente se păstrează; pe alt PC DB/keyring nu vin prin Git. Nu începe 10–21 și nu emite fără mediul D08 confirmat. Rezultatele/verificările sunt în docs/testing/09-invoicing.md. Actualizează predarea și Git.
+> Verifică Git și STATUS. 01–08 DONE; numai 09 IN_PROGRESS. Continuă 09.3b de la IssueIntents și D28: anulare/replanificare sigură pentru intenția netrimisă, apoi răspuns/document fiscal și transport local, fără apel în contul real sau activare prematură UI. Snapshot folosit/UNKNOWN nu se suprascrie. Citește docs/oblio-integration.md și D01/D04/D08/D26/D27/D28. Păstrează profilul/conexiunile și fixture-ul incomplet existent; nu cere chei din nou. Extinderile fiscale, original/storno/PDF rămân în 09; probe reale la final D26. Stoc separat; nu începe 10–21. Pe alt PC DB/keyring nu vin prin Git. Rezultatele și punctul exact sunt în docs/testing/09-invoicing.md. Actualizează predarea și Git.

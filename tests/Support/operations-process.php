@@ -26,6 +26,13 @@ try{
         });
         echo json_encode(['id'=>$result->id('store_id')],JSON_THROW_ON_ERROR);exit(0);
     }
+    if(in_array($mode,['invoice-issue-prepare','invoice-issue-execute','invoice-issue-crash'],true)){
+        $actor=new TenantContext($merchant,$argv[3]??'',$argv[4]??'',Role::Owner,true);$store=$argv[5]??'';$id=$argv[6]??'';
+        $service=\Ordely\Tests\Support\IssueFixtures::service($db,\Ordely\Tests\Support\IntegrationFixtures::cipher());
+        if($mode==='invoice-issue-prepare'){echo json_encode($service->prepare($actor,$store,$id,2),JSON_THROW_ON_ERROR);exit(0);}
+        $result=$service->execute($actor,$store,$id,static function(ConnectionContext $context,\Ordely\Core\Data\InvoiceDraft $draft,OperationKey $key)use($mode):ExternalId{if($mode==='invoice-issue-crash'){exit(23);}usleep(200000);return new ExternalId('SYNTHETIC-ISSUED');});
+        echo json_encode(['id'=>$result->id,'status'=>$result->state->value],JSON_THROW_ON_ERROR);exit(0);
+    }
     if($mode==='rotate'){
         $actor=new TenantContext($merchant,$argv[3]??'',$argv[4]??'',Role::Owner,true);
         $service=new \Ordely\Integrations\Infrastructure\Connections($db,\Ordely\Tests\Support\IntegrationFixtures::registry(),\Ordely\Tests\Support\IntegrationFixtures::cipher());

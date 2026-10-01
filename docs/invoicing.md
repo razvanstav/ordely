@@ -1,5 +1,13 @@
 # Ciorne de facturi — pasul 09.1
 
+## Intenție durabilă pentru factura inițială — 09.3a
+
+POST /api/invoice-issue-intents primește strict storeId, orderId și expectedVersion integer (revizia ciornei CMS). Ciorna trebuie reconciliată și sursa/profilul/conexiunea curente. Pregătirea salvează o singură intenție per comandă cu snapshot fiscal criptat, separat de propunerea editabilă; o reluare identică întoarce același ID. Altă revizie produce 409, snapshot incomplet 400, context inaccesibil 403. Owner/admin/finance pregătesc, operator citește, viewer nu are acces; scrierile cer sesiune/CSRF/origin și granturi valide.
+
+GET /api/invoice-issue-intents/{id}?storeId=ID întoarce doar metadatele: id/storeId/orderId/draftVersion, status PREPARED sau starea Operations, operationId/operationVersion/attempts/providerReference/createdAt și executionEnabled=false. Nu divulgă date fiscale, envelope, chei sau corpul cererii. Se poate consulta rezultatul și după eliminarea sursei CMS. Pregătirea nu creează un job, nu numără și nu emite factura; nu există buton nou sau rută de execuție în acest lot.
+
+Portul intern IssueIntents.execute reconstruiește contractul din snapshot și reutilizează ExternalOperations cu cheie stabilă, retry numai la eșec cert temporar și UNKNOWN fără replay automat. Revalidează contextul, versiunea conexiunii și hash-ul/revizia ciornei înaintea apelului, fără rețea într-o tranzacție. Adaptorul real/răspunsul/documentul și anularea explicită a intenției netrimise sunt continuarea 09.3b; nu se suprascrie snapshot-ul după modificarea ciornei. [D28](decisions.md), [probe](testing/09-invoicing.md).
+
 ## Verificarea sumelor — 09.2c.1
 
 La deschiderea ciornei CMS, GET întoarce reconciliation cu status INCOMPLETE/MISMATCH/RECONCILED, totals net/tax/discount/gross și issues code/path/message. Calculele se fac pe snapshot-ul salvat; nu apelează furnizori și nu modifică revizia. UI arată net/taxe/total și diferențele alături de lipsurile fiscale. readyForProvider înseamnă că se poate construi contractul neutru, nu că Oblio a fost verificat sau documentul se poate emite; canIssue=false. SourceChanged oprește pregătirea până la refresh.

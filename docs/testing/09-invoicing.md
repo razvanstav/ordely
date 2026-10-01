@@ -1,5 +1,24 @@
 # Verificări 09 — ciorne locale (09.1)
 
+## 09.3a — intenție durabilă, 2026-10-01
+
+Mediu: Windows/PowerShell, PHP 8.4.24, MySQL local 8.4.11/port 33060; teste cu tenants/chei/date sintetice. Nicio emitere/probă externă și nicio completare a fixture-ului real existent.
+
+| Comandă executată | Rezultat |
+| --- | --- |
+| `./scripts/windows-mysql.ps1 -Action Start` | PASS, instanța deja pornită, date păstrate |
+| `var/tools/php-8.4.24/php.exe bin/migrate.php` | PASS, 010_invoice_issue_intents.sql aplicată în app |
+| `var/tools/php-8.4.24/php.exe vendor/bin/phpunit --filter 'InvoiceIssueIntent'` | PASS, 7 teste/82 assertions; migrarea test aplicată de harness |
+| `var/tools/php-8.4.24/php.exe vendor/bin/phpstan analyse --no-progress --memory-limit=512M` | Prima rulare FAIL: fixture accesa connection_id fără verificare null. Reparat prin guard explicit; rularea finală PASS, fără suppression |
+| `var/tools/php-8.4.24/php.exe bin/key-status.php` și aceeași comandă cu `--test` | PASS, noua secțiune invoiceIssueKeyUsage inclusă; app fără intenții create și fixtures test curățate |
+| `var/tools/php-8.4.24/php.exe bin/migrate.php --test` | PASS, already current |
+| `$env:PATH=(Join-Path (Get-Location) 'var/tools/php-8.4.24')+';'+$env:PATH; var/tools/php-8.4.24/php.exe var/tools/composer.phar check` | PASS: validate, 255 lint, PHPStan 8, 129 unit/945 assertions și 135 integration/959 assertions; total 264 teste/1904 assertions |
+| `var/tools/php-8.4.24/php.exe bin/http-smoke.php` | PASS, 6 probe, preview existent |
+
+Scenarii PASS: pregătire/retry local și rollback; snapshot criptat și AAD pe fiecare componentă de identitate/versionare; apel în afara tranzacției, cheie/rezultat confirmat stabile la instanță nouă; eșec cert temporar, UNKNOWN fără replay și reconciliere; sursă/ciornă/profil/conexiune/binding/grant invalidat înainte de provider. Două procese simultane la pregătire și execuție produc un singur ID/attempt; crash la callback + lease expirat produce UNKNOWN fără reapel. API: roluri/tenant/store/CSRF/origin, input strict, ciornă incompletă/modificată, metadate fără conținut fiscal, fără rută de execuție/job. Ștergerea proiecției CMS păstrează rezultatul confirmat. Cele două RuntimeException din regresie sunt probele existente de envelope invalid și nu indică eșecul suitei.
+
+NOT_RUN: provider real, document/număr fiscal/PDF/storno și browser (UI nu s-a modificat); probe externe amânate D26. Rămân implementări: răspuns/document fiscal și anulare/replanificare explicită pentru intenția netrimisă, înainte de activarea UI/execuției, plus backlog fiscal D27. Git/push/CI se consemnează după verificare.
+
 ## 09.2c.1 — reconciliere și mapper offline, 2026-10-01
 
 Windows/PowerShell, PHP 8.4.24, MySQL 8.4.11 pe 33060, app/test separate. 6 teste unitare noi; HTTP existent extins pentru contract reconciliat și profil/conexiune schimbate. Testele nu sunt probe fiscale live.

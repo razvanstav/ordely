@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace Ordely\Operations\Domain;
 enum AuditAction: string
 {
+    case InvoiceIssuePrepared='invoice_issue_prepared';case InvoiceIssueViewed='invoice_issue_viewed';
     case InvoiceConfigurationRead='invoice_configuration_read';
     case InvoicePreparationSaved='invoice_preparation_saved';case InvoicePreparationViewed='invoice_preparation_viewed';
     case InvoiceProfileSaved='invoice_profile_saved';case InvoiceProfileViewed='invoice_profile_viewed';
