@@ -2,6 +2,8 @@
 
 ## Lot activ 09.2c — reconciliere și mapare locală
 
+Publicare 09.2c.1: `a762d50` sincronizat pe codex/modul-01-arhitectura; push/fetch, HEAD/origin identice și checkout curat PASS. CI nou neconfirmat. Predarea ulterioară este numai documentară.
+
 Rezultat 09.2c.1: criteriile lotului local îndeplinite. Core fiscal neutru/compatibil, verificări exacte și GET/UI reconciliation, mapper offline pentru TVA standard cu nomenclator unic. Opțiuni stoc/email/SPV/catalog 0, fără capability ori transport de scriere. PASS: 6 teste noi + HTTP profil invalidat extins, o regresie finală 257 teste/249 lint/PHPStan 8, JS/HTTP și browser desktop/mobil. [Raport](../testing/09-invoicing.md), D27. Transport fiscal incomplet, componente taxe multiple, tratamente speciale, valută și nomenclator ambiguu sunt blocaje explicite, nu mapări simulate. Fără migrare/date fiscale completate în fixture/provider extern.
 
 Reluare exactă: 09.3a — operația durabilă/snapshot/cheie stabilă și revalidare tenant/store/profil; apoi transport și răspuns, rezultat necunoscut, original/storno/PDF. Extinderile fiscale enumerate rămân backlog în 09 înaintea DONE; probe reale la final D26. Text de reluare: „Continuă în 09.3a pornind de la InvoiceAssembly și OblioInvoiceMapper offline; creează fluxul durabil local, fără a activa apeluri fiscale în contul real. Păstrează limitele fiscale restante și probele externe pentru final.” 09 IN_PROGRESS, 10–21 PLANNED.

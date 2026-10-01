@@ -2,9 +2,11 @@
 
 ## 09.2c.1 — reconciliere și mapare locală, 2026-10-01
 
+Publicare: cod/documentație `a762d50`, push/fetch PASS pe branch-ul existent, HEAD/origin identice și checkout curat verificate. Linkuri relative/diff/scanner staged PASS. CI nou neconfirmat; această predare este numai documentară.
+
 Implementat contractul fiscal Core compatibil cu cel existent: destinatar de facturare fără shipping inventat, date document, TVA/procent text și linii cu baza importată păstrată. Reconciliere exactă preț/cantitate/reducere/taxă/total, monedă și overflow; ciorna arată INCOMPLETE/MISMATCH/RECONCILED, cu net/taxe/total/erori. SourceChanged blochează readyForProvider; canIssue=false. Mapper Oblio offline cu firmă/serie/nomenclator verificate, cotă unică și reduceri pe linie; opțiuni externe/catalog 0. Scrierile reale sunt încă Unsupported, transportul le refuză înainte de rețea. [D27](docs/decisions.md).
 
-PASS: 257 teste (129 unit/945 assertions, 128 integration/877), 249 lint, PHPStan 8, 3 JS și 6 HTTP. Chrome cont existent, ciornă 30 linii/revizia 2: calcul importat afișat, stare incompletă păstrată, desktop/mobil fără overflow/consolă; fără salvări sau API externe. [Probe](docs/testing/09-invoicing.md). Git/push se verifică la predare; CI nou nu este presupus PASS.
+PASS: 257 teste (129 unit/945 assertions, 128 integration/877), 249 lint, PHPStan 8, 3 JS și 6 HTTP. Chrome cont existent, ciornă 30 linii/revizia 2: calcul importat afișat, stare incompletă păstrată, desktop/mobil fără overflow/consolă; fără salvări sau API externe. [Probe](docs/testing/09-invoicing.md). Publicarea verificată este consemnată mai sus; CI nou neconfirmat.
 
 Punct următor: 09.3a — schema și coordonarea operației de emitere, snapshot înghețat, cheie stabilă, rezultate cunoscute/necunoscute și revalidare context/profil; apoi transport/răspuns, original/storno/PDF. În 09 rămân explicit linia fiscală a transportului și tratamentele TVA nesuportate/valuta, înaintea închiderii modulului. 09 IN_PROGRESS, 10–21 PLANNED. Probe cu cont/API reale la final (D26); păstrează credentialele existente și nu completa fixture-ul arbitrar. Nicio gestiune de stoc.
 
