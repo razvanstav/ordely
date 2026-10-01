@@ -18,7 +18,7 @@ Mediu Windows/PowerShell, PHP 8.4.24 și MySQL 8.4.11 local/33060, exclusiv fixt
 
 PASS: anulare CAS/retry și repreparare fără ștergerea snapshot-ului vechi; toate stările rezervate refuză anularea. Două procese anulare versus execuție au un singur câștigător (CANCELLED/fără attempt sau CONFIRMED/un attempt/document). HTTP roluri/tenant/store/CSRF/origin/grant și input strict. Rezultat valid criptat/AAD/operație și replay fără duplicate; monedă/sumă/tip/stare greșite produc UNKNOWN/fără document. Unicitatea referinței provoacă rollback al confirmării și nicio salvare parțială; lease expirat nu reemite. Reconciliere/response pierdut cu retry identic păstrează un document. Parser offline: receipt singur insuficient, zero-uri număr/precizie exactă, răspuns invalid/ambiguu/float sau diferențe refuzate. Cele două RuntimeException din regresie sunt probele existente ale envelope-urilor invalide.
 
-NOT_RUN: browser (UI nemodificat), API/provider real, lookup/storno/PDF/emitere fiscală efectivă. 09.3b.2 încă necesită transport/nomenclator/lookup și integrarea în ecran, în afara probelor reale amânate D26. Git/push/CI se consemnează la predare.
+NOT_RUN: browser (UI nemodificat), API/provider real, lookup/storno/PDF/emitere fiscală efectivă. 09.3b.2 încă necesită transport/nomenclator/lookup și integrarea în ecran, în afara probelor reale amânate D26. Publicare 361a492: linkuri/diff/scanner staged, push/fetch, HEAD/origin și checkout curat PASS; CI nou neconfirmat.
 
 ## 09.3a — intenție durabilă, 2026-10-01
 

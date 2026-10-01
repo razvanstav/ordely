@@ -2,6 +2,8 @@
 
 ## Lot activ 09.3b.1 — anulare locală și rezultat fiscal durabil
 
+Publicare `361a492` pe branch-ul existent: push/fetch, HEAD/origin identice și checkout curat PASS. CI nou neconfirmat; predarea ulterioară este numai documentară.
+
 Rezultat: criteriile locale îndeplinite, migrația 011 app/test, API anulare/CAS/retry/repreparare, hooks de rezervare/confirmare, rezultat tipat validat/criptat atomic și reconciliere. GET documentVerified/document, inventar chei; parser Oblio offline fără total inventat. PASS 14 teste specifice/172 assertions, regresie 271 teste/257 lint/PHPStan 8/6 HTTP și verificare finală parser 2 teste/28 assertions/analiză. Nicio schimbare UI sau apel în cont. [Probe](../testing/09-invoicing.md), D29.
 
 Reluare exactă 09.3b.2: transport/lookup/nomenclator în adaptor și conectarea locală la ecran; verificarea din provider precede documentVerified, fără total copiat din cerere. Original/storno/PDF și extinderile fiscale D27 rămân în 09. Text: „Continuă 09.3b.2 de la D29, IssueIntents și OblioInvoiceResponse. Conectează transportul/lookup-ul local și ecranul, cu probe reale la final D26; păstrează contul/cheile/fixture-ul existente și nu activa emiterea fiscală pe contul real.” 09 unic IN_PROGRESS, 10–21 PLANNED.
