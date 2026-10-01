@@ -1,5 +1,11 @@
 # Pregătirea integrării Oblio — 09.2
 
+## Rezultat local — 09.3b.1, 2026-10-01
+
+OblioInvoiceResponse parsează offline receipt-ul de creare, apoi un răspuns separat de listare în firma/seria/numărul cererii. Receipt-ul singur nu confirmă totalul. Se cere un singur document, ID numeric, număr păstrat exact, tip Factura, stare emis/neanulat, moneda/precizia/datele cererii, stoc dezactivat și suma exactă. Zerourile suplimentare de precizie se elimină fără rotunjire; diferențele, ambiguitatea și numeric float sunt UNKNOWN. Referința este oblio:ID; URL-urile și payload-ul brut sunt ignorate. [Documentația oficială](https://www.oblio.eu/api) confirmă forma răspunsurilor, nu integrarea în cont.
+
+Coordonatorul local salvează contractul neutru verificat, criptat, atomic cu confirmarea Operations; nu fabrică InvoiceSnapshot din totalul trimis. Allowlist-ul OblioTransport și metodele de scriere Unsupported nu s-au schimbat. În 09.3b.2 rămân transportul și lookup-ul efectiv, cu validarea firmei/nomenclatoarelor/contextului, apoi conectarea UI. Probe reale amânate D26; original/storno/PDF și extinderi fiscale încă restante.
+
 ## Mapper local — 09.2c.1, 2026-10-01
 
 OblioInvoiceMapper map-ează InvoiceDraft fiscal după reconcilierea InvoiceAssembly, fără transport. Cere companyId/nume/serie identice profilului și o singură cotă din nomenclator cu procentul ales. TVA standard, RON/2 zecimale; scutirile/în afara sferei ori cotele ambigue sunt Unsupported/Validation înainte de efect. Baza importată este păstrată; reducerile valorice sunt imediat după produs, discountAllAbove=0. Clientul provine numai din billing, fără shipping/CNP/IBAN/email ori încasare presupusă; date calendaristice și cheie idempotentă explicite.

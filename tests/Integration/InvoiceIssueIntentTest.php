@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace Ordely\Tests\Integration;
 use Ordely\Core\Contracts\{ConnectionContext,ErrorCategory,ProviderFailure};
-use Ordely\Core\Data\InvoiceDraft;
+use Ordely\Core\Data\{InvoiceDraft,InvoiceSnapshot};
 use Ordely\Core\Value\{ExternalId,OperationKey};
 use Ordely\Identity\Domain\AccessDenied;
 use Ordely\Invoicing\Infrastructure\IssueCipher;
@@ -20,10 +20,14 @@ final class InvoiceIssueIntentTest extends CommittedDatabaseTestCase
         self::assertSame($intent,$service->prepare($actor,$store,$fixture['order'],2));
         $raw=$this->db->one('SELECT * FROM invoice_issue_intents WHERE id=?',[Id::bytes($intent['id'])]);self::assertNotNull($raw);
         self::assertStringNotContainsString('SYNTHETIC-PREP',$raw['snapshot_envelope']);self::assertSame('SYNTHETIC-PREP-COMPANY',(new IssueCipher($cipher))->open($raw)['customer']['name']);
-        $calls=0;$key=null;$callback=function(ConnectionContext $context,InvoiceDraft $draft,OperationKey $providerKey)use(&$calls,&$key,$actor,$store):ExternalId{++$calls;$key=$providerKey->value;self::assertFalse($this->db->pdo->inTransaction());self::assertSame($actor->merchantId,$context->merchant->value);self::assertSame($store,$context->store->value);self::assertSame(2420,$draft->total->minor);self::assertSame($providerKey->value,$draft->clientReference->value);return new ExternalId('SYNTHETIC-ISSUED');};
+        $calls=0;$key=null;$callback=function(ConnectionContext $context,InvoiceDraft $draft,OperationKey $providerKey)use(&$calls,&$key,$actor,$store):InvoiceSnapshot{++$calls;$key=$providerKey->value;self::assertFalse($this->db->pdo->inTransaction());self::assertSame($actor->merchantId,$context->merchant->value);self::assertSame($store,$context->store->value);self::assertSame(2420,$draft->total->minor);self::assertSame($providerKey->value,$draft->clientReference->value);return F::issued($draft);};
         $first=$service->execute($actor,$store,$intent['id'],$callback);$second=F::service(self::database(),$cipher)->execute($actor,$store,$intent['id'],$callback);
         self::assertSame(ExternalState::Confirmed,$first->state);self::assertSame($first->id,$second->id);self::assertSame(1,$calls);self::assertSame('operation:'.$first->id,$key);
         self::assertSame('CONFIRMED',$service->get($actor,$store,$intent['id'])['status']);
+        $document=$service->get($actor,$store,$intent['id'])['document'];self::assertSame('SYNTHETIC-001',$document['number']);self::assertSame('2420',$document['total']['minor']);
+        $saved=$this->db->one('SELECT document_envelope FROM invoice_issued_documents WHERE intent_id=?',[Id::bytes($intent['id'])]);self::assertNotNull($saved);self::assertStringNotContainsString('SYNTHETIC-001',$saved['document_envelope']);
+        self::assertSame('SYNTHETIC-001',(new IssueCipher($cipher))->openDocument($raw,$first->id,$saved['document_envelope'])['number']);
+        try{(new IssueCipher($cipher))->openDocument($raw,Id::new(),$saved['document_envelope']);self::fail('Expected result AAD rejection');}catch(\RuntimeException $error){self::assertSame('Issued invoice unavailable.',$error->getMessage());}
         self::assertSame(1,(int)$this->db->run("SELECT COUNT(*) FROM audit_logs WHERE merchant_id=? AND action='invoice_issue_prepared'",[Id::bytes($actor->merchantId)])->fetchColumn());
         self::assertSame(0,(int)$this->db->run("SELECT COUNT(*) FROM audit_logs WHERE merchant_id=? AND safe_data LIKE '%SYNTHETIC%'",[Id::bytes($actor->merchantId)])->fetchColumn());
         self::assertStringNotContainsString('SYNTHETIC-PREP',(string)$this->db->run('SELECT CONCAT(request_hash,business_key) FROM external_operations WHERE id=?',[Id::bytes($first->id)])->fetchColumn());
@@ -32,11 +36,12 @@ final class InvoiceIssueIntentTest extends CommittedDatabaseTestCase
     public function testCertainFailureRetriesSameKeyButUnknownNeedsReconciliation(): void
     {
         $actor=$this->tenant();$store=$this->store($actor);$service=F::service($this->db,IntegrationFixtures::cipher());$fixture=F::ready($this->db,$actor,$store,IntegrationFixtures::cipher());$intent=$service->prepare($actor,$store,$fixture['order'],2);$keys=[];
-        $retry=$service->execute($actor,$store,$intent['id'],function(ConnectionContext $context,InvoiceDraft $draft,OperationKey $key)use(&$keys):ExternalId{$keys[]=$key->value;throw new ProviderFailure(ErrorCategory::Transient,90);});self::assertSame(ExternalState::Retryable,$retry->state);
+        $retry=$service->execute($actor,$store,$intent['id'],function(ConnectionContext $context,InvoiceDraft $draft,OperationKey $key)use(&$keys):InvoiceSnapshot{$keys[]=$key->value;throw new ProviderFailure(ErrorCategory::Transient,90);});self::assertSame(ExternalState::Retryable,$retry->state);
         $this->db->run('UPDATE external_operations SET next_attempt_at=UTC_TIMESTAMP(6) WHERE id=?',[Id::bytes($retry->id)]);
-        $unknown=$service->execute($actor,$store,$intent['id'],function(ConnectionContext $context,InvoiceDraft $draft,OperationKey $key)use(&$keys):ExternalId{$keys[]=$key->value;throw new ProviderFailure(ErrorCategory::Unknown);});self::assertSame(ExternalState::Unknown,$unknown->state);self::assertSame($keys[0],$keys[1]);
+        $unknown=$service->execute($actor,$store,$intent['id'],function(ConnectionContext $context,InvoiceDraft $draft,OperationKey $key)use(&$keys):InvoiceSnapshot{$keys[]=$key->value;throw new ProviderFailure(ErrorCategory::Unknown);});self::assertSame(ExternalState::Unknown,$unknown->state);self::assertSame($keys[0],$keys[1]);
         $noReplay=static fn():ExternalId=>throw new \LogicException('Unknown must not replay');self::assertSame(ExternalState::Unknown,$service->execute($actor,$store,$intent['id'],$noReplay)->state);
-        (new ExternalOperations($this->db))->confirmReconciled($actor,$unknown->id,$unknown->version,new ExternalId('SYNTHETIC-FOUND'),hash('sha256','synthetic evidence'));
+        $draft=\Ordely\Invoicing\Domain\InvoiceAssembly::draft(\Ordely\Tests\Support\PreparationFixtures::prepared(),\Ordely\Invoicing\Domain\FiscalPreparation::build(\Ordely\Tests\Support\PreparationFixtures::prepared(),false),new OperationKey('test-result'));$service->reconcile($actor,$store,$intent['id'],$unknown->version,F::issued($draft,'SYNTHETIC-FOUND'),hash('sha256','synthetic evidence'));
+        $service->reconcile($actor,$store,$intent['id'],$unknown->version,F::issued($draft,'SYNTHETIC-FOUND'),hash('sha256','synthetic evidence'));
         self::assertSame('SYNTHETIC-FOUND',$service->execute($actor,$store,$intent['id'],$noReplay)->requireConfirmed()->value);self::assertSame(2,$service->get($actor,$store,$intent['id'])['attempts']);
     }
     public function testChangedSourceDraftProfileConnectionAndAccessNeverReachProvider(): void
@@ -67,5 +72,39 @@ final class InvoiceIssueIntentTest extends CommittedDatabaseTestCase
         $crash=ProcessHarness::together([['invoice-issue-crash',$actor->merchantId,$actor->membershipId,$actor->userId,$store2,$intent['id']]])[0];self::assertSame(23,$crash['exit']);
         $this->db->run('UPDATE external_operations SET lease_until=DATE_SUB(UTC_TIMESTAMP(6),INTERVAL 1 SECOND) WHERE store_id=?',[Id::bytes($store2)]);
         self::assertSame(ExternalState::Unknown,$service->execute($actor,$store2,$intent['id'],static fn():ExternalId=>throw new \LogicException('Crash must not replay'))->state);
+    }
+    public function testCancelRetryRepreparePreservesOldSnapshotAndOnlyUnreservedIntentsAreCancellable(): void
+    {
+        $actor=$this->tenant();$store=$this->store($actor);$cipher=IntegrationFixtures::cipher();$fixture=F::ready($this->db,$actor,$store,$cipher);$service=F::service($this->db,$cipher);$old=$service->prepare($actor,$store,$fixture['order'],2);
+        $cancelled=$service->cancel($actor,$store,$old['id'],1);self::assertSame('CANCELLED',$cancelled['status']);self::assertSame(2,$cancelled['intentVersion']);self::assertFalse($cancelled['canCancel']);self::assertSame($cancelled,$service->cancel($actor,$store,$old['id'],1));
+        try{$service->execute($actor,$store,$old['id'],static fn():ExternalId=>throw new \LogicException('Cancelled must not execute'));self::fail('Expected conflict');}catch(Conflict){self::assertSame(0,(int)$this->db->run('SELECT COUNT(*) FROM external_operations WHERE store_id=?',[Id::bytes($store)])->fetchColumn());}
+        F::drafts($this->db,$cipher)->complete($actor,$store,$fixture['order'],2,array_replace_recursive(\Ordely\Tests\Support\PreparationFixtures::fiscalDetails(),['document'=>['dueOn'=>'2026-10-03']]));
+        $new=$service->prepare($actor,$store,$fixture['order'],3);self::assertNotSame($old['id'],$new['id']);self::assertSame(3,$new['draftVersion']);
+        $rows=$this->db->run('SELECT * FROM invoice_issue_intents WHERE merchant_id=? ORDER BY draft_version',[Id::bytes($actor->merchantId)])->fetchAll(\PDO::FETCH_ASSOC);self::assertCount(2,$rows);self::assertSame('2026-10-02',(new IssueCipher($cipher))->open($rows[0])['fiscalDetails']['document']['dueOn']);self::assertSame('2026-10-03',(new IssueCipher($cipher))->open($rows[1])['fiscalDetails']['document']['dueOn']);
+        $service->execute($actor,$store,$new['id'],static fn():InvoiceSnapshot=>throw new ProviderFailure(ErrorCategory::Transient));
+        foreach(['PENDING','IN_FLIGHT','RETRYABLE','FAILED','UNKNOWN','CONFIRMED'] as $state){$this->db->run('UPDATE external_operations SET status=? WHERE store_id=?',[$state,Id::bytes($store)]);try{$service->cancel($actor,$store,$new['id'],1);self::fail('Reserved must not cancel');}catch(Conflict){self::assertFalse($service->get($actor,$store,$new['id'])['canCancel']);}}
+        self::assertSame(1,(int)$this->db->run("SELECT COUNT(*) FROM audit_logs WHERE merchant_id=? AND action='invoice_issue_cancelled'",[Id::bytes($actor->merchantId)])->fetchColumn());
+    }
+    public function testWrongResultCannotConfirmOrStoreDocument(): void
+    {
+        $actor=$this->tenant();$cipher=IntegrationFixtures::cipher();
+        foreach(['total','currency','cancelled','credit'] as $case){$store=$this->store($actor);$fixture=F::ready($this->db,$actor,$store,$cipher);$service=F::service($this->db,$cipher);$intent=$service->prepare($actor,$store,$fixture['order'],2);
+            $result=$service->execute($actor,$store,$intent['id'],static function(ConnectionContext $context,InvoiceDraft $draft,OperationKey $key)use($case):InvoiceSnapshot{$total=match($case){'total'=>new \Ordely\Core\Value\Money(2421,$draft->total->currency),'currency'=>new \Ordely\Core\Value\Money(2420,new \Ordely\Core\Value\Currency('EUR',2)),default=>$draft->total};return new InvoiceSnapshot(new ExternalId('SYNTHETIC-BAD'),'SYNTHETIC-BAD',$total,$case==='credit',$case==='cancelled',$case==='credit'?new ExternalId('SYNTHETIC-ORIGINAL'):null);});
+            self::assertSame(ExternalState::Unknown,$result->state);self::assertNull($service->get($actor,$store,$intent['id'])['document']);self::assertSame(0,(int)$this->db->run('SELECT COUNT(*) FROM invoice_issued_documents WHERE store_id=?',[Id::bytes($store)])->fetchColumn());
+        }
+    }
+    public function testCancellationRaceWithReservationHasExactlyOneSafeWinner(): void
+    {
+        $actor=$this->tenant();$store=$this->store($actor);$fixture=F::ready($this->db,$actor,$store,IntegrationFixtures::cipher());$service=F::service($this->db,IntegrationFixtures::cipher());$intent=$service->prepare($actor,$store,$fixture['order'],2);$args=[$actor->merchantId,$actor->membershipId,$actor->userId,$store,$intent['id']];
+        $results=ProcessHarness::together([['invoice-issue-cancel',...$args],['invoice-issue-race-execute',...$args]]);foreach($results as $result){self::assertSame(0,$result['exit'],$result['error']);}
+        $final=$service->get($actor,$store,$intent['id']);self::assertContains($final['status'],['CANCELLED','CONFIRMED']);$attempts=(int)$this->db->run('SELECT COUNT(*) FROM external_attempts a JOIN external_operations o ON a.operation_id=o.id WHERE o.store_id=?',[Id::bytes($store)])->fetchColumn();self::assertSame($final['status']==='CANCELLED'?0:1,$attempts);self::assertSame($final['status']==='CANCELLED'?null:'SYNTHETIC-001',$final['document']['number']??null);
+    }
+    public function testDuplicateProviderResultRollsBackConfirmationAndRequiresReconciliation(): void
+    {
+        $actor=$this->tenant();$store=$this->store($actor);$cipher=IntegrationFixtures::cipher();$fixture=F::ready($this->db,$actor,$store,$cipher);$service=F::service($this->db,$cipher);$first=$service->prepare($actor,$store,$fixture['order'],2);$callback=static fn(ConnectionContext $context,InvoiceDraft $draft,OperationKey $key):InvoiceSnapshot=>F::issued($draft);$service->execute($actor,$store,$first['id'],$callback);
+        $order=\Ordely\Tests\Support\PreparationFixtures::persist($this->db,$actor,$store,$cipher);$drafts=F::drafts($this->db,$cipher);$drafts->save($actor,$store,$order,0,3,1);$drafts->complete($actor,$store,$order,1,\Ordely\Tests\Support\PreparationFixtures::fiscalDetails());$second=$service->prepare($actor,$store,$order,2);
+        try{$service->execute($actor,$store,$second['id'],$callback);self::fail('Expected unique document rejection');}catch(\PDOException){self::assertSame('IN_FLIGHT',$service->get($actor,$store,$second['id'])['status']);self::assertNull($service->get($actor,$store,$second['id'])['document']);}
+        $this->db->run('UPDATE external_operations SET lease_until=DATE_SUB(UTC_TIMESTAMP(6),INTERVAL 1 SECOND) WHERE id=?',[Id::bytes($service->get($actor,$store,$second['id'])['operationId'])]);
+        self::assertSame(ExternalState::Unknown,$service->execute($actor,$store,$second['id'],static fn():InvoiceSnapshot=>throw new \LogicException('Do not replay after DB failure'))->state);self::assertSame('CONFIRMED',$service->get($actor,$store,$first['id'])['status']);self::assertSame(1,(int)$this->db->run('SELECT COUNT(*) FROM invoice_issued_documents WHERE store_id=?',[Id::bytes($store)])->fetchColumn());
     }
 }

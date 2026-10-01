@@ -1,5 +1,11 @@
 # Plan Ordely
 
+## Lot curent — 09.3b.1 livrat local, 2026-10-01
+
+Anulare sigură/repreparare și document verificat/criptat atomic cu Operations, reconciliere fără replay și parser Oblio offline implementate D29. Migrația 011 app/test; 271 teste/257 lint/PHPStan 8/6 HTTP PASS, ajustare finală ID prin probe unitare/analiză. UI/transport fiscal real/job neactivate. [Probe](docs/testing/09-invoicing.md). Publicarea se verifică la predare.
+
+Următorul lot 09.3b.2: transport/lookup și nomenclator fiscal, apoi conectarea locală la ecran; original/storno/PDF și extinderile D27 încă restante. Datele fiscale confirmate nu se inventează din request. 09 IN_PROGRESS, 10–21 PLANNED; probe reale la final D26, stoc separat.
+
 ## Lot curent — 09.3a livrat local, 2026-10-01
 
 Publicare `09fd659`: push/fetch și HEAD/origin identice PASS, checkout curat; CI nou neconfirmat. Predarea ulterioară este numai documentară.

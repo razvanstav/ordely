@@ -1,5 +1,13 @@
 # Starea curentă — Ordely
 
+## 09.3b.1 — anulare locală și rezultat durabil livrate, 2026-10-01
+
+Anulare CAS/retry numai înaintea rezervării externe, cu lock comun și repreparare pe alt ID; istoric păstrat. Rezultat InvoiceSnapshot verificat față de suma/moneda snapshot-ului, criptat și salvat atomic cu Operations/audit; reconciliere internă versionată fără reemitere. GET arată documentVerified și documentul verificat. Parser Oblio offline cere receipt + document citit, nu inventează totalul. Migrația 011 app/test și inventar rezultate. [D29](docs/decisions.md).
+
+PASS: 271 teste/1994 assertions, 257 lint, PHPStan 8 și 6 HTTP; ajustarea finală de referință ID verificată separat (2 teste/28 assertions + analiză). [Probe](docs/testing/09-invoicing.md). UI și credentialele existente păstrate; transportul fiscal real/job/execuția HTTP neactivate. Publicarea se verifică la predare; CI nou neconfirmat.
+
+Reluare 09.3b.2: transport/lookup/nomenclator fiscal în adaptor și conectarea locală la ecran, fără apel în contul real; apoi original/storno/PDF și extinderile fiscale D27. Nu reconstrui totalul confirmat din cerere; o referință generică fără documentVerified nu validează factura. Probe API reale la final D26; stoc separat. 09 unic IN_PROGRESS, 10–21 PLANNED.
+
 ## 09.3a — intenție durabilă livrată local, 2026-10-01
 
 Publicare: `09fd659` sincronizat pe codex/modul-01-arhitectura; push/fetch, HEAD/origin identice și checkout curat PASS. Linkuri/diff/scanner staged PASS. CI nou neconfirmat; predarea ulterioară este numai documentară.

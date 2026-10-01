@@ -26,11 +26,15 @@ try{
         });
         echo json_encode(['id'=>$result->id('store_id')],JSON_THROW_ON_ERROR);exit(0);
     }
-    if(in_array($mode,['invoice-issue-prepare','invoice-issue-execute','invoice-issue-crash'],true)){
+    if(in_array($mode,['invoice-issue-prepare','invoice-issue-execute','invoice-issue-crash','invoice-issue-cancel','invoice-issue-race-execute'],true)){
         $actor=new TenantContext($merchant,$argv[3]??'',$argv[4]??'',Role::Owner,true);$store=$argv[5]??'';$id=$argv[6]??'';
         $service=\Ordely\Tests\Support\IssueFixtures::service($db,\Ordely\Tests\Support\IntegrationFixtures::cipher());
         if($mode==='invoice-issue-prepare'){echo json_encode($service->prepare($actor,$store,$id,2),JSON_THROW_ON_ERROR);exit(0);}
-        $result=$service->execute($actor,$store,$id,static function(ConnectionContext $context,\Ordely\Core\Data\InvoiceDraft $draft,OperationKey $key)use($mode):ExternalId{if($mode==='invoice-issue-crash'){exit(23);}usleep(200000);return new ExternalId('SYNTHETIC-ISSUED');});
+        if($mode==='invoice-issue-cancel'){try{echo json_encode($service->cancel($actor,$store,$id,1),JSON_THROW_ON_ERROR);}catch(\Ordely\Operations\Domain\Conflict){echo '{"status":"conflict"}';}exit(0);}
+        if($mode==='invoice-issue-race-execute'){
+            try{$result=$service->execute($actor,$store,$id,static function(ConnectionContext $context,\Ordely\Core\Data\InvoiceDraft $draft,OperationKey $key):\Ordely\Core\Data\InvoiceSnapshot{usleep(200000);return \Ordely\Tests\Support\IssueFixtures::issued($draft);});echo json_encode(['status'=>$result->state->value],JSON_THROW_ON_ERROR);}catch(\Ordely\Operations\Domain\Conflict){echo '{"status":"cancelled"}';}exit(0);
+        }
+        $result=$service->execute($actor,$store,$id,static function(ConnectionContext $context,\Ordely\Core\Data\InvoiceDraft $draft,OperationKey $key)use($mode):\Ordely\Core\Data\InvoiceSnapshot{if($mode==='invoice-issue-crash'){exit(23);}usleep(200000);return \Ordely\Tests\Support\IssueFixtures::issued($draft);});
         echo json_encode(['id'=>$result->id,'status'=>$result->state->value],JSON_THROW_ON_ERROR);exit(0);
     }
     if($mode==='rotate'){

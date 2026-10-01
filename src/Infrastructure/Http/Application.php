@@ -48,6 +48,7 @@ final readonly class Application
         $routes->add('order_draft_list',new Route('/api/invoice-order-drafts',methods:['GET']));
         $routes->add('invoice_issue_prepare',new Route('/api/invoice-issue-intents',methods:['POST']));
         $routes->add('invoice_issue_get',new Route('/api/invoice-issue-intents/{id}',requirements:['id'=>'[a-f0-9]{32}'],methods:['GET']));
+        $routes->add('invoice_issue_cancel',new Route('/api/invoice-issue-intents/{id}/cancel',requirements:['id'=>'[a-f0-9]{32}'],methods:['POST']));
         $routes->add('order_draft',new Route('/api/invoice-order-drafts/{id}',requirements:['id'=>'[a-f0-9]{32}'],methods:['GET','POST','PUT']));
         $routes->add('draft_list',new Route('/api/invoice-drafts',methods:['GET']));
         $routes->add('draft_create',new Route('/api/invoice-drafts',methods:['POST']));
@@ -89,7 +90,7 @@ final readonly class Application
             $name = (string) $route['_route'];
             if($name==='home'&&$request->query->has('shop')){$name='shopify_home';}
             $response = match ($name) {
-                'invoice_issue_prepare','invoice_issue_get'=>(new \Ordely\Invoicing\Presentation\IssueIntentApi(new Sql(($this->connect)())))->handle($request,isset($route['id'])?(string)$route['id']:null),
+                'invoice_issue_prepare','invoice_issue_get','invoice_issue_cancel'=>(new \Ordely\Invoicing\Presentation\IssueIntentApi(new Sql(($this->connect)())))->handle($request,isset($route['id'])?(string)$route['id']:null),
                 'order_draft_list','order_draft'=>(new \Ordely\Invoicing\Presentation\OrderDraftApi(new Sql(($this->connect)())))->handle($name,$request,isset($route['id'])?(string)$route['id']:null),
                 'invoice_preparation'=>(new \Ordely\Invoicing\Presentation\OrderPreparationApi(new Sql(($this->connect)())))->handle($request,(string)$route['id']),
                 'invoice_configuration'=>(new \Ordely\Invoicing\Presentation\InvoiceConfigurationApi(new Sql(($this->connect)()),$this->invoiceRegistry))->handle($request),

@@ -12,6 +12,7 @@ use Ordely\Shared\Id;
 
 final class IssueFixtures
 {
+    public static function issued(\Ordely\Core\Data\InvoiceDraft $draft,string $reference='SYNTHETIC-ISSUED'): \Ordely\Core\Data\InvoiceSnapshot {return new \Ordely\Core\Data\InvoiceSnapshot(new \Ordely\Core\Value\ExternalId($reference),'SYNTHETIC-001',$draft->total);}
     public static function drafts(Sql $db,SecretCipher $cipher): OrderDrafts {return new OrderDrafts($db,new OrderPreparations($db,new OrderCipher($cipher),new InvoiceProfiles($db,new ProviderRegistry(),$cipher)),new PreparationCipher($cipher));}
     public static function service(Sql $db,SecretCipher $cipher): IssueIntents {return new IssueIntents($db,self::drafts($db,$cipher),new IssueCipher($cipher));}
     /** @return array{order:string,connection:string} */

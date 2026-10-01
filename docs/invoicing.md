@@ -1,5 +1,13 @@
 # Ciorne de facturi — pasul 09.1
 
+## Anulare pregătire și rezultat fiscal — 09.3b.1
+
+POST /api/invoice-issue-intents/{id}/cancel primește strict storeId și expectedVersion (intentVersion, nu draftVersion). Owner/admin/finance cu sesiune/CSRF/origin/grant valide pot anula numai o intenție fără rezervare externă. Retry identic întoarce CANCELLED cu versiunea incrementată; context inaccesibil 403, input invalid 400 și rezervare/versiune incompatibilă 409. Snapshot-ul anulat rămâne în istoric. O nouă pregătire prin POST-ul existent citește revizia curentă și creează alt ID/cheie; nu înlocuiește snapshot folosit ori UNKNOWN. Lock-urile comune cu rezervarea garantează un singur câștigător în cereri concurente.
+
+GET adaugă intentVersion, canCancel, cancelledAt, documentVerified și document (id/number/total minor/decimal/currency/exponent, creditNote/cancelled). Datele documentului sunt criptate în DB și disponibile numai rolurilor cu invoices.read și grant. documentVerified este true numai pentru confirmare cu document local verificat; o referință confirmată generic fără document nu certifică totalul. Ciorna/source/profilul pot evolua, iar rezultatul păstrează suma snapshot-ului emis.
+
+Portul intern cere InvoiceSnapshot și persistă rezultatul valid atomic cu Operations/audit. Suma/moneda greșită, storno ori rezultat anulat devin UNKNOWN fără document. Eșecul DB la confirmare nu permite reemitere; expirarea lease-ului cere reconciliere. reconcile este intern, cu rezultat din citire verificată, expectedOperationVersion și evidenceHash; nu există endpoint care acceptă un document fiscal fabricat de browser. Fără schimbare UI sau apel real în acest lot. [D29](decisions.md), [probe](testing/09-invoicing.md).
+
 ## Intenție durabilă pentru factura inițială — 09.3a
 
 POST /api/invoice-issue-intents primește strict storeId, orderId și expectedVersion integer (revizia ciornei CMS). Ciorna trebuie reconciliată și sursa/profilul/conexiunea curente. Pregătirea salvează o singură intenție per comandă cu snapshot fiscal criptat, separat de propunerea editabilă; o reluare identică întoarce același ID. Altă revizie produce 409, snapshot incomplet 400, context inaccesibil 403. Owner/admin/finance pregătesc, operator citește, viewer nu are acces; scrierile cer sesiune/CSRF/origin și granturi valide.

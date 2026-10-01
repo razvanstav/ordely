@@ -11,8 +11,10 @@ use Ordely\Shared\Id;
 
 final readonly class ExternalOperations
 {
-    /** @param (\Closure(ConnectionContext):void)|null $connectionCheck */
-    public function __construct(private Sql $db,private ?\Closure $connectionCheck=null) {}
+    /** @param (\Closure(ConnectionContext):void)|null $connectionCheck
+     * @param (\Closure(ConnectionContext):void)|null $reservationCheck Database-only guard inside reservation transaction.
+     * @param (\Closure(ConnectionContext,ExternalLease,ExternalId):void)|null $onConfirmed Database-only result persistence inside confirmation transaction. */
+    public function __construct(private Sql $db,private ?\Closure $connectionCheck=null,private ?\Closure $reservationCheck=null,private ?\Closure $onConfirmed=null) {}
 
     /** @param \Closure(OperationKey):ExternalId $call */
     public function execute(ConnectionContext $context,string $type,OperationKey $businessKey,#[\SensitiveParameter] mixed $request,\Closure $call,int $leaseSeconds=60): OperationResult
@@ -38,6 +40,7 @@ final readonly class ExternalOperations
     private function reserve(ConnectionContext $context,string $type,OperationKey $business,string $hash,int $seconds): ExternalLease|OperationResult
     {
         return $this->db->transaction(function()use($context,$type,$business,$hash,$seconds):ExternalLease|OperationResult{
+            if($this->reservationCheck!==null){($this->reservationCheck)($context);}
             $scope=Scope::connection($context);$id=Id::new();$providerKey='operation:'.$id;$businessHash=hash('sha256',$business->value,true);
             $params=[Id::bytes($scope->merchantId),Id::bytes($context->store->value),$type,$businessHash];
             $this->db->run('INSERT INTO external_operations(id,merchant_id,store_id,connection_id,type,business_key,request_hash,provider_key,correlation_id) VALUES(?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE id=id',
@@ -70,6 +73,7 @@ final readonly class ExternalOperations
             $changed=$this->db->run("UPDATE external_operations SET status=?,provider_reference=?,safe_error=?,lease_owner=NULL,lease_until=NULL,next_attempt_at=IF(?='RETRYABLE',DATE_ADD(UTC_TIMESTAMP(6),INTERVAL ? SECOND),NULL) WHERE merchant_id=? AND store_id=? AND id=? AND status='IN_FLIGHT' AND lease_owner=? AND fencing_version=?",
                 [$state->value,$reference?->value,$error?->value,$state->value,$delay,Id::bytes($context->merchant->value),Id::bytes($context->store->value),Id::bytes($lease->id),Id::bytes($lease->owner),$lease->fence])->rowCount();
             if($changed!==1){throw new LeaseLost('external_lease_lost');}
+            if($state===ExternalState::Confirmed&&$reference!==null&&$this->onConfirmed!==null){($this->onConfirmed)($context,$lease,$reference);}
             $this->db->run('UPDATE external_attempts SET status=?,safe_error=?,ended_at=UTC_TIMESTAMP(6) WHERE merchant_id=? AND operation_id=? AND attempt_number=?',[$state->value,$error?->value,Id::bytes($context->merchant->value),Id::bytes($lease->id),$lease->attempt]);
             $this->audit($context,$lease->id,match($state){ExternalState::Confirmed=>AuditAction::ExternalConfirmed,ExternalState::Unknown=>AuditAction::ExternalUnknown,default=>AuditAction::ExternalFailed},$lease->attempt);
             return new OperationResult($lease->id,$state,$reference,$lease->fence,$delay>0?$delay:null);
